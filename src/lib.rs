@@ -1,12 +1,35 @@
 pub use autocxx;
 pub use cxx;
 
+#[cxx::bridge]
+mod extra {
+    unsafe extern "C++" {
+        include!("extra.h");
+
+        type btVector3 = crate::Vec;
+
+        fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
+        fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
+    }
+}
+
 autocxx::include_cpp! {
     #include "BulletLink.h"
     name!(bulletlink)
     safety!(unsafe)
     generate_pod!("Angle")
     generate!("Vec")
+    generate!("btVector3")
+}
+
+impl Vec {
+    pub fn to_array(&self) -> [f32; 3] {
+        extra::btVector3ToArray(self)
+    }
+
+    pub fn from_array(arr: [f32; 3]) -> cxx::UniquePtr<Self> {
+        extra::arrayToBtVector3(&arr)
+    }
 }
 
 pub use bulletlink::{Angle, Vec};

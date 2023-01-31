@@ -11,7 +11,7 @@ fn main() -> Result<()> {
         ["-std=c++17", "-flto"].as_slice()
     };
 
-    Builder::new("src/lib.rs", ["RocketSim/src/"])
+    Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/"])
         .extra_clang_args(clang_args)
         .build()?
         .static_flag(true)
@@ -22,6 +22,7 @@ fn main() -> Result<()> {
         .file("RocketSim/libsrc/bullet3-3.24/btBulletDynamicsAll.cpp")
         .file("RocketSim/libsrc/bullet3-3.24/btLinearMathAll.cpp")
         .files(glob("RocketSim/src/**/*.cpp").into_diagnostic()?.flatten())
+        .file("extra_cpp/extra.cpp")
         .warnings(false)
         .compile("rocketsim");
 
