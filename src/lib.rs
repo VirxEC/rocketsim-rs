@@ -74,8 +74,8 @@ pub mod sim {
             name!(car)
             safety!(unsafe)
             extern_cpp_type!("CarControls", crate::sim::CarControls)
+            extern_cpp_type!("CarState", super::inner_cs::CarState)
             generate_pod!("Team")
-            generate!("CarState")
             generate!("Car")
         }
 

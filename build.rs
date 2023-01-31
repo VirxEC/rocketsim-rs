@@ -26,6 +26,7 @@ fn main() -> Result<()> {
         .compile("rocketsim");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=PROFILE");
 
     Ok(())
 }
