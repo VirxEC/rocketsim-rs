@@ -1,0 +1,22 @@
+[package]
+name = "rocketsim_rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+exclude = [".git*", "*.vcxproj", "assets"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+autocxx = "0.23.1"
+cxx = { version = "1.0.83", features = ["c++17"] }
+
+[build-dependencies]
+glob = "0.3.0"
+autocxx-build = "0.23.1"
+miette = { version = "5", features = ["fancy"] }
+
+[profile.release]
+lto = true
+strip = true
+panic = "abort"
