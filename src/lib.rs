@@ -44,8 +44,25 @@ pub mod sim {
             #include "Sim/Ball/Ball.h"
             name!(ball)
             safety!(unsafe)
+            extern_cpp_type!("BallState", super::inner_bs::BallState)
             generate!("Ball")
-            generate!("BallState")
+        }
+
+        #[cxx::bridge]
+        mod inner_bs {
+            unsafe extern "C++" {
+                include!("Sim/Ball/Ball.h");
+
+                type btVector3 = crate::Vec;
+
+                type BallState;
+            }
+
+            struct BallState {
+                pos: UniquePtr<btVector3>,
+                vel: UniquePtr<btVector3>,
+                angVel: UniquePtr<btVector3>,
+            }
         }
 
         pub use ball::{Ball, BallState};
@@ -62,18 +79,69 @@ pub mod sim {
             generate!("Car")
         }
 
+        #[cxx::bridge]
+        mod inner_cs {
+            unsafe extern "C++" {
+                include!("Sim/Car/Car.h");
+
+                type btVector3 = crate::Vec;
+                type Angle = crate::Angle;
+                type CarControls = crate::sim::CarControls;
+
+                type CarState;
+            }
+
+            struct CarState {
+                pos: UniquePtr<btVector3>,
+                angles: Angle,
+                vel: UniquePtr<btVector3>,
+                angVel: UniquePtr<btVector3>,
+                isOnGround: bool,
+                hasJumped: bool,
+                hasDoubleJumped: bool,
+                hasFlipped: bool,
+                lastRelDodgeTorque: UniquePtr<btVector3>,
+                jumpTimer: f32,
+                flipTimer: f32,
+                isJumping: bool,
+                airTimeSpaceJump: f32,
+                boost: f32,
+                isSupersonic: bool,
+                handbrakeVal: f32,
+                lastControls: CarControls,
+            }
+        }
+
         pub use car::{Car, CarState, Team};
 
         pub mod carconfig {
-            autocxx::include_cpp! {
-                #include "Sim/Car/CarConfig/CarConfig.h"
-                name!(carconfig)
-                safety!(unsafe)
-                generate!("WheelPairConfig")
-                generate!("CarConfig")
+            #[cxx::bridge]
+            mod inner_cccs {
+                unsafe extern "C++" {
+                    include!("Sim/Car/CarConfig/CarConfig.h");
+
+                    type btVector3 = crate::Vec;
+
+                    type WheelPairConfig;
+                    type CarConfig;
+                }
+
+                struct WheelPairConfig {
+                    wheelRadius: f32,
+                    suspensionRestLength: f32,
+                    connectionPointOffset: UniquePtr<btVector3>,
+                }
+
+                struct CarConfig {
+                    hitboxSize: UniquePtr<btVector3>,
+                    hitboxPosOffset: UniquePtr<btVector3>,
+                    frontWheels: WheelPairConfig,
+                    backWheels: WheelPairConfig,
+                    dodgeDeadzone: f32,
+                }
             }
 
-            pub use carconfig::{CarConfig, WheelPairConfig};
+            pub use inner_cccs::{CarConfig, WheelPairConfig};
         }
     }
 
@@ -84,6 +152,7 @@ pub mod sim {
             safety!(unsafe)
             extern_cpp_type!("btVector3", crate::Vec)
             generate!("MeshLoader::Mesh")
+            generate!("MeshLoader::TriIndices")
         }
 
         pub use meshloader::MeshLoader;
