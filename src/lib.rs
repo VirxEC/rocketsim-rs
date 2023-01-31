@@ -7,9 +7,49 @@ mod extra {
         include!("extra.h");
 
         type btVector3 = crate::Vec;
+        type CarConfig = crate::sim::car::CarConfig;
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
         fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
+
+        #[rust_name = "get_octane"]
+        fn getOctane() -> &'static CarConfig;
+        #[rust_name = "get_dominus"]
+        fn getDominus() -> &'static CarConfig;
+        #[rust_name = "get_plank"]
+        fn getPlank() -> &'static CarConfig;
+        #[rust_name = "get_breakout"]
+        fn getBreakout() -> &'static CarConfig;
+        #[rust_name = "get_hybrid"]
+        fn getHybrid() -> &'static CarConfig;
+        #[rust_name = "get_merc"]
+        fn getMerc() -> &'static CarConfig;
+    }
+}
+
+impl sim::car::CarConfig {
+    pub fn octane() -> &'static Self {
+        extra::get_octane()
+    }
+
+    pub fn dominus() -> &'static Self {
+        extra::get_dominus()
+    }
+
+    pub fn plank() -> &'static Self {
+        extra::get_plank()
+    }
+
+    pub fn breakout() -> &'static Self {
+        extra::get_breakout()
+    }
+
+    pub fn hybrid() -> &'static Self {
+        extra::get_hybrid()
+    }
+
+    pub fn merc() -> &'static Self {
+        extra::get_merc()
     }
 }
 
@@ -51,7 +91,7 @@ pub mod sim {
             safety!(unsafe)
             extern_cpp_type!("Team", crate::sim::car::Team)
             extern_cpp_type!("Car", crate::sim::car::Car)
-            extern_cpp_type!("CarConfig", crate::sim::car::carconfig::CarConfig)
+            extern_cpp_type!("CarConfig", crate::sim::car::CarConfig)
             extern_cpp_type!("Ball", crate::sim::ball::Ball)
             extern_cpp_type!("btVector3", crate::Vec)
             extern_cpp_type!("Mesh", crate::sim::meshloader::MeshLoader::Mesh)
@@ -86,6 +126,8 @@ pub mod sim {
                 vel: UniquePtr<btVector3>,
                 angVel: UniquePtr<btVector3>,
             }
+
+            impl UniquePtr<BallState> {}
         }
 
         pub use ball::{Ball, BallState};
@@ -133,39 +175,43 @@ pub mod sim {
                 handbrakeVal: f32,
                 lastControls: CarControls,
             }
+
+            impl UniquePtr<CarState> {}
         }
 
         pub use car::{Car, CarState, Team};
 
-        pub mod carconfig {
-            #[cxx::bridge]
-            mod inner_cccs {
-                unsafe extern "C++" {
-                    include!("Sim/Car/CarConfig/CarConfig.h");
+        #[cxx::bridge]
+        mod carconfig {
+            unsafe extern "C++" {
+                include!("Sim/Car/CarConfig/CarConfig.h");
 
-                    type btVector3 = crate::Vec;
+                type btVector3 = crate::Vec;
 
-                    type WheelPairConfig;
-                    type CarConfig;
-                }
-
-                struct WheelPairConfig {
-                    wheelRadius: f32,
-                    suspensionRestLength: f32,
-                    connectionPointOffset: UniquePtr<btVector3>,
-                }
-
-                struct CarConfig {
-                    hitboxSize: UniquePtr<btVector3>,
-                    hitboxPosOffset: UniquePtr<btVector3>,
-                    frontWheels: WheelPairConfig,
-                    backWheels: WheelPairConfig,
-                    dodgeDeadzone: f32,
-                }
+                type WheelPairConfig;
+                type CarConfig;
             }
 
-            pub use inner_cccs::{CarConfig, WheelPairConfig};
+            struct WheelPairConfig {
+                wheelRadius: f32,
+                suspensionRestLength: f32,
+                connectionPointOffset: UniquePtr<btVector3>,
+            }
+
+            impl UniquePtr<WheelPairConfig> {}
+
+            struct CarConfig {
+                hitboxSize: UniquePtr<btVector3>,
+                hitboxPosOffset: UniquePtr<btVector3>,
+                frontWheels: WheelPairConfig,
+                backWheels: WheelPairConfig,
+                dodgeDeadzone: f32,
+            }
+
+            impl UniquePtr<CarConfig> {}
         }
+
+        pub use carconfig::{CarConfig, WheelPairConfig};
     }
 
     pub mod meshloader {
