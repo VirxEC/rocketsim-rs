@@ -1,3 +1,5 @@
+use std::fmt;
+
 pub use autocxx;
 pub use cxx;
 
@@ -60,6 +62,18 @@ autocxx::include_cpp! {
     generate_pod!("Angle")
     generate!("Vec")
     generate!("btVector3")
+}
+
+impl fmt::Debug for Vec {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "btVector3({:?}, {:?}, {:?})",
+            self.x(),
+            self.y(),
+            self.z()
+        )
+    }
 }
 
 impl Vec {
