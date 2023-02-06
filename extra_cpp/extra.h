@@ -2,6 +2,7 @@
 
 #include "../RocketSim/src/BaseInc.h"
 #include "../RocketSim/src/Sim/Car/CarConfig/CarConfig.h"
+#include "../RocketSim/src/Sim/Car/Car.h"
 
 std::array<float, 3> btVector3ToArray(const btVector3& v);
 
@@ -13,3 +14,5 @@ const CarConfig& getPlank();
 const CarConfig& getBreakout();
 const CarConfig& getHybrid();
 const CarConfig& getMerc();
+
+uint32_t getCarID(const Car& car);

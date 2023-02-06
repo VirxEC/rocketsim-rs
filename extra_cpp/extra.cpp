@@ -31,3 +31,7 @@ const CarConfig& getHybrid() {
 const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
+
+uint32_t getCarID(const Car& car) {
+    return car.id;
+}

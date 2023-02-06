@@ -11,9 +11,15 @@ fn main() -> Result<()> {
         ["-std=c++17", "-flto"].as_slice()
     };
 
-    Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/"])
+    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/"])
         .extra_clang_args(clang_args)
-        .build()?
+        .build()?;
+
+    if is_debug {
+        builder.flag_if_supported("-flto").flag_if_supported("/GL");
+    }
+
+    builder
         .static_flag(true)
         .use_plt(false)
         .flag_if_supported("-std=c++17")
@@ -27,7 +33,6 @@ fn main() -> Result<()> {
         .compile("rocketsim");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
-    println!("cargo:rerun-if-changed=PROFILE");
 
     Ok(())
 }
