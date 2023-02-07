@@ -29,4 +29,20 @@ bool setCarState(Arena& arena, uint32_t carID, const CarState& state);
 
 uint32_t addCar(Arena& arena, Team team, const CarConfig& config);
 
-// uint32_t addCarSetState(Arena& arena, Team team, const CarConfig& config, const CarState& state);
+std::unique_ptr<Vec> getCarStatePos(const CarState& state);
+
+const Vec& carStatePos(const CarState& state);
+
+void setCarStatePos(CarState& state, const Vec& pos);
+
+std::unique_ptr<Vec> getCarStateVel(const CarState& state);
+
+const Vec& carStateVel(const CarState& state);
+
+void setCarStateVel(CarState& state, const Vec& vel);
+
+std::unique_ptr<Vec> getCarStateAngVel(const CarState& state);
+
+const Vec& carStateAngVel(const CarState& state);
+
+void setCarStateAngVel(CarState& state, const Vec& angVel);

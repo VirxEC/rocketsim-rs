@@ -60,8 +60,38 @@ uint32_t addCar(Arena& arena, Team team, const CarConfig& config) {
     return car->id;
 }
 
-// uint32_t addCarSetState(Arena& arena, Team team, const CarConfig& config, const CarState& state) {
-//     Car* car = arena.AddCar(team, config);
-//     car->SetState(state);
-//     return car->id;
-// }
+std::unique_ptr<Vec> getCarStatePos(const CarState& state) {
+    return std::make_unique<Vec>(state.pos);
+}
+
+const Vec& carStatePos(const CarState& state) {
+    return state.pos;
+}
+
+void setCarStatePos(CarState& state, const Vec& pos) {
+    state.pos = pos;
+}
+
+std::unique_ptr<Vec> getCarStateVel(const CarState& state) {
+    return std::make_unique<Vec>(state.vel);
+}
+
+const Vec& carStateVel(const CarState& state) {
+    return state.vel;
+}
+
+void setCarStateVel(CarState& state, const Vec& vel) {
+    state.vel = vel;
+}
+
+std::unique_ptr<Vec> getCarStateAngVel(const CarState& state) {
+    return std::make_unique<Vec>(state.angVel);
+}
+
+const Vec& carStateAngVel(const CarState& state) {
+    return state.angVel;
+}
+
+void setCarStateAngVel(CarState& state, const Vec& angVel) {
+    state.angVel = angVel;
+}

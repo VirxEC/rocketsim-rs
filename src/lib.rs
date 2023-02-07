@@ -43,6 +43,71 @@ mod extra {
 
         #[rust_name = "add_car"]
         fn addCar(arena: Pin<&mut Arena>, team: Team, config: &CarConfig) -> u32;
+
+        #[rust_name = "get_car_state_pos"]
+        fn getCarStatePos(state: &CarState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "car_state_pos"]
+        fn carStatePos(state: &CarState) -> &btVector3;
+
+        #[rust_name = "set_car_state_pos"]
+        fn setCarStatePos(state: Pin<&mut CarState>, pos: &btVector3);
+
+        #[rust_name = "get_car_state_vel"]
+        fn getCarStateVel(state: &CarState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "car_state_vel"]
+        fn carStateVel(state: &CarState) -> &btVector3;
+
+        #[rust_name = "set_car_state_vel"]
+        fn setCarStateVel(state: Pin<&mut CarState>, vel: &btVector3);
+
+        #[rust_name = "get_car_state_angvel"]
+        fn getCarStateAngVel(state: &CarState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "car_state_angvel"]
+        fn carStateAngVel(state: &CarState) -> &btVector3;
+
+        #[rust_name = "set_car_state_angvel"]
+        fn setCarStateAngVel(state: Pin<&mut CarState>, angvel: &btVector3);
+    }
+}
+
+impl sim::car::CarState {
+    pub fn pos(&self) -> &Vec3 {
+        extra::car_state_pos(self)
+    }
+
+    pub fn set_pos(self: Pin<&mut Self>, pos: &Vec3) {
+        extra::set_car_state_pos(self, pos)
+    }
+
+    pub fn get_pos(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_car_state_pos(self)
+    }
+
+    pub fn vel(&self) -> &Vec3 {
+        extra::car_state_vel(self)
+    }
+
+    pub fn set_vel(self: Pin<&mut Self>, vel: &Vec3) {
+        extra::set_car_state_vel(self, vel)
+    }
+
+    pub fn get_vel(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_car_state_vel(self)
+    }
+
+    pub fn ang_vel(&self) -> &Vec3 {
+        extra::car_state_angvel(self)
+    }
+
+    pub fn set_ang_vel(self: Pin<&mut Self>, angvel: &Vec3) {
+        extra::set_car_state_angvel(self, angvel)
+    }
+
+    pub fn get_ang_vel(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_car_state_angvel(self)
     }
 }
 
@@ -322,7 +387,6 @@ pub mod sim {
             unsafe extern "C++" {
                 include!("Sim/Car/Car.h");
 
-                type btVector3 = crate::Vec3;
                 type Angle = crate::Angle;
                 type CarControls = crate::sim::CarControls;
                 type Car = super::car::Car;
@@ -334,15 +398,14 @@ pub mod sim {
             }
 
             struct CarState {
-                pos: UniquePtr<btVector3>,
                 angles: Angle,
-                vel: UniquePtr<btVector3>,
-                angVel: UniquePtr<btVector3>,
+                // vel: UniquePtr<btVector3>,
+                // angVel: UniquePtr<btVector3>,
                 isOnGround: bool,
                 hasJumped: bool,
                 hasDoubleJumped: bool,
                 hasFlipped: bool,
-                lastRelDodgeTorque: UniquePtr<btVector3>,
+                // lastRelDodgeTorque: UniquePtr<btVector3>,
                 jumpTimer: f32,
                 flipTimer: f32,
                 isJumping: bool,
@@ -361,15 +424,15 @@ pub mod sim {
         impl std::fmt::Debug for CarState {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.debug_struct("CarState")
-                    .field("pos", &self.pos)
-                    .field("vel", &self.vel)
+                    .field("pos", &self.pos())
+                    .field("vel", &self.vel())
                     .field("angles", &self.angles)
-                    .field("angVel", &self.angVel)
+                    .field("ang_vel", &self.ang_vel())
                     .field("isOnGround", &self.isOnGround)
                     .field("hasJumped", &self.hasJumped)
                     .field("hasDoubleJumped", &self.hasDoubleJumped)
                     .field("hasFlipped", &self.hasFlipped)
-                    .field("lastRelDodgeTorque", &self.lastRelDodgeTorque)
+                    // .field("lastRelDodgeTorque", &self.lastRelDodgeTorque)
                     .field("jumpTimer", &self.jumpTimer)
                     .field("flipTimer", &self.flipTimer)
                     .field("isJumping", &self.isJumping)

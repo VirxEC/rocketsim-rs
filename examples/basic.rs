@@ -1,8 +1,11 @@
 use autocxx::prelude::*;
-use rocketsim_rs::{sim::{
-    arena::{Arena, GameMode},
-    car::{CarConfig, Team},
-}, Vec3};
+use rocketsim_rs::{
+    sim::{
+        arena::{Arena, GameMode},
+        car::{CarConfig, Team},
+    },
+    Vec3,
+};
 
 fn main() {
     let mut arena = Arena::new(GameMode::SOCCAR, 120.).within_unique_ptr();
@@ -15,8 +18,12 @@ fn main() {
     // custom initial car state
     let mut state = arena.pin_mut().get_car_state_from_id(car_id);
 
-    state.pos = Vec3::new1(&5., &0., &50.).within_unique_ptr();
-    state.vel = Vec3::new1(&500., &800., &0.).within_unique_ptr();
+    state
+        .pin_mut()
+        .set_pos(&Vec3::new1(&5., &0., &50.).within_unique_ptr());
+    state
+        .pin_mut()
+        .set_vel(&Vec3::new1(&500., &800., &0.).within_unique_ptr());
 
     // for trivial Rust types, getting/setting is easier
     state.boost = 100.;
@@ -37,4 +44,6 @@ fn main() {
     let new_state = arena.pin_mut().get_car_state_from_id(car_id);
 
     println!("Got new state");
+
+    dbg!(new_state);
 }
