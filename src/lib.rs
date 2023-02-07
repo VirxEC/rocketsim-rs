@@ -1,7 +1,8 @@
+use autocxx::prelude::*;
+use std::{error::Error, pin::Pin};
+
 pub use autocxx;
 pub use cxx;
-
-use autocxx::prelude::*;
 
 #[cxx::bridge]
 mod extra {
@@ -11,6 +12,9 @@ mod extra {
         type btVector3 = crate::Vec3;
         type CarConfig = crate::sim::car::CarConfig;
         type Car = crate::sim::car::Car;
+        type CarState = crate::sim::car::CarState;
+        type Arena = crate::sim::arena::Arena;
+        type Team = crate::sim::car::Team;
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
         fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
@@ -30,6 +34,15 @@ mod extra {
 
         #[rust_name = "get_car_id"]
         fn getCarID(car: &Car) -> u32;
+
+        #[rust_name = "get_car_state_from_id"]
+        fn getCarState(arena: Pin<&mut Arena>, car_id: u32) -> UniquePtr<CarState>;
+
+        #[rust_name = "set_car_state"]
+        fn setCarState(arena: Pin<&mut Arena>, car_id: u32, state: &CarState) -> bool;
+
+        #[rust_name = "add_car"]
+        fn addCar(arena: Pin<&mut Arena>, team: Team, config: &CarConfig) -> u32;
     }
 }
 
@@ -62,6 +75,51 @@ impl sim::car::CarConfig {
 impl sim::car::Car {
     pub fn id(&self) -> u32 {
         extra::get_car_id(self)
+    }
+}
+
+#[derive(Debug)]
+pub struct NoCarFound(u32);
+
+impl std::fmt::Display for NoCarFound {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "No car found in the given arena at the given ID {}.",
+            self.0
+        )
+    }
+}
+
+impl Error for NoCarFound {}
+
+impl sim::arena::Arena {
+    /// Returns the ID of the car that was added.
+    pub fn add_car(
+        self: Pin<&mut Self>,
+        team: sim::car::Team,
+        config: &sim::car::CarConfig,
+    ) -> u32 {
+        extra::add_car(self, team, config)
+    }
+
+    pub fn get_car_state_from_id(
+        self: Pin<&mut Self>,
+        car_id: u32,
+    ) -> cxx::UniquePtr<sim::car::CarState> {
+        extra::get_car_state_from_id(self, car_id)
+    }
+
+    pub fn set_car_state(
+        self: Pin<&mut Self>,
+        car_id: u32,
+        state: &sim::car::CarState,
+    ) -> Result<(), NoCarFound> {
+        if extra::set_car_state(self, car_id, state) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
     }
 }
 
@@ -236,17 +294,6 @@ pub mod sim {
         }
 
         pub use ball::{Ball, BallState};
-        use inner_bs::*;
-
-        impl Default for BallState {
-            fn default() -> Self {
-                Self {
-                    pos: btVector3::default(),
-                    vel: btVector3::default(),
-                    angVel: btVector3::default(),
-                }
-            }
-        }
 
         impl std::fmt::Debug for BallState {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -310,55 +357,6 @@ pub mod sim {
         }
 
         pub use car::{Car, CarState, Team};
-        use inner_cs::*;
-
-        impl Clone for CarState {
-            fn clone(&self) -> Self {
-                Self {
-                    pos: self.pos.clone(),
-                    vel: self.vel.clone(),
-                    angles: self.angles.clone(),
-                    angVel: self.angVel.clone(),
-                    isOnGround: self.isOnGround,
-                    hasJumped: self.hasJumped,
-                    hasDoubleJumped: self.hasDoubleJumped,
-                    hasFlipped: self.hasFlipped,
-                    lastRelDodgeTorque: self.lastRelDodgeTorque.clone(),
-                    jumpTimer: self.jumpTimer,
-                    flipTimer: self.flipTimer,
-                    isJumping: self.isJumping,
-                    airTimeSpaceJump: self.airTimeSpaceJump,
-                    boost: self.boost,
-                    isSupersonic: self.isSupersonic,
-                    handbrakeVal: self.handbrakeVal,
-                    lastControls: self.lastControls.clone(),
-                }
-            }
-        }
-
-        impl Default for CarState {
-            fn default() -> Self {
-                Self {
-                    pos: btVector3::default(),
-                    vel: btVector3::default(),
-                    angles: Angle::default(),
-                    angVel: btVector3::default(),
-                    isOnGround: false,
-                    hasJumped: false,
-                    hasDoubleJumped: false,
-                    hasFlipped: false,
-                    lastRelDodgeTorque: btVector3::default(),
-                    jumpTimer: 0.,
-                    flipTimer: 0.,
-                    isJumping: false,
-                    airTimeSpaceJump: 0.,
-                    boost: 0.,
-                    isSupersonic: false,
-                    handbrakeVal: 0.,
-                    lastControls: CarControls::default(),
-                }
-            }
-        }
 
         impl std::fmt::Debug for CarState {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
