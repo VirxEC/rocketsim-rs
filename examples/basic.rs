@@ -45,5 +45,15 @@ fn main() {
 
     println!("Got new state");
 
-    dbg!(new_state);
+    // You can debug the whole of the state
+    // but it takes up a lot of space in stdout
+    // dbg!(new_state)
+
+    // Create new glam Vec3
+    let glam_vec3 = new_state.pos().to_glam();
+    println!("New car location: {glam_vec3}");
+
+    // Create new glam SIMD-optimized Vec3A
+    let glam_vec3a = new_state.vel().to_glama();
+    println!("New car velocity: {glam_vec3a}")
 }

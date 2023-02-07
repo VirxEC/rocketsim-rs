@@ -10,11 +10,16 @@ exclude = [".git*", "*.vcxproj", "assets"]
 [dependencies]
 autocxx = { path = "../autocxx" }
 cxx = { version = "1.0.83", features = ["c++17"] }
+glam = { version = "0.22.0", optional = true }
 
 [build-dependencies]
 glob = "0.3.0" 
 autocxx-build = { path = "../autocxx/gen/build" }
 miette = { version = "5", features = ["fancy"] }
+
+[features]
+default = ["glam"]
+glam = ["dep:glam"]
 
 [profile.release]
 lto = true

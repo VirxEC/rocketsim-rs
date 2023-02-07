@@ -74,70 +74,86 @@ mod extra {
 }
 
 impl sim::car::CarState {
+    #[inline]
     pub fn pos(&self) -> &Vec3 {
         extra::car_state_pos(self)
     }
 
+    #[inline]
     pub fn set_pos(self: Pin<&mut Self>, pos: &Vec3) {
         extra::set_car_state_pos(self, pos)
     }
 
+    #[inline]
     pub fn get_pos(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_pos(self)
     }
 
+    #[inline]
     pub fn vel(&self) -> &Vec3 {
         extra::car_state_vel(self)
     }
 
+    #[inline]
     pub fn set_vel(self: Pin<&mut Self>, vel: &Vec3) {
         extra::set_car_state_vel(self, vel)
     }
 
+    #[inline]
     pub fn get_vel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_vel(self)
     }
 
+    #[inline]
     pub fn ang_vel(&self) -> &Vec3 {
         extra::car_state_angvel(self)
     }
 
+    #[inline]
     pub fn set_ang_vel(self: Pin<&mut Self>, angvel: &Vec3) {
         extra::set_car_state_angvel(self, angvel)
     }
 
+    #[inline]
     pub fn get_ang_vel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_angvel(self)
     }
 }
 
 impl sim::car::CarConfig {
+    #[inline]
     pub fn octane() -> &'static Self {
         extra::get_octane()
     }
 
+    #[inline]
     pub fn dominus() -> &'static Self {
         extra::get_dominus()
     }
 
+    #[inline]
     pub fn plank() -> &'static Self {
         extra::get_plank()
     }
 
+    #[inline]
     pub fn breakout() -> &'static Self {
         extra::get_breakout()
     }
 
+    #[inline]
     pub fn hybrid() -> &'static Self {
         extra::get_hybrid()
     }
 
+    #[inline]
     pub fn merc() -> &'static Self {
         extra::get_merc()
     }
 }
 
 impl sim::car::Car {
+    #[inline]
     pub fn id(&self) -> u32 {
         extra::get_car_id(self)
     }
@@ -160,6 +176,7 @@ impl Error for NoCarFound {}
 
 impl sim::arena::Arena {
     /// Returns the ID of the car that was added.
+    #[inline]
     pub fn add_car(
         self: Pin<&mut Self>,
         team: sim::car::Team,
@@ -168,6 +185,7 @@ impl sim::arena::Arena {
         extra::add_car(self, team, config)
     }
 
+    #[inline]
     pub fn get_car_state_from_id(
         self: Pin<&mut Self>,
         car_id: u32,
@@ -175,6 +193,7 @@ impl sim::arena::Arena {
         extra::get_car_state_from_id(self, car_id)
     }
 
+    #[inline]
     pub fn set_car_state(
         self: Pin<&mut Self>,
         car_id: u32,
@@ -210,24 +229,42 @@ impl std::fmt::Debug for Vec3 {
 }
 
 impl Vec3 {
+    #[inline]
     pub fn default() -> UniquePtr<Vec3> {
         Vec3::new1(&0., &0., &0.).within_unique_ptr()
     }
 
+    #[inline]
     pub fn to_array(&self) -> [f32; 3] {
         extra::btVector3ToArray(self)
     }
 
+    #[inline]
     pub fn from_array(arr: [f32; 3]) -> cxx::UniquePtr<Self> {
         extra::arrayToBtVector3(&arr)
     }
 
+    #[inline]
     pub fn clone(&self) -> cxx::UniquePtr<Self> {
         Self::from_array(self.to_array())
     }
 }
 
+#[cfg(feature = "glam")]
+impl Vec3 {
+    #[inline]
+    pub fn to_glam(&self) -> glam::Vec3 {
+        glam::Vec3::from_array(self.to_array())
+    }
+
+    #[inline]
+    pub fn to_glama(&self) -> glam::Vec3A {
+        glam::Vec3A::from_array(self.to_array())
+    }
+}
+
 impl Clone for Angle {
+    #[inline]
     fn clone(&self) -> Self {
         Self {
             yaw: self.yaw,
@@ -238,6 +275,7 @@ impl Clone for Angle {
 }
 
 impl Default for Angle {
+    #[inline]
     fn default() -> Self {
         Self {
             pitch: 0.,
@@ -268,6 +306,7 @@ pub mod sim {
     pub use carcontrols::CarControls;
 
     impl Clone for CarControls {
+        #[inline]
         fn clone(&self) -> Self {
             Self {
                 throttle: self.throttle,
@@ -283,6 +322,7 @@ pub mod sim {
     }
 
     impl Default for CarControls {
+        #[inline]
         fn default() -> Self {
             Self {
                 throttle: 0.,
@@ -399,8 +439,6 @@ pub mod sim {
 
             struct CarState {
                 angles: Angle,
-                // vel: UniquePtr<btVector3>,
-                // angVel: UniquePtr<btVector3>,
                 isOnGround: bool,
                 hasJumped: bool,
                 hasDoubleJumped: bool,
