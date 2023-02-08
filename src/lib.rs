@@ -109,46 +109,52 @@ mod extra {
 
 impl sim::ball::BallState {
     #[inline]
+    #[must_use]
     pub fn pos(&self) -> &Vec3 {
         extra::ball_state_pos(self)
     }
 
     #[inline]
     pub fn set_pos(self: Pin<&mut Self>, pos: &Vec3) {
-        extra::set_ball_state_pos(self, pos)
+        extra::set_ball_state_pos(self, pos);
     }
 
     #[inline]
+    #[must_use]
     pub fn get_pos(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_ball_state_pos(self)
     }
 
     #[inline]
+    #[must_use]
     pub fn vel(&self) -> &Vec3 {
         extra::ball_state_vel(self)
     }
 
     #[inline]
     pub fn set_vel(self: Pin<&mut Self>, vel: &Vec3) {
-        extra::set_ball_state_vel(self, vel)
+        extra::set_ball_state_vel(self, vel);
     }
 
     #[inline]
+    #[must_use]
     pub fn get_vel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_ball_state_vel(self)
     }
 
     #[inline]
+    #[must_use]
     pub fn angvel(&self) -> &Vec3 {
         extra::ball_state_angvel(self)
     }
 
     #[inline]
     pub fn set_angvel(self: Pin<&mut Self>, angvel: &Vec3) {
-        extra::set_ball_state_angvel(self, angvel)
+        extra::set_ball_state_angvel(self, angvel);
     }
 
     #[inline]
+    #[must_use]
     pub fn get_angvel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_ball_state_angvel(self)
     }
@@ -156,46 +162,52 @@ impl sim::ball::BallState {
 
 impl sim::car::CarState {
     #[inline]
+    #[must_use]
     pub fn pos(&self) -> &Vec3 {
         extra::car_state_pos(self)
     }
 
     #[inline]
     pub fn set_pos(self: Pin<&mut Self>, pos: &Vec3) {
-        extra::set_car_state_pos(self, pos)
+        extra::set_car_state_pos(self, pos);
     }
 
     #[inline]
+    #[must_use]
     pub fn get_pos(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_pos(self)
     }
 
     #[inline]
+    #[must_use]
     pub fn vel(&self) -> &Vec3 {
         extra::car_state_vel(self)
     }
 
     #[inline]
     pub fn set_vel(self: Pin<&mut Self>, vel: &Vec3) {
-        extra::set_car_state_vel(self, vel)
+        extra::set_car_state_vel(self, vel);
     }
 
     #[inline]
+    #[must_use]
     pub fn get_vel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_vel(self)
     }
 
     #[inline]
+    #[must_use]
     pub fn angvel(&self) -> &Vec3 {
         extra::car_state_angvel(self)
     }
 
     #[inline]
     pub fn set_angvel(self: Pin<&mut Self>, angvel: &Vec3) {
-        extra::set_car_state_angvel(self, angvel)
+        extra::set_car_state_angvel(self, angvel);
     }
 
     #[inline]
+    #[must_use]
     pub fn get_angvel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_angvel(self)
     }
@@ -203,31 +215,37 @@ impl sim::car::CarState {
 
 impl sim::car::CarConfig {
     #[inline]
+    #[must_use]
     pub fn octane() -> &'static Self {
         extra::get_octane()
     }
 
     #[inline]
+    #[must_use]
     pub fn dominus() -> &'static Self {
         extra::get_dominus()
     }
 
     #[inline]
+    #[must_use]
     pub fn plank() -> &'static Self {
         extra::get_plank()
     }
 
     #[inline]
+    #[must_use]
     pub fn breakout() -> &'static Self {
         extra::get_breakout()
     }
 
     #[inline]
+    #[must_use]
     pub fn hybrid() -> &'static Self {
         extra::get_hybrid()
     }
 
     #[inline]
+    #[must_use]
     pub fn merc() -> &'static Self {
         extra::get_merc()
     }
@@ -235,6 +253,7 @@ impl sim::car::CarConfig {
 
 impl sim::car::Car {
     #[inline]
+    #[must_use]
     pub fn id(&self) -> u32 {
         extra::get_car_id(self)
     }
@@ -254,13 +273,18 @@ impl Error for NoCarFound {}
 impl sim::arena::Arena {
     /// Returns the ID of the car that was added.
     #[inline]
+    #[must_use]
     pub fn add_car(self: Pin<&mut Self>, team: sim::car::Team, config: &sim::car::CarConfig) -> u32 {
         extra::add_car(self, team, config)
     }
 
-    #[inline]
-    pub fn get_car_state_from_id(self: Pin<&mut Self>, car_id: u32) -> cxx::UniquePtr<sim::car::CarState> {
-        extra::get_car_state_from_id(self, car_id)
+    pub fn get_car_state_from_id(self: Pin<&mut Self>, car_id: u32) -> Result<cxx::UniquePtr<sim::car::CarState>, NoCarFound> {
+        let car = extra::get_car_state_from_id(self, car_id);
+        if car.is_null() {
+            Err(NoCarFound(car_id))
+        } else {
+            Ok(car)
+        }
     }
 
     #[inline]
@@ -273,13 +297,14 @@ impl sim::arena::Arena {
     }
 
     #[inline]
+    #[must_use]
     pub fn get_ball_state(&self) -> cxx::UniquePtr<sim::ball::BallState> {
         extra::get_ball_state(self)
     }
 
     #[inline]
     pub fn set_ball_state(self: Pin<&mut Self>, state: &sim::ball::BallState) {
-        extra::set_ball_state(self, state)
+        extra::set_ball_state(self, state);
     }
 }
 

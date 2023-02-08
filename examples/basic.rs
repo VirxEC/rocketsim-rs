@@ -12,12 +12,12 @@ fn main() {
     println!("Arena tick rate: {}", arena.pin_mut().GetTickRate());
 
     let car_id = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    
+
     println!("Car id: {car_id}");
 
-    {   
+    {
         // custom initial car state
-        let mut car_state = arena.pin_mut().get_car_state_from_id(car_id);
+        let mut car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
 
         car_state.pin_mut().set_pos(&Vec3::new1(&5., &0., &50.).within_unique_ptr());
         car_state.pin_mut().set_vel(&Vec3::new1(&500., &800., &0.).within_unique_ptr());
@@ -51,7 +51,7 @@ fn main() {
 
     {
         // get the car state again
-        let car_state = arena.pin_mut().get_car_state_from_id(car_id);
+        let car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
 
         println!("Got new car state");
 
