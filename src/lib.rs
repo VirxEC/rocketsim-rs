@@ -364,61 +364,30 @@ impl std::fmt::Debug for Angle {
 }
 
 pub mod sim {
-    autocxx::include_cpp! {
-        #include "Sim/CarControls.h"
-        name!(carcontrols)
-        safety!(unsafe)
-        generate_pod!("CarControls")
+    #[cxx::bridge]
+    mod carcontrols {
+        unsafe extern "C++" {
+            include!("Sim/CarControls.h");
+
+            type CarControls;
+        }
+
+        #[derive(Clone, Copy, Debug, Default)]
+        struct CarControls {
+            pub throttle: f32,
+            pub steer: f32,
+            pub pitch: f32,
+            pub yaw: f32,
+            pub roll: f32,
+            pub boost: bool,
+            pub jump: bool,
+            pub handbrake: bool,
+        }
+
+        impl UniquePtr<CarControls> {}
     }
 
     pub use carcontrols::CarControls;
-
-    impl Clone for CarControls {
-        #[inline]
-        fn clone(&self) -> Self {
-            Self {
-                throttle: self.throttle,
-                steer: self.steer,
-                pitch: self.pitch,
-                yaw: self.yaw,
-                roll: self.roll,
-                boost: self.boost,
-                jump: self.jump,
-                handbrake: self.handbrake,
-            }
-        }
-    }
-
-    impl Default for CarControls {
-        #[inline]
-        fn default() -> Self {
-            Self {
-                throttle: 0.,
-                steer: 0.,
-                pitch: 0.,
-                yaw: 0.,
-                roll: 0.,
-                jump: false,
-                boost: false,
-                handbrake: false,
-            }
-        }
-    }
-
-    impl std::fmt::Debug for CarControls {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_struct("CarControls")
-                .field("throttle", &self.throttle)
-                .field("steer", &self.steer)
-                .field("pitch", &self.pitch)
-                .field("yaw", &self.yaw)
-                .field("roll", &self.roll)
-                .field("jump", &self.jump)
-                .field("boost", &self.boost)
-                .field("handbrake", &self.handbrake)
-                .finish()
-        }
-    }
 
     pub mod arena {
         autocxx::include_cpp! {
@@ -446,11 +415,20 @@ pub mod sim {
             safety!(unsafe)
             extern_cpp_type!("btVector3", crate::Vec3)
             block!("btManifoldPoint")
-            generate!("BallState")
+            block!("BallState")
             generate!("Ball")
         }
 
-        pub use ball::{Ball, BallState};
+        autocxx::include_cpp! {
+            #include "Sim/Ball/Ball.h"
+            name!(ballstate)
+            safety!(unsafe)
+            extern_cpp_type!("btVector3", crate::Vec3)
+            generate!("BallState")
+        }
+
+        pub use ball::Ball;
+        pub use ballstate::BallState;
 
         impl std::fmt::Debug for BallState {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

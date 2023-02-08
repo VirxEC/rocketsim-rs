@@ -8,13 +8,13 @@ exclude = [".git*", "*.vcxproj", "assets"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-autocxx = { path = "../autocxx" }
+autocxx = "0.24.0"
 cxx = { version = "1.0.83", features = ["c++17"] }
 glam = { version = "0.22.0", optional = true }
 
 [build-dependencies]
 glob = "0.3.0" 
-autocxx-build = { path = "../autocxx/gen/build" }
+autocxx-build = "0.24.0"
 miette = { version = "5", features = ["fancy"] }
 
 [features]
@@ -23,3 +23,5 @@ glam = ["dep:glam"]
 
 [profile.release]
 lto = true
+strip = true
+panic = "abort"

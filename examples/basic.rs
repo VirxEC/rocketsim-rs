@@ -69,6 +69,6 @@ fn main() {
 
         // Create new glam SIMD-optimized Vec3A
         let glam_vec3a = ball_state.pos().to_glama();
-        println!("New car velocity: {glam_vec3a}")
+        println!("New ball location: {glam_vec3a}")
     }
 }
