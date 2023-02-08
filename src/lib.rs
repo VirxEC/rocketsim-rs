@@ -15,6 +15,7 @@ mod extra {
         type CarState = crate::sim::car::CarState;
         type Arena = crate::sim::arena::Arena;
         type Team = crate::sim::car::Team;
+        type BallState = crate::sim::ball::BallState;
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
         fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
@@ -70,6 +71,86 @@ mod extra {
 
         #[rust_name = "set_car_state_angvel"]
         fn setCarStateAngVel(state: Pin<&mut CarState>, angvel: &btVector3);
+
+        #[rust_name = "get_ball_state"]
+        fn getBallState(arena: &Arena) -> UniquePtr<BallState>;
+
+        #[rust_name = "set_ball_state"]
+        fn setBallState(arena: Pin<&mut Arena>, state: &BallState);
+
+        #[rust_name = "get_ball_state_pos"]
+        fn getBallStatePos(state: &BallState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "ball_state_pos"]
+        fn ballStatePos(state: &BallState) -> &btVector3;
+
+        #[rust_name = "set_ball_state_pos"]
+        fn setBallStatePos(state: Pin<&mut BallState>, pos: &btVector3);
+
+        #[rust_name = "get_ball_state_vel"]
+        fn getBallStateVel(state: &BallState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "ball_state_vel"]
+        fn ballStateVel(state: &BallState) -> &btVector3;
+
+        #[rust_name = "set_ball_state_vel"]
+        fn setBallStateVel(state: Pin<&mut BallState>, vel: &btVector3);
+
+        #[rust_name = "get_ball_state_angvel"]
+        fn getBallStateAngVel(state: &BallState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "ball_state_angvel"]
+        fn ballStateAngVel(state: &BallState) -> &btVector3;
+
+        #[rust_name = "set_ball_state_angvel"]
+        fn setBallStateAngVel(state: Pin<&mut BallState>, angvel: &btVector3);
+    }
+}
+
+impl sim::ball::BallState {
+    #[inline]
+    pub fn pos(&self) -> &Vec3 {
+        extra::ball_state_pos(self)
+    }
+
+    #[inline]
+    pub fn set_pos(self: Pin<&mut Self>, pos: &Vec3) {
+        extra::set_ball_state_pos(self, pos)
+    }
+
+    #[inline]
+    pub fn get_pos(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_ball_state_pos(self)
+    }
+
+    #[inline]
+    pub fn vel(&self) -> &Vec3 {
+        extra::ball_state_vel(self)
+    }
+
+    #[inline]
+    pub fn set_vel(self: Pin<&mut Self>, vel: &Vec3) {
+        extra::set_ball_state_vel(self, vel)
+    }
+
+    #[inline]
+    pub fn get_vel(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_ball_state_vel(self)
+    }
+
+    #[inline]
+    pub fn angvel(&self) -> &Vec3 {
+        extra::ball_state_angvel(self)
+    }
+
+    #[inline]
+    pub fn set_angvel(self: Pin<&mut Self>, angvel: &Vec3) {
+        extra::set_ball_state_angvel(self, angvel)
+    }
+
+    #[inline]
+    pub fn get_angvel(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_ball_state_angvel(self)
     }
 }
 
@@ -105,17 +186,17 @@ impl sim::car::CarState {
     }
 
     #[inline]
-    pub fn ang_vel(&self) -> &Vec3 {
+    pub fn angvel(&self) -> &Vec3 {
         extra::car_state_angvel(self)
     }
 
     #[inline]
-    pub fn set_ang_vel(self: Pin<&mut Self>, angvel: &Vec3) {
+    pub fn set_angvel(self: Pin<&mut Self>, angvel: &Vec3) {
         extra::set_car_state_angvel(self, angvel)
     }
 
     #[inline]
-    pub fn get_ang_vel(&self) -> cxx::UniquePtr<Vec3> {
+    pub fn get_angvel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_angvel(self)
     }
 }
@@ -164,11 +245,7 @@ pub struct NoCarFound(u32);
 
 impl std::fmt::Display for NoCarFound {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "No car found in the given arena at the given ID {}.",
-            self.0
-        )
+        write!(f, "No car found in the given arena at the given ID {}.", self.0)
     }
 }
 
@@ -177,33 +254,32 @@ impl Error for NoCarFound {}
 impl sim::arena::Arena {
     /// Returns the ID of the car that was added.
     #[inline]
-    pub fn add_car(
-        self: Pin<&mut Self>,
-        team: sim::car::Team,
-        config: &sim::car::CarConfig,
-    ) -> u32 {
+    pub fn add_car(self: Pin<&mut Self>, team: sim::car::Team, config: &sim::car::CarConfig) -> u32 {
         extra::add_car(self, team, config)
     }
 
     #[inline]
-    pub fn get_car_state_from_id(
-        self: Pin<&mut Self>,
-        car_id: u32,
-    ) -> cxx::UniquePtr<sim::car::CarState> {
+    pub fn get_car_state_from_id(self: Pin<&mut Self>, car_id: u32) -> cxx::UniquePtr<sim::car::CarState> {
         extra::get_car_state_from_id(self, car_id)
     }
 
     #[inline]
-    pub fn set_car_state(
-        self: Pin<&mut Self>,
-        car_id: u32,
-        state: &sim::car::CarState,
-    ) -> Result<(), NoCarFound> {
+    pub fn set_car_state(self: Pin<&mut Self>, car_id: u32, state: &sim::car::CarState) -> Result<(), NoCarFound> {
         if extra::set_car_state(self, car_id, state) {
             Ok(())
         } else {
             Err(NoCarFound(car_id))
         }
+    }
+
+    #[inline]
+    pub fn get_ball_state(&self) -> cxx::UniquePtr<sim::ball::BallState> {
+        extra::get_ball_state(self)
+    }
+
+    #[inline]
+    pub fn set_ball_state(self: Pin<&mut Self>, state: &sim::ball::BallState) {
+        extra::set_ball_state(self, state)
     }
 }
 
@@ -220,11 +296,7 @@ pub use bulletlink::{Angle, Vec as Vec3};
 
 impl std::fmt::Debug for Vec3 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Vec3")
-            .field("x", &self.x())
-            .field("y", &self.y())
-            .field("z", &self.z())
-            .finish()
+        f.debug_struct("Vec3").field("x", &self.x()).field("y", &self.y()).field("z", &self.z()).finish()
     }
 }
 
@@ -277,11 +349,7 @@ impl Clone for Angle {
 impl Default for Angle {
     #[inline]
     fn default() -> Self {
-        Self {
-            pitch: 0.,
-            yaw: 0.,
-            roll: 0.,
-        }
+        Self { pitch: 0., yaw: 0., roll: 0. }
     }
 }
 
@@ -375,27 +443,9 @@ pub mod sim {
             #include "Sim/Ball/Ball.h"
             name!(ball)
             safety!(unsafe)
-            extern_cpp_type!("BallState", super::inner_bs::BallState)
+            extern_cpp_type!("btVector3", crate::Vec3)
+            generate!("BallState")
             generate!("Ball")
-        }
-
-        #[cxx::bridge]
-        mod inner_bs {
-            unsafe extern "C++" {
-                include!("Sim/Ball/Ball.h");
-
-                type btVector3 = crate::Vec3;
-
-                type BallState;
-            }
-
-            struct BallState {
-                pos: UniquePtr<btVector3>,
-                vel: UniquePtr<btVector3>,
-                angVel: UniquePtr<btVector3>,
-            }
-
-            impl UniquePtr<BallState> {}
         }
 
         pub use ball::{Ball, BallState};
@@ -403,9 +453,9 @@ pub mod sim {
         impl std::fmt::Debug for BallState {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.debug_struct("BallState")
-                    .field("pos", &self.pos)
-                    .field("vel", &self.vel)
-                    .field("angVel", &self.angVel)
+                    .field("pos", self.pos())
+                    .field("vel", self.vel())
+                    .field("angvel", self.angvel())
                     .finish()
             }
         }
@@ -462,10 +512,10 @@ pub mod sim {
         impl std::fmt::Debug for CarState {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.debug_struct("CarState")
-                    .field("pos", &self.pos())
-                    .field("vel", &self.vel())
+                    .field("pos", self.pos())
+                    .field("vel", self.vel())
                     .field("angles", &self.angles)
-                    .field("ang_vel", &self.ang_vel())
+                    .field("angvel", self.angvel())
                     .field("isOnGround", &self.isOnGround)
                     .field("hasJumped", &self.hasJumped)
                     .field("hasDoubleJumped", &self.hasDoubleJumped)

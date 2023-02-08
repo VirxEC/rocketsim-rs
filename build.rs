@@ -5,15 +5,9 @@ use miette::{IntoDiagnostic, Result};
 fn main() -> Result<()> {
     let is_debug = std::env::var("PROFILE").into_diagnostic()?.as_str() == "debug";
 
-    let clang_args = if is_debug {
-        ["-std=c++17"].as_slice()
-    } else {
-        ["-std=c++17", "-flto"].as_slice()
-    };
+    let clang_args = if is_debug { ["-std=c++17"].as_slice() } else { ["-std=c++17", "-flto"].as_slice() };
 
-    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/"])
-        .extra_clang_args(clang_args)
-        .build()?;
+    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/"]).extra_clang_args(clang_args).build()?;
 
     if is_debug {
         builder.flag_if_supported("-flto").flag_if_supported("/GL");
