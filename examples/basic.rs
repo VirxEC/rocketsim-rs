@@ -62,9 +62,13 @@ fn main() {
         // Create new glam Vec3
         let glam_vec3 = car_state.pos().to_glam();
         println!("New car location: {glam_vec3}");
+    }
+
+    {
+        let ball_state = arena.pin_mut().get_ball_state();
 
         // Create new glam SIMD-optimized Vec3A
-        let glam_vec3a = car_state.vel().to_glama();
+        let glam_vec3a = ball_state.pos().to_glama();
         println!("New car velocity: {glam_vec3a}")
     }
 }

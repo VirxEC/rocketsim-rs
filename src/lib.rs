@@ -431,6 +431,7 @@ pub mod sim {
             extern_cpp_type!("Ball", crate::sim::ball::Ball)
             extern_cpp_type!("btVector3", crate::Vec3)
             extern_cpp_type!("MeshLoader::Mesh", crate::sim::meshloader::MeshLoader::Mesh)
+            block!("btManifoldPoint")
             generate_pod!("GameMode")
             generate!("Arena")
         }
@@ -444,6 +445,7 @@ pub mod sim {
             name!(ball)
             safety!(unsafe)
             extern_cpp_type!("btVector3", crate::Vec3)
+            block!("btManifoldPoint")
             generate!("BallState")
             generate!("Ball")
         }
