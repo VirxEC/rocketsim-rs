@@ -9,9 +9,10 @@ fn main() -> Result<()> {
 
     let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/"]).extra_clang_args(clang_args).build()?;
 
-    if is_debug {
-        builder.flag_if_supported("-flto").flag_if_supported("/GL");
-    }
+    // A bug in AutoCXX prevents us from being able to use LTO
+    // if !is_debug {
+    //     builder.flag_if_supported("-flto").flag_if_supported("/GL");
+    // }
 
     builder
         .static_flag(true)
