@@ -32,26 +32,58 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
-uint32_t getCarID(const Car& car) {
-    return car.id;
-}
-
-std::unique_ptr<CarState> getCarState(Arena& arena, uint32_t carID) {
+std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
     Car* car = arena.GetCarFromID(carID);
     if (car == NULL) {
         return NULL;
     }
 
-    return std::make_unique<CarState>(car->GetState());
+    CarState carstate = car->GetState();
+
+    return std::make_unique<ECarState>(ECarState {
+        std::make_unique<Vec>(carstate.pos),
+        carstate.angles,
+        std::make_unique<Vec>(carstate.vel),
+        std::make_unique<Vec>(carstate.angVel),
+        carstate.isOnGround,
+        carstate.hasJumped, carstate.hasDoubleJumped, carstate.hasFlipped,
+        std::make_unique<Vec>(carstate.lastRelDodgeTorque),
+        carstate.jumpTimer, carstate.flipTimer,
+        carstate.isJumping,
+        carstate.airTimeSinceJump,
+        carstate.boost,
+        carstate.timeSpentBoosting,
+        carstate.isSupersonic,
+        carstate.handbrakeVal,
+        carstate.lastControls
+    });
 }
 
-bool setCarState(Arena& arena, uint32_t carID, const CarState& state) {
+bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
     Car* car = arena.GetCarFromID(carID);
     if (car == NULL) {
         return false;
     }
 
-    car->SetState(state);
+    CarState estate = {
+        *state.pos,
+        state.angles,
+        *state.vel,
+        *state.angVel,
+        state.isOnGround,
+        state.hasJumped, state.hasDoubleJumped, state.hasFlipped,
+        *state.lastRelDodgeTorque,
+        state.jumpTimer, state.flipTimer,
+        state.isJumping,
+        state.airTimeSinceJump,
+        state.boost,
+        state.timeSpentBoosting,
+        state.isSupersonic,
+        state.handbrakeVal,
+        state.lastControls
+    };
+
+    car->SetState(estate);
     return true;
 }
 
@@ -60,94 +92,21 @@ uint32_t addCar(Arena& arena, Team team, const CarConfig& config) {
     return car->id;
 }
 
-std::unique_ptr<Vec> getCarStatePos(const CarState& state) {
-    return std::make_unique<Vec>(state.pos);
+std::unique_ptr<EBallState> getBallState(const Arena& arena) {
+    BallState state = arena.ball->GetState();
+    return std::make_unique<EBallState>(EBallState {
+        std::make_unique<Vec>(state.pos),
+        std::make_unique<Vec>(state.vel),
+        std::make_unique<Vec>(state.angVel),
+    });
 }
 
-const Vec& carStatePos(const CarState& state) {
-    return state.pos;
-}
+void setBallState(Arena& arena, const EBallState& state) {
+    BallState estate = BallState {
+        *state.pos,
+        *state.vel,
+        *state.angvel,
+    };
 
-void setCarStatePos(CarState& state, const Vec& pos) {
-    state.pos = pos;
-}
-
-std::unique_ptr<Vec> getCarStateVel(const CarState& state) {
-    return std::make_unique<Vec>(state.vel);
-}
-
-const Vec& carStateVel(const CarState& state) {
-    return state.vel;
-}
-
-void setCarStateVel(CarState& state, const Vec& vel) {
-    state.vel = vel;
-}
-
-std::unique_ptr<Vec> getCarStateAngVel(const CarState& state) {
-    return std::make_unique<Vec>(state.angVel);
-}
-
-const Vec& carStateAngVel(const CarState& state) {
-    return state.angVel;
-}
-
-void setCarStateAngVel(CarState& state, const Vec& angVel) {
-    state.angVel = angVel;
-}
-
-std::unique_ptr<Vec> getCarStateTorque(const CarState& state) {
-    return std::make_unique<Vec>(state.lastRelDodgeTorque);
-}
-
-const Vec& carStateTorque(const CarState& state) {
-    return state.lastRelDodgeTorque;
-}
-
-void setCarStateTorque(CarState& state, const Vec& torque) {
-    state.lastRelDodgeTorque = torque;
-}
-
-std::unique_ptr<BallState> getBallState(const Arena& arena) {
-    return std::make_unique<BallState>(arena.ball->GetState());
-}
-
-void setBallState(Arena& arena, const BallState& state) {
-    arena.ball->SetState(state);
-}
-
-std::unique_ptr<Vec> getBallStatePos(const BallState& state) {
-    return std::make_unique<Vec>(state.pos);
-}
-
-const Vec& ballStatePos(const BallState& state) {
-    return state.pos;
-}
-
-void setBallStatePos(BallState& state, const Vec& pos) {
-    state.pos = pos;
-}
-
-std::unique_ptr<Vec> getBallStateVel(const BallState& state) {
-    return std::make_unique<Vec>(state.vel);
-}
-
-const Vec& ballStateVel(const BallState& state) {
-    return state.vel;
-}
-
-void setBallStateVel(BallState& state, const Vec& vel) {
-    state.vel = vel;
-}
-
-std::unique_ptr<Vec> getBallStateAngVel(const BallState& state) {
-    return std::make_unique<Vec>(state.angVel);
-}
-
-const Vec& ballStateAngVel(const BallState& state) {
-    return state.angVel;
-}
-
-void setBallStateAngVel(BallState& state, const Vec& angVel) {
-    state.angVel = angVel;
+    arena.ball->SetState(estate);
 }
