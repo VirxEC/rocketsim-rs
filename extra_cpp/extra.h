@@ -52,6 +52,13 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state);
 
 uint32_t addCar(Arena& arena, Team team, const CarConfig& config);
 
+/// @brief Sets the controls of a car for the next tick
+/// @param arena 
+/// @param state 
+/// @param carID 
+/// @return True if the car was found and the state was set, false otherwise
+bool setCarControls(Arena& arena, uint32_t carID, const CarControls& controls);
+
 // extra ball stuff
 
 struct EBallState {

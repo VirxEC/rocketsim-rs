@@ -15,6 +15,7 @@ mod extra {
         type Arena = crate::sim::arena::Arena;
         type Team = crate::sim::car::Team;
         type EBallState = crate::sim::ball::BallState;
+        type CarControls = crate::sim::CarControls;
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
         fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
@@ -40,6 +41,9 @@ mod extra {
 
         #[rust_name = "add_car"]
         fn addCar(arena: Pin<&mut Arena>, team: Team, config: &CarConfig) -> u32;
+
+        #[rust_name = "set_car_controls"]
+        fn setCarControls(arena: Pin<&mut Arena>, car_id: u32, controls: &CarControls) -> bool;
 
         #[rust_name = "get_ball_state"]
         fn getBallState(arena: &Arena) -> UniquePtr<EBallState>;
@@ -133,6 +137,15 @@ impl sim::arena::Arena {
     #[inline]
     pub fn set_ball_state(self: Pin<&mut Self>, state: &sim::ball::BallState) {
         extra::set_ball_state(self, state);
+    }
+
+    #[inline]
+    pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, controls: &sim::CarControls) -> Result<(), NoCarFound> {
+        if extra::set_car_controls(self, car_id, controls) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
     }
 }
 

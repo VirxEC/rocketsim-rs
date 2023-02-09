@@ -92,6 +92,16 @@ uint32_t addCar(Arena& arena, Team team, const CarConfig& config) {
     return car->id;
 }
 
+bool setCarControls(Arena& arena, uint32_t carID, const CarControls& controls) {
+    Car* car = arena.GetCarFromID(carID);
+    if (car == NULL) {
+        return false;
+    }
+
+    car->controls = controls;
+    return true;
+}
+
 std::unique_ptr<EBallState> getBallState(const Arena& arena) {
     BallState state = arena.ball->GetState();
     return std::make_unique<EBallState>(EBallState {

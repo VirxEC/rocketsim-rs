@@ -2,7 +2,7 @@ use autocxx::prelude::*;
 use rocketsim_rs::{
     sim::{
         arena::{Arena, GameMode},
-        car::{CarConfig, Team},
+        car::{CarConfig, Team}, CarControls,
     },
     Vec3,
 };
@@ -27,6 +27,11 @@ fn main() {
 
         println!("Created custom car state");
 
+        arena.pin_mut().set_car_controls(car_id, &CarControls {
+            boost: true,
+            ..Default::default()
+        }).unwrap();
+
         // If car_id can't be found in arena than this will return Err
         arena.pin_mut().set_car_state(car_id, &car_state).unwrap();
         // dbg!(arena.pin_mut().get_car_state_from_id(car_id).unwrap());
@@ -45,10 +50,10 @@ fn main() {
         println!("Set ball state");
     }
 
-    // simulate for 5 seconds
-    arena.pin_mut().Step(c_int(120 * 5));
+    // simulate for 2 seconds
+    arena.pin_mut().Step(c_int(120 * 2));
 
-    println!("Simulated for 5 seconds");
+    println!("Simulated for 2 seconds");
 
     {
         // get the car state again
@@ -63,6 +68,7 @@ fn main() {
         // Create new glam Vec3
         let glam_vec3 = car_state.pos.to_glam();
         println!("New car location: {glam_vec3}");
+        println!("New car boost: {}", car_state.boost);
     }
 
     {
