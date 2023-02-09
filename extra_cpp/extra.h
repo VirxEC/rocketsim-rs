@@ -53,6 +53,12 @@ const Vec& carStateAngVel(const CarState& state);
 
 void setCarStateAngVel(CarState& state, const Vec& angVel);
 
+std::unique_ptr<Vec> getCarStateTorque(const CarState& state);
+
+const Vec& carStateTorque(const CarState& state);
+
+void setCarStateTorque(CarState& state, const Vec& torque);
+
 // extra ball stuff
 
 std::unique_ptr<BallState> getBallState(const Arena& arena);

@@ -72,6 +72,15 @@ mod extra {
         #[rust_name = "set_car_state_angvel"]
         fn setCarStateAngVel(state: Pin<&mut CarState>, angvel: &btVector3);
 
+        #[rust_name = "get_car_state_torque"]
+        fn getCarStateTorque(state: &CarState) -> UniquePtr<btVector3>;
+
+        #[rust_name = "car_state_torque"]
+        fn carStateTorque(state: &CarState) -> &btVector3;
+
+        #[rust_name = "set_car_state_torque"]
+        fn setCarStateTorque(state: Pin<&mut CarState>, torque: &btVector3);
+
         #[rust_name = "get_ball_state"]
         fn getBallState(arena: &Arena) -> UniquePtr<BallState>;
 
@@ -210,6 +219,23 @@ impl sim::car::CarState {
     #[must_use]
     pub fn get_angvel(&self) -> cxx::UniquePtr<Vec3> {
         extra::get_car_state_angvel(self)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn last_rel_dodge_torque(&self) -> &Vec3 {
+        extra::car_state_torque(self)
+    }
+
+    #[inline]
+    pub fn set_last_rel_dodge_torque(self: Pin<&mut Self>, torque: &Vec3) {
+        extra::set_car_state_torque(self, torque);
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn get_last_rel_dodge_torque(&self) -> cxx::UniquePtr<Vec3> {
+        extra::get_car_state_torque(self)
     }
 }
 
@@ -485,6 +511,7 @@ pub mod sim {
                 type Angle = crate::Angle;
                 type CarControls = crate::sim::CarControls;
                 type Car = super::car::Car;
+                type btVector3 = crate::Vec3;
 
                 type CarState;
 
@@ -493,12 +520,15 @@ pub mod sim {
             }
 
             struct CarState {
+                pos: UniquePtr<btVector3>,
+                vel: UniquePtr<btVector3>,
                 angles: Angle,
+                angvel: UniquePtr<btVector3>,
                 isOnGround: bool,
                 hasJumped: bool,
                 hasDoubleJumped: bool,
                 hasFlipped: bool,
-                // lastRelDodgeTorque: UniquePtr<btVector3>,
+                lastRelDodgeTorque: UniquePtr<btVector3>,
                 jumpTimer: f32,
                 flipTimer: f32,
                 isJumping: bool,
@@ -525,7 +555,7 @@ pub mod sim {
                     .field("hasJumped", &self.hasJumped)
                     .field("hasDoubleJumped", &self.hasDoubleJumped)
                     .field("hasFlipped", &self.hasFlipped)
-                    // .field("lastRelDodgeTorque", &self.lastRelDodgeTorque)
+                    .field("last_rel_dodge_torque", &self.last_rel_dodge_torque())
                     .field("jumpTimer", &self.jumpTimer)
                     .field("flipTimer", &self.flipTimer)
                     .field("isJumping", &self.isJumping)

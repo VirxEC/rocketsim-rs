@@ -96,6 +96,18 @@ void setCarStateAngVel(CarState& state, const Vec& angVel) {
     state.angVel = angVel;
 }
 
+std::unique_ptr<Vec> getCarStateTorque(const CarState& state) {
+    return std::make_unique<Vec>(state.lastRelDodgeTorque);
+}
+
+const Vec& carStateTorque(const CarState& state) {
+    return state.lastRelDodgeTorque;
+}
+
+void setCarStateTorque(CarState& state, const Vec& torque) {
+    state.lastRelDodgeTorque = torque;
+}
+
 std::unique_ptr<BallState> getBallState(const Arena& arena) {
     return std::make_unique<BallState>(arena.ball->GetState());
 }
