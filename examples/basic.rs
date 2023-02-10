@@ -50,10 +50,12 @@ fn main() {
         println!("Set ball state");
     }
 
-    // simulate for 2 seconds
-    arena.pin_mut().Step(c_int(120 * 2));
+    let ticks = 180000;
+    let curr_time = std::time::Instant::now();
+    
+    arena.pin_mut().Step(c_int(ticks));
 
-    println!("Simulated for 2 seconds");
+    println!("Simulated {}s in {}ms", ticks as f32 / 120., curr_time.elapsed().as_millis());
 
     {
         // get the car state again
