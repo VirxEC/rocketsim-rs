@@ -2,7 +2,8 @@ use autocxx::prelude::*;
 use rocketsim_rs::{
     sim::{
         arena::{Arena, GameMode},
-        car::{CarConfig, Team}, CarControls,
+        car::{CarConfig, Team},
+        CarControls,
     },
     Vec3,
 };
@@ -27,10 +28,16 @@ fn main() {
 
         println!("Created custom car state");
 
-        arena.pin_mut().set_car_controls(car_id, &CarControls {
-            boost: true,
-            ..Default::default()
-        }).unwrap();
+        arena
+            .pin_mut()
+            .set_car_controls(
+                car_id,
+                &CarControls {
+                    boost: true,
+                    ..Default::default()
+                },
+            )
+            .unwrap();
 
         // If car_id can't be found in arena than this will return Err
         arena.pin_mut().set_car_state(car_id, &car_state).unwrap();
@@ -52,7 +59,7 @@ fn main() {
 
     let ticks = 180000;
     let curr_time = std::time::Instant::now();
-    
+
     arena.pin_mut().Step(c_int(ticks));
 
     println!("Simulated {}s in {}ms", ticks as f32 / 120., curr_time.elapsed().as_millis());
