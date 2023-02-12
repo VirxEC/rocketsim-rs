@@ -356,6 +356,7 @@ pub mod sim {
                 airTimeSpaceJump: f32,
                 boost: f32,
                 isSupersonic: bool,
+                supersonicTime: f32,
                 handbrakeVal: f32,
                 lastControls: CarControls,
             }
@@ -384,6 +385,7 @@ pub mod sim {
                     .field("airTimeSpaceJump", &self.airTimeSpaceJump)
                     .field("boost", &self.boost)
                     .field("isSupersonic", &self.isSupersonic)
+                    .field("supersonicTime", &self.supersonicTime)
                     .field("handbrakeVal", &self.handbrakeVal)
                     .field("lastControls", &self.lastControls)
                     .finish()

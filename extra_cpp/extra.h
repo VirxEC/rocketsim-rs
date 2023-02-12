@@ -36,6 +36,7 @@ struct ECarState {
 	float boost;
 	float timeSpentBoosting;
 	bool isSupersonic;
+	float supersonicTime;
 	float handbrakeVal;
 	CarControls lastControls;
 
