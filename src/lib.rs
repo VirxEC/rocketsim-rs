@@ -353,8 +353,9 @@ pub mod sim {
                 jumpTimer: f32,
                 flipTimer: f32,
                 isJumping: bool,
-                airTimeSpaceJump: f32,
+                airTimeSinceJump: f32,
                 boost: f32,
+                timeSpentBoosting: f32,
                 isSupersonic: bool,
                 supersonicTime: f32,
                 handbrakeVal: f32,
@@ -382,8 +383,9 @@ pub mod sim {
                     .field("jumpTimer", &self.jumpTimer)
                     .field("flipTimer", &self.flipTimer)
                     .field("isJumping", &self.isJumping)
-                    .field("airTimeSpaceJump", &self.airTimeSpaceJump)
+                    .field("airTimeSinceJump", &self.airTimeSinceJump)
                     .field("boost", &self.boost)
+                    .field("timeSpentBoosting", &self.timeSpentBoosting)
                     .field("isSupersonic", &self.isSupersonic)
                     .field("supersonicTime", &self.supersonicTime)
                     .field("handbrakeVal", &self.handbrakeVal)
