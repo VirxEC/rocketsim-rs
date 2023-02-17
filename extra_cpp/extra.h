@@ -1,9 +1,6 @@
 #include <array>
 
-#include "../RocketSim/src/BaseInc.h"
-#include "../RocketSim/src/Sim/Car/CarConfig/CarConfig.h"
-#include "../RocketSim/src/Sim/Car/Car.h"
-#include "../RocketSim/src/Sim/Arena/Arena.h"
+#include "RocketSim.h"
 
 // extra vec stuff
 
@@ -71,3 +68,21 @@ struct EBallState {
 std::unique_ptr<EBallState> getBallState(const Arena& arena);
 
 void setBallState(Arena& arena, const EBallState& state);
+
+// boost pad stuff
+
+uint32_t numBoostPads(const Arena& arena);
+
+std::unique_ptr<BoostPad> getBoostPad(const Arena& arena, uint32_t id);
+
+bool boostPadIsBig(const BoostPad& pad);
+
+struct EBoostPadState {
+	uint32_t id;
+	bool isActive;
+	float cooldown;
+};
+
+void setBoostPadState(Arena& arena, const EBoostPadState& state);
+
+EBoostPadState getBoostPadState(const Arena& arena, uint32_t id);

@@ -122,3 +122,32 @@ void setBallState(Arena& arena, const EBallState& state) {
 
     arena.ball->SetState(estate);
 }
+
+uint32_t numBoostPads(const Arena& arena) {
+    return arena._boostPads.size();
+}
+
+std::unique_ptr<BoostPad> getBoostPad(const Arena& arena, uint32_t id) {
+    return std::make_unique<BoostPad>(*arena._boostPads[id]);
+}
+
+bool boostPadIsBig(const BoostPad& pad) {
+    return pad.isBig;
+}
+
+void setBoostPadState(Arena& arena, const EBoostPadState& state) {
+    BoostPadState estate = BoostPadState {
+        state.isActive,
+        state.cooldown,
+    }; 
+    arena._boostPads[state.id]->SetState(estate);
+}
+
+EBoostPadState getBoostPadState(const Arena& arena, uint32_t id) {
+    BoostPadState state = arena._boostPads[id]->GetState();
+    return EBoostPadState {
+        id,
+        state.isActive,
+        state.cooldown,
+    };
+}

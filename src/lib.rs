@@ -16,6 +16,8 @@ mod extra {
         type Team = crate::sim::car::Team;
         type EBallState = crate::sim::ball::BallState;
         type CarControls = crate::sim::CarControls;
+        type BoostPad = crate::sim::boostpad::BoostPad;
+        type EBoostPadState = crate::sim::boostpad::BoostPadState;
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
         fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
@@ -50,6 +52,27 @@ mod extra {
 
         #[rust_name = "set_ball_state"]
         fn setBallState(arena: Pin<&mut Arena>, state: &EBallState);
+
+        #[rust_name = "num_boost_pads"]
+        fn numBoostPads(arena: &Arena) -> u32;
+
+        #[rust_name = "boost_pad_is_big"]
+        fn boostPadIsBig(pad: &BoostPad) -> bool;
+
+        #[rust_name = "get_boost_pad"]
+        fn getBoostPad(arena: &Arena, index: u32) -> UniquePtr<BoostPad>;
+
+        #[rust_name = "get_boost_pad_state"]
+        fn getBoostPadState(arena: &Arena, index: u32) -> EBoostPadState;
+
+        #[rust_name = "set_boost_pad_state"]
+        fn setBoostPadState(arena: Pin<&mut Arena>, state: &EBoostPadState);
+    }
+}
+
+impl sim::boostpad::BoostPad {
+    pub fn is_big(&self) -> bool {
+        extra::boost_pad_is_big(self)
     }
 }
 
@@ -147,6 +170,29 @@ impl sim::arena::Arena {
             Err(NoCarFound(car_id))
         }
     }
+
+    #[inline]
+    pub fn num_boost_pads(&self) -> u32 {
+        extra::num_boost_pads(self)
+    }
+
+    #[must_use]
+    pub fn get_pad_static(&self, index: u32) -> UniquePtr<sim::boostpad::BoostPad> {
+        assert!(index < self.num_boost_pads());
+        extra::get_boost_pad(self, index)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn get_pad_state(&self, index: u32) -> sim::boostpad::BoostPadState {
+        assert!(index < self.num_boost_pads());
+        extra::get_boost_pad_state(self, index)
+    }
+
+    #[inline]
+    pub fn set_pad_state(self: Pin<&mut Self>, state: &sim::boostpad::BoostPadState) {
+        extra::set_boost_pad_state(self, state);
+    }
 }
 
 autocxx::include_cpp! {
@@ -158,7 +204,7 @@ autocxx::include_cpp! {
     generate!("btVector3")
 }
 
-pub use bulletlink::{Angle, Vec as Vec3};
+pub use bulletlink::{btVector3, Angle, Vec as Vec3};
 
 impl std::fmt::Debug for Vec3 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -260,13 +306,11 @@ pub mod sim {
             #include "Sim/Arena/Arena.h"
             name!(arena)
             safety!(unsafe)
-            extern_cpp_type!("Team", crate::sim::car::Team)
-            extern_cpp_type!("Car", crate::sim::car::Car)
-            extern_cpp_type!("CarConfig", crate::sim::car::CarConfig)
             extern_cpp_type!("Ball", crate::sim::ball::Ball)
             extern_cpp_type!("btVector3", crate::Vec3)
             extern_cpp_type!("MeshLoader::Mesh", crate::sim::meshloader::MeshLoader::Mesh)
             block!("btManifoldPoint")
+            block!("Car")
             generate_pod!("GameMode")
             generate!("Arena")
         }
@@ -322,7 +366,6 @@ pub mod sim {
             #include "Sim/Car/Car.h"
             name!(car)
             safety!(unsafe)
-            extern_cpp_type!("CarControls", crate::sim::CarControls)
             block!("CarState")
             generate_pod!("Team")
             generate!("Car")
@@ -460,5 +503,36 @@ pub mod sim {
         }
 
         pub use meshloader::MeshLoader;
+    }
+
+    pub mod boostpad {
+        autocxx::include_cpp! {
+            #include "Sim/BoostPad/BoostPad.h"
+            name!(boostpad)
+            safety!(unsafe)
+            extern_cpp_type!("btVector3", crate::Vec3)
+            block!("BoostPadState")
+            generate!("BoostPad")
+        }
+
+        pub use boostpad::BoostPad;
+
+        #[cxx::bridge]
+        mod inner_bps {
+            unsafe extern "C++" {
+                include!("extra.h");
+
+                type EBoostPadState;
+            }
+
+            #[derive(Clone, Copy, Debug, Default)]
+            struct EBoostPadState {
+                id: u32,
+                isActive: bool,
+                cooldown: f32,
+            }
+        }
+
+        pub use inner_bps::EBoostPadState as BoostPadState;
     }
 }
