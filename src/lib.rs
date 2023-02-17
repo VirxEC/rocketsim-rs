@@ -367,6 +367,7 @@ pub mod sim {
             name!(car)
             safety!(unsafe)
             block!("CarState")
+            block!("btDynamicsWorld")
             generate_pod!("Team")
             generate!("Car")
         }
@@ -512,6 +513,7 @@ pub mod sim {
             safety!(unsafe)
             extern_cpp_type!("btVector3", crate::Vec3)
             block!("BoostPadState")
+            block!("btDynamicsWorld")
             generate!("BoostPad")
         }
 
