@@ -127,12 +127,12 @@ uint32_t numBoostPads(const Arena& arena) {
     return arena._boostPads.size();
 }
 
-std::unique_ptr<BoostPad> getBoostPad(const Arena& arena, uint32_t id) {
-    return std::make_unique<BoostPad>(*arena._boostPads[id]);
+std::unique_ptr<Vec> getBoostPadPos(const Arena& arena, uint32_t id) {
+    return std::make_unique<Vec>(arena._boostPads[id]->GetPos());
 }
 
-bool boostPadIsBig(const BoostPad& pad) {
-    return pad.isBig;
+bool getBoostPadIsBig(const Arena& arena, uint32_t id) {
+    return arena._boostPads[id]->isBig;
 }
 
 void setBoostPadState(Arena& arena, const EBoostPadState& state) {

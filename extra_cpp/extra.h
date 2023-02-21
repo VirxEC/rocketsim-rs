@@ -73,9 +73,8 @@ void setBallState(Arena& arena, const EBallState& state);
 
 uint32_t numBoostPads(const Arena& arena);
 
-std::unique_ptr<BoostPad> getBoostPad(const Arena& arena, uint32_t id);
-
-bool boostPadIsBig(const BoostPad& pad);
+bool getBoostPadIsBig(const Arena& arena, uint32_t id);
+std::unique_ptr<Vec> getBoostPadPos(const Arena& arena, uint32_t id);
 
 struct EBoostPadState {
 	uint32_t id;
