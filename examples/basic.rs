@@ -1,4 +1,3 @@
-use autocxx::prelude::*;
 use rocketsim_rs::{
     sim::{
         arena::Arena,
@@ -50,8 +49,8 @@ fn main() {
     {
         let mut ball_state = arena.get_ball_state();
 
-        ball_state.pos = Vec3::new1(&0., &0., &1050.).within_unique_ptr();
-        ball_state.vel = Vec3::new1(&0., &0., &250.).within_unique_ptr();
+        ball_state.pos = Vec3::from_array(&[0., 0., 1050.]);
+        ball_state.vel = Vec3::from_array(&[0., 0., 250.]);
 
         arena.pin_mut().set_ball_state(&ball_state);
 
