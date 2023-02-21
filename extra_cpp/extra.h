@@ -21,6 +21,10 @@ const CarConfig& getMerc();
 
 // extra car stuff
 
+uint32_t numCars(const Arena& arena);
+
+uint32_t getCarID(const Arena& arena, uint32_t index);
+
 struct ECarState {
 	std::unique_ptr<Vec> pos;
 	Angle angles;
@@ -41,9 +45,11 @@ struct ECarState {
 	float autoFlipTimer;
 	float autoFlipTorqueScale;
 	bool hasContact;
-	Vec contactNormal;
+	std::unique_ptr<Vec> contactNormal;
 	CarControls lastControls;
 };
+
+std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index);
 
 std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID);
 

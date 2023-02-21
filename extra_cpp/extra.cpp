@@ -36,6 +36,42 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
+uint32_t numCars(const Arena& arena) {
+    return arena._cars.size();
+}
+
+uint32_t getCarID(const Arena& arena, uint32_t index) {
+    return arena._cars[index]->id;
+}
+
+std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index) {
+    CarState carstate = arena._cars[index]->GetState();
+
+    return std::make_unique<ECarState>(ECarState {
+        std::make_unique<Vec>(carstate.pos),
+        carstate.angles,
+        std::make_unique<Vec>(carstate.vel),
+        std::make_unique<Vec>(carstate.angVel),
+        carstate.isOnGround,
+        carstate.hasJumped, carstate.hasDoubleJumped, carstate.hasFlipped,
+        std::make_unique<Vec>(carstate.lastRelDodgeTorque),
+        carstate.jumpTimer, carstate.flipTimer,
+        carstate.isJumping,
+        carstate.airTimeSinceJump,
+        carstate.boost,
+        carstate.timeSpentBoosting,
+        carstate.isSupersonic,
+        carstate.supersonicTime,
+        carstate.handbrakeVal,
+        carstate.isAutoFlipping,
+        carstate.autoFlipTimer,
+        carstate.autoFlipTorqueScale,
+        carstate.worldContact.hasContact,
+        std::make_unique<Vec>(carstate.worldContact.contactNormal),
+        carstate.lastControls
+    });
+}
+
 std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
     Car* car = arena.GetCarFromID(carID);
     if (car == NULL) {
@@ -64,7 +100,7 @@ std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
         carstate.autoFlipTimer,
         carstate.autoFlipTorqueScale,
         carstate.worldContact.hasContact,
-        carstate.worldContact.contactNormal,
+        std::make_unique<Vec>(carstate.worldContact.contactNormal),
         carstate.lastControls
     });
 }
@@ -95,7 +131,7 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
         state.autoFlipTimer,
         state.autoFlipTorqueScale,
         state.hasContact,
-        state.contactNormal,
+        *state.contactNormal,
         state.lastControls
     };
 

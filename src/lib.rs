@@ -35,6 +35,15 @@ mod extra {
         #[rust_name = "get_merc"]
         fn getMerc() -> &'static CarConfig;
 
+        #[rust_name = "num_cars"]
+        fn numCars(arena: &Arena) -> u32;
+
+        #[rust_name = "get_car_id"]
+        fn getCarID(arena: &Arena, index: u32) -> u32;
+
+        #[rust_name = "get_car_from_index"]
+        fn getCarFromIndex(arena: Pin<&mut Arena>, index: u32) -> UniquePtr<ECarState>;
+
         #[rust_name = "get_car_state_from_id"]
         fn getCarState(arena: Pin<&mut Arena>, car_id: u32) -> UniquePtr<ECarState>;
 
@@ -146,6 +155,22 @@ impl sim::arena::Arena {
     }
 
     #[inline]
+    pub fn num_cars(&self) -> u32 {
+        extra::num_cars(self)
+    }
+
+    #[inline]
+    pub fn get_car_id_from_index(&self, index: u32) -> u32 {
+        debug_assert!(index < self.num_cars(), "Index out of bounds: {} >= {}", index, self.num_cars());
+        extra::get_car_id(self, index)
+    }
+
+    pub fn get_car_from_index(self: Pin<&mut Self>, index: u32) -> cxx::UniquePtr<sim::car::CarState> {
+        debug_assert!(index < self.num_cars(), "Index out of bounds: {} >= {}", index, self.num_cars());
+        extra::get_car_from_index(self, index)
+    }
+
+    #[inline]
     #[must_use]
     pub fn get_ball_state(&self) -> cxx::UniquePtr<sim::ball::BallState> {
         extra::get_ball_state(self)
@@ -172,24 +197,22 @@ impl sim::arena::Arena {
 
     #[must_use]
     pub fn get_pad_is_big(&self, index: u32) -> bool {
-        assert!(index < self.num_boost_pads());
+        debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
         extra::get_boost_pad_is_big(self, index)
     }
 
     #[inline]
-    #[must_use]
     pub fn iter_pad_is_big(&self) -> impl Iterator<Item = bool> + '_ {
         (0..self.num_boost_pads()).map(move |id| self.get_pad_is_big(id))
     }
 
     #[must_use]
     pub fn get_pad_pos(&self, index: u32) -> UniquePtr<btVector3> {
-        assert!(index < self.num_boost_pads());
+        debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
         extra::get_boost_pad_pos(self, index)
     }
 
     #[inline]
-    #[must_use]
     pub fn iter_pad_pos(&self) -> impl Iterator<Item = UniquePtr<btVector3>> + '_ {
         (0..self.num_boost_pads()).map(move |id| self.get_pad_pos(id))
     }
@@ -197,12 +220,11 @@ impl sim::arena::Arena {
     #[inline]
     #[must_use]
     pub fn get_pad_state(&self, index: u32) -> sim::boostpad::BoostPadState {
-        assert!(index < self.num_boost_pads());
+        debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
         extra::get_boost_pad_state(self, index)
     }
 
     #[inline]
-    #[must_use]
     pub fn iter_pad_state(&self) -> impl Iterator<Item = sim::boostpad::BoostPadState> + '_ {
         (0..self.num_boost_pads()).map(move |id| self.get_pad_state(id))
     }
