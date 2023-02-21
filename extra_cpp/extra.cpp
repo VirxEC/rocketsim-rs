@@ -56,6 +56,11 @@ std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
         carstate.isSupersonic,
         carstate.supersonicTime,
         carstate.handbrakeVal,
+        carstate.isAutoFlipping,
+        carstate.autoFlipTimer,
+        carstate.autoFlipTorqueScale,
+        carstate.worldContact.hasContact,
+        carstate.worldContact.contactNormal,
         carstate.lastControls
     });
 }
@@ -82,6 +87,11 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
         state.isSupersonic,
         state.supersonicTime,
         state.handbrakeVal,
+        state.isAutoFlipping,
+        state.autoFlipTimer,
+        state.autoFlipTorqueScale,
+        state.hasContact,
+        state.contactNormal,
         state.lastControls
     };
 

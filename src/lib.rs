@@ -402,6 +402,11 @@ pub mod sim {
                 isSupersonic: bool,
                 supersonicTime: f32,
                 handbrakeVal: f32,
+                isAutoFlipping: bool,
+                autoFlipTimer: f32,
+                autoFlipTorqueScale: f32,
+                hasContact: bool,
+                contactNormal: UniquePtr<btVector3>,
                 lastControls: CarControls,
             }
 
@@ -432,6 +437,11 @@ pub mod sim {
                     .field("isSupersonic", &self.isSupersonic)
                     .field("supersonicTime", &self.supersonicTime)
                     .field("handbrakeVal", &self.handbrakeVal)
+                    .field("isAutoFlipping", &self.isAutoFlipping)
+                    .field("autoFlipTimer", &self.autoFlipTimer)
+                    .field("autoFlipTorqueScale", &self.autoFlipTorqueScale)
+                    .field("hasContact", &self.hasContact)
+                    .field("contactNormal", &self.contactNormal)
                     .field("lastControls", &self.lastControls)
                     .finish()
             }

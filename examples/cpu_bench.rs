@@ -7,7 +7,7 @@ use autocxx::{c_int, WithinUniquePtr};
 use rocketsim_rs::sim::arena::{Arena, GameMode};
 
 fn main() {
-    const TICKS: i32 = 200000;
+    const TICKS: i32 = 300000;
 
     let num_cpu = available_parallelism().unwrap().get();
 

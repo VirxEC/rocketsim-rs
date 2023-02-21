@@ -35,8 +35,12 @@ struct ECarState {
 	bool isSupersonic;
 	float supersonicTime;
 	float handbrakeVal;
+	bool isAutoFlipping;
+	float autoFlipTimer;
+	float autoFlipTorqueScale;
+	bool hasContact;
+	Vec contactNormal;
 	CarControls lastControls;
-
 };
 
 std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID);
