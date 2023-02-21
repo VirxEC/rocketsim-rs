@@ -16,7 +16,6 @@ mod extra {
         type Team = crate::sim::car::Team;
         type EBallState = crate::sim::ball::BallState;
         type CarControls = crate::sim::CarControls;
-        type BoostPad = crate::sim::boostpad::BoostPad;
         type EBoostPadState = crate::sim::boostpad::BoostPadState;
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
@@ -56,23 +55,17 @@ mod extra {
         #[rust_name = "num_boost_pads"]
         fn numBoostPads(arena: &Arena) -> u32;
 
-        #[rust_name = "boost_pad_is_big"]
-        fn boostPadIsBig(pad: &BoostPad) -> bool;
+        #[rust_name = "get_boost_pad_is_big"]
+        fn getBoostPadIsBig(arena: &Arena, index: u32) -> bool;
 
-        #[rust_name = "get_boost_pad"]
-        fn getBoostPad(arena: &Arena, index: u32) -> UniquePtr<BoostPad>;
+        #[rust_name = "get_boost_pad_pos"]
+        fn getBoostPadPos(arena: &Arena, index: u32) -> UniquePtr<btVector3>;
 
         #[rust_name = "get_boost_pad_state"]
         fn getBoostPadState(arena: &Arena, index: u32) -> EBoostPadState;
 
         #[rust_name = "set_boost_pad_state"]
         fn setBoostPadState(arena: Pin<&mut Arena>, state: &EBoostPadState);
-    }
-}
-
-impl sim::boostpad::BoostPad {
-    pub fn is_big(&self) -> bool {
-        extra::boost_pad_is_big(self)
     }
 }
 
@@ -177,9 +170,15 @@ impl sim::arena::Arena {
     }
 
     #[must_use]
-    pub fn get_pad_static(&self, index: u32) -> UniquePtr<sim::boostpad::BoostPad> {
+    pub fn get_pad_is_big(&self, index: u32) -> bool {
         assert!(index < self.num_boost_pads());
-        extra::get_boost_pad(self, index)
+        extra::get_boost_pad_is_big(self, index)
+    }
+
+    #[must_use]
+    pub fn get_pad_pos(&self, index: u32) -> UniquePtr<btVector3> {
+        assert!(index < self.num_boost_pads());
+        extra::get_boost_pad_pos(self, index)
     }
 
     #[inline]
