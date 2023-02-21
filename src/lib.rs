@@ -20,6 +20,7 @@ mod extra {
 
         fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
         fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
+        fn cloneBtVector3(vec: &btVector3) -> UniquePtr<btVector3>;
 
         #[rust_name = "get_octane"]
         fn getOctane() -> &'static CarConfig;
@@ -234,7 +235,7 @@ impl btVector3 {
 
     #[inline]
     pub fn clone(&self) -> cxx::UniquePtr<Self> {
-        Self::from_array(&self.to_array())
+        extra::cloneBtVector3(self)
     }
 }
 
@@ -332,7 +333,7 @@ pub mod sim {
         #[inline]
         pub fn get_tick_rate(self: crate::Pin<&mut Self>) -> f32 {
             self.GetTickRate()
-        } 
+        }
     }
 
     pub mod ball {

@@ -8,6 +8,10 @@ std::unique_ptr<btVector3> arrayToBtVector3(const std::array<float, 3>& a) {
     return std::make_unique<btVector3>(a[0], a[1], a[2]);
 }
 
+std::unique_ptr<btVector3> cloneBtVector3(const btVector3& v) {
+    return std::make_unique<btVector3>(v.x(), v.y(), v.z());
+}
+
 const CarConfig& getOctane() {
     return CAR_CONFIG_OCTANE;
 }

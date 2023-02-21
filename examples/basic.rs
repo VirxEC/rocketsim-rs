@@ -21,8 +21,8 @@ fn main() {
         // custom initial car state
         let mut car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
 
-        car_state.pos = Vec3::from_array([5., 0., 50.]);
-        car_state.vel = Vec3::from_array([500., 800., 0.]);
+        car_state.pos = Vec3::from_array(&[5., 0., 50.]);
+        car_state.vel = Vec3::from_array(&[500., 800., 0.]);
 
         // for trivial Rust types, getting/setting is easier
         car_state.boost = 100.;
@@ -53,7 +53,7 @@ fn main() {
         ball_state.pos = Vec3::new1(&0., &0., &1050.).within_unique_ptr();
         ball_state.vel = Vec3::new1(&0., &0., &250.).within_unique_ptr();
 
-        arena.set_ball_state(&ball_state);
+        arena.pin_mut().set_ball_state(&ball_state);
 
         println!("Set ball state");
     }

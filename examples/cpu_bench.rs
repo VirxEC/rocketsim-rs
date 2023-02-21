@@ -6,9 +6,14 @@ use std::{
 use rocketsim_rs::sim::arena::Arena;
 
 fn main() {
-    const TICKS: i32 = 300000;
+    const TICKS: i32 = 200000;
+
+    // load in assets
+    Arena::default_soccar();
 
     let num_cpu = available_parallelism().unwrap().get();
+
+    println!("Running on {} threads", num_cpu);
 
     let start_time = Instant::now();
     let threads = (0..num_cpu).map(|_| {
