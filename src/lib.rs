@@ -147,12 +147,6 @@ impl sim::arena::Arena {
 
     #[inline]
     #[must_use]
-    pub fn iter_cars(&self) -> impl Iterator<Item = cxx::UniquePtr<sim::car::CarState>> {
-        (0..self.num_cars()).map(move |id| self.get_car_state_from_id(id).unwrap())
-    }
-
-    #[inline]
-    #[must_use]
     pub fn get_ball_state(&self) -> cxx::UniquePtr<sim::ball::BallState> {
         extra::get_ball_state(self)
     }
