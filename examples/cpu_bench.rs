@@ -3,8 +3,7 @@ use std::{
     time::Instant,
 };
 
-use autocxx::{c_int, WithinUniquePtr};
-use rocketsim_rs::sim::arena::{Arena, GameMode};
+use rocketsim_rs::sim::arena::Arena;
 
 fn main() {
     const TICKS: i32 = 300000;
@@ -14,8 +13,7 @@ fn main() {
     let start_time = Instant::now();
     let threads = (0..num_cpu).map(|_| {
         spawn(|| {
-            let mut arena = Arena::new(GameMode::SOCCAR, 120.).within_unique_ptr();
-            arena.pin_mut().Step(c_int(TICKS));
+            Arena::default_soccar().pin_mut().step(TICKS);
         })
     });
 

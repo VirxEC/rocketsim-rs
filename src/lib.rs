@@ -192,6 +192,11 @@ impl sim::arena::Arena {
     pub fn set_pad_state(self: Pin<&mut Self>, state: &sim::boostpad::BoostPadState) {
         extra::set_boost_pad_state(self, state);
     }
+
+    #[inline]
+    pub fn step(self: Pin<&mut Self>, ticks: i32) {
+        self.Step(c_int(ticks));
+    }
 }
 
 autocxx::include_cpp! {
@@ -211,10 +216,10 @@ impl std::fmt::Debug for Vec3 {
     }
 }
 
-impl Vec3 {
+impl btVector3 {
     #[inline]
-    pub fn default() -> UniquePtr<Vec3> {
-        Vec3::new1(&0., &0., &0.).within_unique_ptr()
+    pub fn zero() -> UniquePtr<Vec3> {
+        Self::new1(&0., &0., &0.).within_unique_ptr()
     }
 
     #[inline]
@@ -223,18 +228,18 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn from_array(arr: [f32; 3]) -> cxx::UniquePtr<Self> {
-        extra::arrayToBtVector3(&arr)
+    pub fn from_array(arr: &[f32; 3]) -> cxx::UniquePtr<Self> {
+        extra::arrayToBtVector3(arr)
     }
 
     #[inline]
     pub fn clone(&self) -> cxx::UniquePtr<Self> {
-        Self::from_array(self.to_array())
+        Self::from_array(&self.to_array())
     }
 }
 
 #[cfg(feature = "glam")]
-impl Vec3 {
+impl btVector3 {
     #[inline]
     pub fn to_glam(&self) -> glam::Vec3 {
         glam::Vec3::from_array(self.to_array())
@@ -298,6 +303,7 @@ pub mod sim {
         impl UniquePtr<CarControls> {}
     }
 
+    use autocxx::WithinUniquePtr;
     pub use carcontrols::CarControls;
 
     pub mod arena {
@@ -315,6 +321,18 @@ pub mod sim {
         }
 
         pub use arena::{Arena, GameMode};
+    }
+
+    impl arena::Arena {
+        #[inline]
+        pub fn default_soccar() -> cxx::UniquePtr<Self> {
+            Self::new(arena::GameMode::SOCCAR, 120.).within_unique_ptr()
+        }
+
+        #[inline]
+        pub fn get_tick_rate(self: crate::Pin<&mut Self>) -> f32 {
+            self.GetTickRate()
+        } 
     }
 
     pub mod ball {

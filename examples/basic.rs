@@ -1,7 +1,7 @@
 use autocxx::prelude::*;
 use rocketsim_rs::{
     sim::{
-        arena::{Arena, GameMode},
+        arena::Arena,
         car::{CarConfig, Team},
         CarControls,
     },
@@ -9,8 +9,9 @@ use rocketsim_rs::{
 };
 
 fn main() {
-    let mut arena = Arena::new(GameMode::SOCCAR, 120.).within_unique_ptr();
-    println!("Arena tick rate: {}", arena.pin_mut().GetTickRate());
+    // Create a new arena with gamemode soccar and a tick rate of 120
+    let mut arena = Arena::default_soccar();
+    println!("Arena tick rate: {}", arena.pin_mut().get_tick_rate());
 
     let car_id = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
 
@@ -20,8 +21,8 @@ fn main() {
         // custom initial car state
         let mut car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
 
-        car_state.pos = Vec3::new1(&5., &0., &50.).within_unique_ptr();
-        car_state.vel = Vec3::new1(&500., &800., &0.).within_unique_ptr();
+        car_state.pos = Vec3::from_array([5., 0., 50.]);
+        car_state.vel = Vec3::from_array([500., 800., 0.]);
 
         // for trivial Rust types, getting/setting is easier
         car_state.boost = 100.;
@@ -47,12 +48,12 @@ fn main() {
     }
 
     {
-        let mut ball_state = arena.pin_mut().get_ball_state();
+        let mut ball_state = arena.get_ball_state();
 
         ball_state.pos = Vec3::new1(&0., &0., &1050.).within_unique_ptr();
         ball_state.vel = Vec3::new1(&0., &0., &250.).within_unique_ptr();
 
-        arena.pin_mut().set_ball_state(&ball_state);
+        arena.set_ball_state(&ball_state);
 
         println!("Set ball state");
     }
@@ -60,7 +61,7 @@ fn main() {
     let ticks = 180000;
     let curr_time = std::time::Instant::now();
 
-    arena.pin_mut().Step(c_int(ticks));
+    arena.pin_mut().step(ticks);
 
     println!("Simulated {}s in {}ms", ticks as f32 / 120., curr_time.elapsed().as_millis());
 
@@ -81,7 +82,7 @@ fn main() {
     }
 
     {
-        let ball_state = arena.pin_mut().get_ball_state();
+        let ball_state = arena.get_ball_state();
 
         // Create new glam SIMD-optimized Vec3A
         let glam_vec3a = ball_state.pos.to_glama();
