@@ -46,6 +46,7 @@ struct ECarState {
 	float autoFlipTorqueScale;
 	bool hasContact;
 	std::unique_ptr<Vec> contactNormal;
+	uint64_t lastHitBallTick;
 	CarControls lastControls;
 };
 

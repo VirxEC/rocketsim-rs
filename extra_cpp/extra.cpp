@@ -68,6 +68,7 @@ std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index) {
         carstate.autoFlipTorqueScale,
         carstate.worldContact.hasContact,
         std::make_unique<Vec>(carstate.worldContact.contactNormal),
+        carstate.lastHitBallTick,
         carstate.lastControls
     });
 }
@@ -101,6 +102,7 @@ std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
         carstate.autoFlipTorqueScale,
         carstate.worldContact.hasContact,
         std::make_unique<Vec>(carstate.worldContact.contactNormal),
+        carstate.lastHitBallTick,
         carstate.lastControls
     });
 }
@@ -132,6 +134,7 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
         state.autoFlipTorqueScale,
         state.hasContact,
         *state.contactNormal,
+        state.lastHitBallTick,
         state.lastControls
     };
 

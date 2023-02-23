@@ -468,6 +468,7 @@ pub mod sim {
                 autoFlipTorqueScale: f32,
                 hasContact: bool,
                 contactNormal: UniquePtr<btVector3>,
+                lastHitBallTick: u64,
                 lastControls: CarControls,
             }
 
@@ -503,6 +504,7 @@ pub mod sim {
                     .field("autoFlipTorqueScale", &self.autoFlipTorqueScale)
                     .field("hasContact", &self.hasContact)
                     .field("contactNormal", &self.contactNormal)
+                    .field("lastHitBallTick", &self.lastHitBallTick)
                     .field("lastControls", &self.lastControls)
                     .finish()
             }
