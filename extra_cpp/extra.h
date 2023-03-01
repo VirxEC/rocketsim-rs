@@ -33,7 +33,7 @@ struct ECarState {
 	bool isOnGround;
 	bool hasJumped, hasDoubleJumped, hasFlipped;
 	std::unique_ptr<Vec> lastRelDodgeTorque;
-	float jumpTimer, flipTimer;
+	float jumpTime, flipTime;
 	bool isJumping;
 	float airTimeSinceJump;
 	float boost;
@@ -46,6 +46,11 @@ struct ECarState {
 	float autoFlipTorqueScale;
 	bool hasContact;
 	std::unique_ptr<Vec> contactNormal;
+	bool isContactingCar;
+	uint32_t otherCar;
+	float cooldownTimer;
+	bool isDemoed;
+	float demoRespawnTimer;
 	uint64_t lastHitBallTick;
 	CarControls lastControls;
 };
@@ -69,6 +74,10 @@ uint32_t addCar(Arena& arena, Team team, const CarConfig& config);
 /// @param carID 
 /// @return True if the car was found and the state was set, false otherwise
 bool setCarControls(Arena& arena, uint32_t carID, const CarControls& controls);
+
+bool demolishCar(Arena& arena, uint32_t carID);
+
+bool respawnCar(Arena& arena, uint32_t carID, int seed);
 
 // extra ball stuff
 

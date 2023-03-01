@@ -44,8 +44,14 @@ uint32_t getCarID(const Arena& arena, uint32_t index) {
     return arena._cars[index]->id;
 }
 
-std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index) {
-    CarState carstate = arena._cars[index]->GetState();
+std::unique_ptr<ECarState> getECarState(CarState carstate) {
+    bool isContactingCar = false;
+    uint32_t otherCar = 0;
+
+    if (carstate.carContact.otherCar != NULL) {
+        isContactingCar = true;
+        otherCar = carstate.carContact.otherCar->id;
+    }
 
     return std::make_unique<ECarState>(ECarState {
         std::make_unique<Vec>(carstate.pos),
@@ -55,7 +61,7 @@ std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index) {
         carstate.isOnGround,
         carstate.hasJumped, carstate.hasDoubleJumped, carstate.hasFlipped,
         std::make_unique<Vec>(carstate.lastRelDodgeTorque),
-        carstate.jumpTimer, carstate.flipTimer,
+        carstate.jumpTime, carstate.flipTime,
         carstate.isJumping,
         carstate.airTimeSinceJump,
         carstate.boost,
@@ -68,9 +74,18 @@ std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index) {
         carstate.autoFlipTorqueScale,
         carstate.worldContact.hasContact,
         std::make_unique<Vec>(carstate.worldContact.contactNormal),
+        isContactingCar,
+        otherCar,
+        carstate.carContact.cooldownTimer,
+        carstate.isDemoed,
+        carstate.demoRespawnTimer,
         carstate.lastHitBallTick,
         carstate.lastControls
     });
+}
+
+std::unique_ptr<ECarState> getCarFromIndex(Arena& arena, uint32_t index) {
+    return getECarState(arena._cars[index]->GetState());
 }
 
 std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
@@ -79,38 +94,19 @@ std::unique_ptr<ECarState> getCarState(Arena& arena, uint32_t carID) {
         return NULL;
     }
 
-    CarState carstate = car->GetState();
-
-    return std::make_unique<ECarState>(ECarState {
-        std::make_unique<Vec>(carstate.pos),
-        carstate.angles,
-        std::make_unique<Vec>(carstate.vel),
-        std::make_unique<Vec>(carstate.angVel),
-        carstate.isOnGround,
-        carstate.hasJumped, carstate.hasDoubleJumped, carstate.hasFlipped,
-        std::make_unique<Vec>(carstate.lastRelDodgeTorque),
-        carstate.jumpTimer, carstate.flipTimer,
-        carstate.isJumping,
-        carstate.airTimeSinceJump,
-        carstate.boost,
-        carstate.timeSpentBoosting,
-        carstate.isSupersonic,
-        carstate.supersonicTime,
-        carstate.handbrakeVal,
-        carstate.isAutoFlipping,
-        carstate.autoFlipTimer,
-        carstate.autoFlipTorqueScale,
-        carstate.worldContact.hasContact,
-        std::make_unique<Vec>(carstate.worldContact.contactNormal),
-        carstate.lastHitBallTick,
-        carstate.lastControls
-    });
+    return getECarState(car->GetState());
 }
 
 bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
     Car* car = arena.GetCarFromID(carID);
     if (car == NULL) {
         return false;
+    }
+
+    Car* otherCar = NULL;
+
+    if (state.isContactingCar) {
+        otherCar = arena.GetCarFromID(state.otherCar);
     }
 
     CarState estate = {
@@ -121,7 +117,7 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
         state.isOnGround,
         state.hasJumped, state.hasDoubleJumped, state.hasFlipped,
         *state.lastRelDodgeTorque,
-        state.jumpTimer, state.flipTimer,
+        state.jumpTime, state.flipTime,
         state.isJumping,
         state.airTimeSinceJump,
         state.boost,
@@ -134,6 +130,10 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state) {
         state.autoFlipTorqueScale,
         state.hasContact,
         *state.contactNormal,
+        otherCar,
+        state.cooldownTimer,
+        state.isDemoed,
+        state.demoRespawnTimer,
         state.lastHitBallTick,
         state.lastControls
     };
@@ -154,6 +154,26 @@ bool setCarControls(Arena& arena, uint32_t carID, const CarControls& controls) {
     }
 
     car->controls = controls;
+    return true;
+}
+
+bool demolishCar(Arena& arena, uint32_t carID) {
+    Car* car = arena.GetCarFromID(carID);
+    if (car == NULL) {
+        return false;
+    }
+
+    car->Demolish();
+    return true;
+}
+
+bool respawnCar(Arena& arena, uint32_t carID, int seed) {
+    Car* car = arena.GetCarFromID(carID);
+    if (car == NULL) {
+        return false;
+    }
+
+    car->Respawn(seed);
     return true;
 }
 

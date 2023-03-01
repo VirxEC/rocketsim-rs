@@ -56,6 +56,12 @@ mod extra {
         #[rust_name = "set_car_controls"]
         fn setCarControls(arena: Pin<&mut Arena>, car_id: u32, controls: &CarControls) -> bool;
 
+        #[rust_name = "demolish_car"]
+        fn demolishCar(arena: Pin<&mut Arena>, car_id: u32) -> bool;
+
+        #[rust_name = "respawn_car"]
+        fn respawnCar(arena: Pin<&mut Arena>, car_id: u32, seed: i32) -> bool;
+
         #[rust_name = "get_ball_state"]
         fn getBallState(arena: &Arena) -> UniquePtr<EBallState>;
 
@@ -171,6 +177,24 @@ impl sim::arena::Arena {
     }
 
     #[inline]
+    pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+        if extra::demolish_car(self, car_id) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
+    pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>) -> Result<(), NoCarFound> {
+        if extra::respawn_car(self, car_id, seed.unwrap_or(-1)) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
     #[must_use]
     pub fn get_ball_state(&self) -> cxx::UniquePtr<sim::ball::BallState> {
         extra::get_ball_state(self)
@@ -237,6 +261,11 @@ impl sim::arena::Arena {
     #[inline]
     pub fn step(self: Pin<&mut Self>, ticks: i32) {
         self.Step(c_int(ticks));
+    }
+
+    #[inline]
+    pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
+        self.ResetToRandomKickoff(c_int(seed.unwrap_or(-1)));
     }
 }
 
@@ -454,8 +483,8 @@ pub mod sim {
                 hasDoubleJumped: bool,
                 hasFlipped: bool,
                 lastRelDodgeTorque: UniquePtr<btVector3>,
-                jumpTimer: f32,
-                flipTimer: f32,
+                jumpTime: f32,
+                flipTime: f32,
                 isJumping: bool,
                 airTimeSinceJump: f32,
                 boost: f32,
@@ -468,6 +497,11 @@ pub mod sim {
                 autoFlipTorqueScale: f32,
                 hasContact: bool,
                 contactNormal: UniquePtr<btVector3>,
+                isContactingCar: bool,
+                otherCar: u32,
+                cooldownTimer: f32,
+                isDemoed: bool,
+                demoRespawnTimer: f32,
                 lastHitBallTick: u64,
                 lastControls: CarControls,
             }
@@ -490,8 +524,8 @@ pub mod sim {
                     .field("hasDoubleJumped", &self.hasDoubleJumped)
                     .field("hasFlipped", &self.hasFlipped)
                     .field("lastRelDodgeTorque", &self.lastRelDodgeTorque)
-                    .field("jumpTimer", &self.jumpTimer)
-                    .field("flipTimer", &self.flipTimer)
+                    .field("jumpTime", &self.jumpTime)
+                    .field("flipTime", &self.flipTime)
                     .field("isJumping", &self.isJumping)
                     .field("airTimeSinceJump", &self.airTimeSinceJump)
                     .field("boost", &self.boost)
@@ -504,9 +538,25 @@ pub mod sim {
                     .field("autoFlipTorqueScale", &self.autoFlipTorqueScale)
                     .field("hasContact", &self.hasContact)
                     .field("contactNormal", &self.contactNormal)
+                    .field("isContactingCar", &self.isContactingCar)
+                    .field("otherCar", &self.otherCar)
+                    .field("cooldownTimer", &self.cooldownTimer)
+                    .field("isDemoed", &self.isDemoed)
+                    .field("demoRespawnTimer", &self.demoRespawnTimer)
                     .field("lastHitBallTick", &self.lastHitBallTick)
                     .field("lastControls", &self.lastControls)
                     .finish()
+            }
+        }
+
+        impl CarState {
+            #[inline]
+            pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut super::arena::Arena>) -> Option<cxx::UniquePtr<Self>> {
+                if self.isContactingCar {
+                    Some(arena.get_car_state_from_id(self.otherCar).ok()?)
+                } else {
+                    None
+                }
             }
         }
 
