@@ -349,15 +349,15 @@ impl std::fmt::Debug for Angle {
     }
 }
 
-autocxx::include_cpp! {
-    #include "CollisionMeshFile/CollisionMeshFile.h"
-    name!(meshloader)
-    safety!(unsafe)
-    block!("ReadFromFile")
-    generate!("CollisionMeshFile")
-}
+// autocxx::include_cpp! {
+//     #include "CollisionMeshFile/CollisionMeshFile.h"
+//     name!(meshloader)
+//     safety!(unsafe)
+//     block!("ReadFromFile")
+//     generate!("CollisionMeshFile")
+// }
 
-pub use meshloader::CollisionMeshFile;
+// pub use meshloader::CollisionMeshFile;
 
 pub mod sim {
     #[cxx::bridge]
@@ -393,7 +393,7 @@ pub mod sim {
             safety!(unsafe)
             extern_cpp_type!("Ball", crate::sim::ball::Ball)
             extern_cpp_type!("btVector3", crate::Vec3)
-            extern_cpp_type!("CollisionMeshFile", crate::CollisionMeshFile)
+            // extern_cpp_type!("CollisionMeshFile", crate::CollisionMeshFile)
             block!("btManifoldPoint")
             block!("btDynamicsWorld")
             block!("Car")
