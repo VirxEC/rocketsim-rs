@@ -20,8 +20,8 @@ fn main() {
         // custom initial car state
         let mut car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
 
-        car_state.pos = Vec3::from_array(&[5., 0., 50.]);
-        car_state.vel = Vec3::from_array(&[500., 800., 0.]);
+        *car_state.pos = Vec3::new(5., 0., 50.);
+        *car_state.vel = Vec3::new(500., 800., 0.);
 
         // for trivial Rust types, getting/setting is easier
         car_state.boost = 100.;
@@ -49,8 +49,8 @@ fn main() {
     {
         let mut ball_state = arena.get_ball_state();
 
-        ball_state.pos = Vec3::from_array(&[0., 0., 1050.]);
-        ball_state.vel = Vec3::from_array(&[0., 0., 250.]);
+        *ball_state.pos = Vec3::new(0., 0., 1050.);
+        *ball_state.vel = Vec3::new(0., 0., 250.);
 
         arena.pin_mut().set_ball_state(&ball_state);
 
@@ -75,7 +75,7 @@ fn main() {
         // dbg!(&car_state);
 
         // Create new glam Vec3
-        let glam_vec3 = car_state.pos.to_glam();
+        let glam_vec3 = unsafe { car_state.pos.as_glam() };
         println!("New car location: {glam_vec3}");
         println!("New car boost: {}", car_state.boost);
     }
@@ -83,8 +83,8 @@ fn main() {
     {
         let ball_state = arena.get_ball_state();
 
-        // Create new glam SIMD-optimized Vec3A
-        let glam_vec3a = ball_state.pos.to_glama();
+        // Transmute the ball state to a glam Vec3A
+        let glam_vec3a = unsafe { ball_state.pos.as_glam() };
         println!("New ball location: {glam_vec3a}")
     }
 }

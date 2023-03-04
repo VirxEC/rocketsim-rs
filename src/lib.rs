@@ -1,8 +1,9 @@
 use autocxx::prelude::*;
-use std::{error::Error, pin::Pin};
+use std::{error::Error, mem, pin::Pin};
 
 pub use autocxx;
 pub use cxx;
+pub use glam::Vec3A;
 
 #[cxx::bridge]
 mod extra {
@@ -17,10 +18,6 @@ mod extra {
         type EBallState = crate::sim::ball::BallState;
         type CarControls = crate::sim::CarControls;
         type EBoostPadState = crate::sim::boostpad::BoostPadState;
-
-        fn btVector3ToArray(vec: &btVector3) -> [f32; 3];
-        fn arrayToBtVector3(arr: &[f32; 3]) -> UniquePtr<btVector3>;
-        fn cloneBtVector3(vec: &btVector3) -> UniquePtr<btVector3>;
 
         #[rust_name = "get_octane"]
         fn getOctane() -> &'static CarConfig;
@@ -274,50 +271,76 @@ autocxx::include_cpp! {
     name!(bulletlink)
     safety!(unsafe)
     generate_pod!("Angle")
-    generate!("Vec")
-    generate!("btVector3")
 }
 
-pub use bulletlink::{btVector3, Angle, Vec as Vec3};
+pub use bulletlink::Angle;
 
-impl std::fmt::Debug for Vec3 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Vec3").field("x", &self.x()).field("y", &self.y()).field("z", &self.z()).finish()
+mod other {
+    use cxx::{type_id, ExternType};
+
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug)]
+    pub struct btVector3(std::arch::x86_64::__m128);
+
+    unsafe impl ExternType for btVector3 {
+        type Id = type_id!("btVector3");
+        type Kind = cxx::kind::Trivial;
+    }
+
+    #[cxx::bridge]
+    mod bulletlink2 {
+        unsafe extern "C++" {
+            include!("BulletLink.h");
+            type btVector3 = crate::other::btVector3;
+        }
+
+        impl UniquePtr<btVector3> {}
+    }
+}
+
+pub use other::{btVector3, btVector3 as Vec3};
+
+impl From<btVector3> for glam::Vec3A {
+    #[inline]
+    fn from(value: btVector3) -> Self {
+        value.to_glam()
+    }
+}
+
+impl From<glam::Vec3A> for btVector3 {
+    #[inline]
+    fn from(value: glam::Vec3A) -> Self {
+        Self::from_glam(value)
     }
 }
 
 impl btVector3 {
     #[inline]
-    pub fn zero() -> UniquePtr<Vec3> {
-        Self::new1(&0., &0., &0.).within_unique_ptr()
+    pub const fn new(x: f32, y: f32, z: f32) -> Self {
+        Self::from_glam(Vec3A::new(x, y, z))
     }
 
     #[inline]
-    pub fn to_array(&self) -> [f32; 3] {
-        extra::btVector3ToArray(self)
+    pub const fn from_array(a: [f32; 3]) -> Self {
+        Self::from_glam(Vec3A::from_array(a))
     }
 
     #[inline]
-    pub fn from_array(arr: &[f32; 3]) -> cxx::UniquePtr<Self> {
-        extra::arrayToBtVector3(arr)
+    pub const fn to_glam(self) -> glam::Vec3A {
+        unsafe { mem::transmute(self) }
+    }
+
+    /// # Safety
+    /// 
+    /// This is unsafe because you must ensure that self lives for longer than the returned glam::Vec3A
+    #[inline]
+    pub unsafe fn as_glam(&self) -> glam::Vec3A {
+        mem::transmute_copy(self)
     }
 
     #[inline]
-    pub fn clone(&self) -> cxx::UniquePtr<Self> {
-        extra::cloneBtVector3(self)
-    }
-}
-
-#[cfg(feature = "glam")]
-impl btVector3 {
-    #[inline]
-    pub fn to_glam(&self) -> glam::Vec3 {
-        glam::Vec3::from_array(self.to_array())
-    }
-
-    #[inline]
-    pub fn to_glama(&self) -> glam::Vec3A {
-        glam::Vec3A::from_array(self.to_array())
+    pub const fn from_glam(v: glam::Vec3A) -> Self {
+        unsafe { mem::transmute(v) }
     }
 }
 

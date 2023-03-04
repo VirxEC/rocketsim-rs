@@ -2,14 +2,6 @@
 
 #include "RocketSim.h"
 
-// extra vec stuff
-
-std::array<float, 3> btVector3ToArray(const btVector3& v);
-
-std::unique_ptr<btVector3> arrayToBtVector3(const std::array<float, 3>& a);
-
-std::unique_ptr<btVector3> cloneBtVector3(const btVector3& v);
-
 // extra car config stuff
 
 const CarConfig& getOctane();
