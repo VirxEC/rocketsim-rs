@@ -74,17 +74,10 @@ fn main() {
         // but it takes up a lot of space in stdout
         // dbg!(&car_state);
 
-        // Create new glam Vec3
-        let glam_vec3 = unsafe { car_state.pos.as_glam() };
-        println!("New car location: {glam_vec3}");
+        println!("New car location: {}", car_state.pos);
         println!("New car boost: {}", car_state.boost);
     }
 
-    {
-        let ball_state = arena.get_ball_state();
-
-        // Transmute the ball state to a glam Vec3A
-        let glam_vec3a = unsafe { ball_state.pos.as_glam() };
-        println!("New ball location: {glam_vec3a}")
-    }
+    // Transmute the ball state position to a glam Vec3A
+    println!("New ball location: {}", arena.get_ball_state().pos.to_glam())
 }

@@ -266,39 +266,42 @@ impl sim::arena::Arena {
     }
 }
 
-autocxx::include_cpp! {
-    #include "BulletLink.h"
-    name!(bulletlink)
-    safety!(unsafe)
-    generate_pod!("Angle")
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct btVector3(std::arch::x86_64::__m128);
+pub type Vec3 = btVector3;
+
+unsafe impl cxx::ExternType for btVector3 {
+    type Id = cxx::type_id!("btVector3");
+    type Kind = cxx::kind::Trivial;
+}
+
+impl std::fmt::Display for btVector3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let [x, y, z] = self.to_glam().to_array();
+        write!(f, "[{}, {}, {}]", x, y, z)
+    }
+}
+
+#[cxx::bridge]
+mod bulletlink {
+    unsafe extern "C++" {
+        include!("BulletLink.h");
+        type btVector3 = crate::btVector3;
+        type Angle;
+    }
+
+    #[derive(Clone, Copy, Debug, Default)]
+    struct Angle {
+        yaw: f32,
+        pitch: f32,
+        roll: f32,
+    }
+
+    impl UniquePtr<btVector3> {}
 }
 
 pub use bulletlink::Angle;
-
-mod other {
-    use cxx::{type_id, ExternType};
-
-    #[repr(C)]
-    #[derive(Clone, Copy, Debug)]
-    pub struct btVector3(std::arch::x86_64::__m128);
-
-    unsafe impl ExternType for btVector3 {
-        type Id = type_id!("btVector3");
-        type Kind = cxx::kind::Trivial;
-    }
-
-    #[cxx::bridge]
-    mod bulletlink2 {
-        unsafe extern "C++" {
-            include!("BulletLink.h");
-            type btVector3 = crate::other::btVector3;
-        }
-
-        impl UniquePtr<btVector3> {}
-    }
-}
-
-pub use other::{btVector3, btVector3 as Vec3};
 
 impl From<btVector3> for glam::Vec3A {
     #[inline]
@@ -326,49 +329,13 @@ impl btVector3 {
     }
 
     #[inline]
-    pub const fn to_glam(self) -> glam::Vec3A {
+    pub const fn to_glam(self) -> Vec3A {
         unsafe { mem::transmute(self) }
     }
 
-    /// # Safety
-    /// 
-    /// This is unsafe because you must ensure that self lives for longer than the returned glam::Vec3A
     #[inline]
-    pub unsafe fn as_glam(&self) -> glam::Vec3A {
-        mem::transmute_copy(self)
-    }
-
-    #[inline]
-    pub const fn from_glam(v: glam::Vec3A) -> Self {
+    pub const fn from_glam(v: Vec3A) -> Self {
         unsafe { mem::transmute(v) }
-    }
-}
-
-impl Clone for Angle {
-    #[inline]
-    fn clone(&self) -> Self {
-        Self {
-            yaw: self.yaw,
-            pitch: self.pitch,
-            roll: self.roll,
-        }
-    }
-}
-
-impl Default for Angle {
-    #[inline]
-    fn default() -> Self {
-        Self { pitch: 0., yaw: 0., roll: 0. }
-    }
-}
-
-impl std::fmt::Debug for Angle {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Angle")
-            .field("pitch", &self.pitch)
-            .field("yaw", &self.yaw)
-            .field("roll", &self.roll)
-            .finish()
     }
 }
 
@@ -460,6 +427,7 @@ pub mod sim {
                 type EBallState;
             }
 
+            #[derive(Debug)]
             struct EBallState {
                 pos: UniquePtr<btVector3>,
                 vel: UniquePtr<btVector3>,
@@ -471,16 +439,6 @@ pub mod sim {
 
         pub use ball::Ball;
         pub use inner_bs::EBallState as BallState;
-
-        impl std::fmt::Debug for BallState {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.debug_struct("BallState")
-                    .field("pos", &self.pos)
-                    .field("vel", &self.vel)
-                    .field("angvel", &self.angvel)
-                    .finish()
-            }
-        }
     }
 
     pub mod car {
@@ -506,6 +464,7 @@ pub mod sim {
                 type ECarState;
             }
 
+            #[derive(Debug)]
             struct ECarState {
                 pos: UniquePtr<btVector3>,
                 angles: Angle,
@@ -545,43 +504,6 @@ pub mod sim {
         pub use car::{Car, Team};
         pub use inner_cs::ECarState as CarState;
 
-        impl std::fmt::Debug for CarState {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.debug_struct("CarState")
-                    .field("pos", &self.pos)
-                    .field("vel", &self.vel)
-                    .field("angles", &self.angles)
-                    .field("angvel", &self.angvel)
-                    .field("isOnGround", &self.isOnGround)
-                    .field("hasJumped", &self.hasJumped)
-                    .field("hasDoubleJumped", &self.hasDoubleJumped)
-                    .field("hasFlipped", &self.hasFlipped)
-                    .field("lastRelDodgeTorque", &self.lastRelDodgeTorque)
-                    .field("jumpTime", &self.jumpTime)
-                    .field("flipTime", &self.flipTime)
-                    .field("isJumping", &self.isJumping)
-                    .field("airTimeSinceJump", &self.airTimeSinceJump)
-                    .field("boost", &self.boost)
-                    .field("timeSpentBoosting", &self.timeSpentBoosting)
-                    .field("isSupersonic", &self.isSupersonic)
-                    .field("supersonicTime", &self.supersonicTime)
-                    .field("handbrakeVal", &self.handbrakeVal)
-                    .field("isAutoFlipping", &self.isAutoFlipping)
-                    .field("autoFlipTimer", &self.autoFlipTimer)
-                    .field("autoFlipTorqueScale", &self.autoFlipTorqueScale)
-                    .field("hasContact", &self.hasContact)
-                    .field("contactNormal", &self.contactNormal)
-                    .field("isContactingCar", &self.isContactingCar)
-                    .field("otherCar", &self.otherCar)
-                    .field("cooldownTimer", &self.cooldownTimer)
-                    .field("isDemoed", &self.isDemoed)
-                    .field("demoRespawnTimer", &self.demoRespawnTimer)
-                    .field("lastHitBallTick", &self.lastHitBallTick)
-                    .field("lastControls", &self.lastControls)
-                    .finish()
-            }
-        }
-
         impl CarState {
             #[inline]
             pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut super::arena::Arena>) -> Option<cxx::UniquePtr<Self>> {
@@ -604,6 +526,7 @@ pub mod sim {
                 type CarConfig;
             }
 
+            #[derive(Debug)]
             struct WheelPairConfig {
                 wheelRadius: f32,
                 suspensionRestLength: f32,
@@ -612,6 +535,7 @@ pub mod sim {
 
             impl UniquePtr<WheelPairConfig> {}
 
+            #[derive(Debug)]
             struct CarConfig {
                 hitboxSize: UniquePtr<btVector3>,
                 hitboxPosOffset: UniquePtr<btVector3>,
@@ -624,28 +548,6 @@ pub mod sim {
         }
 
         pub use carconfig::{CarConfig, WheelPairConfig};
-
-        impl std::fmt::Debug for WheelPairConfig {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.debug_struct("WheelPairConfig")
-                    .field("wheelRadius", &self.wheelRadius)
-                    .field("suspensionRestLength", &self.suspensionRestLength)
-                    .field("connectionPointOffset", &self.connectionPointOffset)
-                    .finish()
-            }
-        }
-
-        impl std::fmt::Debug for CarConfig {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.debug_struct("CarConfig")
-                    .field("hitboxSize", &self.hitboxSize)
-                    .field("hitboxPosOffset", &self.hitboxPosOffset)
-                    .field("frontWheels", &self.frontWheels)
-                    .field("backWheels", &self.backWheels)
-                    .field("dodgeDeadzone", &self.dodgeDeadzone)
-                    .finish()
-            }
-        }
     }
 
     pub mod boostpad {

@@ -5,14 +5,14 @@ version = "0.5.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
-exclude = [".git*", "CMake*", "assets", "examples", "rustfmt.toml"]
+exclude = [".git*", "CMake*", "collision_meshes", "examples", "rustfmt.toml"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 autocxx = "0.24.0"
 cxx = { version = "1.0.83", features = ["c++17"] }
-glam = { version = "0.23.0" }
+glam = "0.23.0"
 
 [build-dependencies]
 glob = "0.3.0" 

@@ -6,31 +6,24 @@ use std::{
 use rocketsim_rs::sim::arena::Arena;
 
 fn main() {
-    const TICKS: i32 = 200000;
+    const TICKS: i32 = 400000;
 
     // load in assets
     Arena::default_soccar();
 
     let num_cpu = available_parallelism().unwrap().get();
 
-    println!("Running on {} threads", num_cpu);
+    println!("Running on {num_cpu} threads");
 
     let start_time = Instant::now();
-    let threads = (0..num_cpu).map(|_| {
-        spawn(|| {
-            Arena::default_soccar().pin_mut().step(TICKS);
-        })
-    });
+    let threads = (0..num_cpu).map(|_| spawn(|| Arena::default_soccar().pin_mut().step(TICKS))).collect::<Vec<_>>();
 
-    for thread in threads {
-        thread.join().unwrap();
-    }
+    threads.into_iter().for_each(|thread| thread.join().unwrap());
 
-    let ms_elapsed = start_time.elapsed().as_millis();
-    println!(
-        "Simulated {:.2} hours in {} seconds",
-        num_cpu as f32 * TICKS as f32 / 120. / 60. / 60.,
-        ms_elapsed as f32 / 1000.
-    );
-    println!("FPS: {}", num_cpu as f32 * TICKS as f32 / ms_elapsed as f32 * 1000.0);
+    let elapsed = start_time.elapsed().as_secs_f32();
+    let simulated_ticks = num_cpu as f32 * TICKS as f32;
+
+    println!("Simulated {:.2} hours in {:.3} seconds", simulated_ticks / 120. / 60. / 60., elapsed);
+
+    println!("FPS: {}", simulated_ticks / elapsed);
 }
