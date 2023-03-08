@@ -79,6 +79,12 @@ mod extra {
 
         #[rust_name = "set_boost_pad_state"]
         fn setBoostPadState(arena: Pin<&mut Arena>, state: &EBoostPadState);
+
+        #[rust_name = "get_tick_count"]
+        fn getTickCount(arena: &Arena) -> u64;
+
+        #[rust_name = "get_tick_rate"]
+        fn getTickRate(arena: &Arena) -> f32;
     }
 }
 
@@ -264,6 +270,16 @@ impl sim::arena::Arena {
     pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
         self.ResetToRandomKickoff(c_int(seed.unwrap_or(-1)));
     }
+
+    #[inline]
+    pub fn get_tick_count(&self) -> u64 {
+        extra::get_tick_count(self)
+    }
+    
+    #[inline]
+    pub fn get_tick_rate(&self) -> f32 {
+        extra::get_tick_rate(self)
+    }
 }
 
 #[repr(C)]
@@ -398,11 +414,6 @@ pub mod sim {
         #[inline]
         pub fn default_soccar() -> cxx::UniquePtr<Self> {
             Self::new(arena::GameMode::SOCCAR, 120.).within_unique_ptr()
-        }
-
-        #[inline]
-        pub fn get_tick_rate(self: crate::Pin<&mut Self>) -> f32 {
-            self.GetTickRate()
         }
     }
 

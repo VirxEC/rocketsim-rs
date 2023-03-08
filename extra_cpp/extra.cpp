@@ -212,3 +212,11 @@ EBoostPadState getBoostPadState(const Arena& arena, uint32_t id) {
         state.cooldown,
     };
 }
+
+uint64_t getTickCount(const Arena& arena) {
+    return arena.tickCount;
+}
+
+float getTickRate(const Arena& arena) {
+    return 1 / arena.tickTime;
+}

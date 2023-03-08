@@ -99,3 +99,9 @@ struct EBoostPadState {
 void setBoostPadState(Arena& arena, const EBoostPadState& state);
 
 EBoostPadState getBoostPadState(const Arena& arena, uint32_t id);
+
+// extra arena stuff
+
+uint64_t getTickCount(const Arena& arena);
+
+float getTickRate(const Arena& arena);
