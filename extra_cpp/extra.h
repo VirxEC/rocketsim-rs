@@ -60,6 +60,8 @@ bool setCarState(Arena& arena, uint32_t carID, const ECarState& state);
 
 uint32_t addCar(Arena& arena, Team team, const CarConfig& config);
 
+bool removeCar(Arena& arena, uint32_t carID);
+
 /// @brief Sets the controls of a car for the next tick
 /// @param arena 
 /// @param state 

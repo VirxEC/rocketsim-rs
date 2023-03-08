@@ -135,6 +135,16 @@ uint32_t addCar(Arena& arena, Team team, const CarConfig& config) {
     return car->id;
 }
 
+bool removeCar(Arena& arena, uint32_t carID) {
+    Car* car = arena.GetCarFromID(carID);
+    if (car == NULL) {
+        return false;
+    }
+
+    arena.RemoveCar(car);
+    return true;
+}
+
 bool setCarControls(Arena& arena, uint32_t carID, const CarControls& controls) {
     Car* car = arena.GetCarFromID(carID);
     if (car == NULL) {

@@ -50,6 +50,9 @@ mod extra {
         #[rust_name = "add_car"]
         fn addCar(arena: Pin<&mut Arena>, team: Team, config: &CarConfig) -> u32;
 
+        #[rust_name = "remove_car"]
+        fn removeCar(arena: Pin<&mut Arena>, car_id: u32) -> bool;
+
         #[rust_name = "set_car_controls"]
         fn setCarControls(arena: Pin<&mut Arena>, car_id: u32, controls: &CarControls) -> bool;
 
@@ -140,9 +143,17 @@ impl Error for NoCarFound {}
 impl sim::arena::Arena {
     /// Returns the ID of the car that was added.
     #[inline]
-    #[must_use]
     pub fn add_car(self: Pin<&mut Self>, team: sim::car::Team, config: &sim::car::CarConfig) -> u32 {
         extra::add_car(self, team, config)
+    }
+
+    #[inline]
+    pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+        if extra::remove_car(self, car_id) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
     }
 
     pub fn get_car_state_from_id(self: Pin<&mut Self>, car_id: u32) -> Result<cxx::UniquePtr<sim::car::CarState>, NoCarFound> {
