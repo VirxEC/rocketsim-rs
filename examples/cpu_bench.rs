@@ -6,10 +6,9 @@ use std::{
 use rocketsim_rs::sim::arena::Arena;
 
 fn main() {
-    const TICKS: i32 = 400000;
+    const TICKS: i32 = 600000;
 
-    // load in assets
-    Arena::default_soccar();
+    rocketsim_rs::init();
 
     let num_cpu = available_parallelism().unwrap().get();
 

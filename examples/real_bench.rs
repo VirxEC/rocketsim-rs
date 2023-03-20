@@ -3,10 +3,15 @@ use std::{
     time::Instant,
 };
 
-use rocketsim_rs::sim::{arena::Arena, car::{Team, CarConfig}};
+use rocketsim_rs::sim::{
+    arena::Arena,
+    car::{CarConfig, Team},
+};
 
 fn main() {
-    const TICKS: i32 = 25000;
+    const TICKS: i32 = 50000;
+
+    rocketsim_rs::init();
 
     // load in assets
     Arena::default_soccar();
@@ -16,19 +21,23 @@ fn main() {
     println!("Running on {num_cpu} threads");
 
     let start_time = Instant::now();
-    let threads = (0..num_cpu).map(|_| spawn(|| {
-        let mut arena = Arena::default_soccar();
+    let threads = (0..num_cpu)
+        .map(|_| {
+            spawn(|| {
+                let mut arena = Arena::default_soccar();
 
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
 
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
 
-        arena.pin_mut().step(TICKS);
-    })).collect::<Vec<_>>();
+                arena.pin_mut().step(TICKS);
+            })
+        })
+        .collect::<Vec<_>>();
 
     threads.into_iter().for_each(|thread| thread.join().unwrap());
 

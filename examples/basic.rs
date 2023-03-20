@@ -1,10 +1,8 @@
-use rocketsim_rs::{
-    sim::{
-        arena::Arena,
-        car::{CarConfig, Team},
-        CarControls,
-    },
-    Vec3,
+use rocketsim_rs::sim::{
+    arena::Arena,
+    car::{CarConfig, Team},
+    math::Vec3,
+    CarControls,
 };
 
 fn main() {
@@ -18,10 +16,10 @@ fn main() {
 
     {
         // custom initial car state
-        let mut car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
+        let mut car_state = arena.pin_mut().get_car_state_from_id(car_id);
 
-        *car_state.pos = Vec3::new(5., 0., 50.);
-        *car_state.vel = Vec3::new(500., 800., 0.);
+        car_state.pos = Vec3::new(5., 0., 50.);
+        car_state.vel = Vec3::new(500., 800., 0.);
 
         // for trivial Rust types, getting/setting is easier
         car_state.boost = 100.;
@@ -49,8 +47,8 @@ fn main() {
     {
         let mut ball_state = arena.get_ball_state();
 
-        *ball_state.pos = Vec3::new(0., 0., 1050.);
-        *ball_state.vel = Vec3::new(0., 0., 250.);
+        ball_state.pos.z = 1050.;
+        ball_state.vel = Vec3::new(0., 0., 250.);
 
         arena.pin_mut().set_ball_state(&ball_state);
 
@@ -66,7 +64,7 @@ fn main() {
 
     {
         // get the car state again
-        let car_state = arena.pin_mut().get_car_state_from_id(car_id).unwrap();
+        let car_state = arena.pin_mut().get_car_state_from_id(car_id);
 
         println!("Got new car state");
 
@@ -79,5 +77,5 @@ fn main() {
     }
 
     // Transmute the ball state position to a glam Vec3A
-    println!("New ball location: {}", arena.get_ball_state().pos.to_glam())
+    println!("New ball location: {}", glam::Vec3A::from(arena.get_ball_state().pos))
 }

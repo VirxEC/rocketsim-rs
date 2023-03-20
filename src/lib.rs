@@ -1,23 +1,29 @@
-use autocxx::prelude::*;
-use std::{error::Error, mem, pin::Pin};
+use std::error::Error;
 
 pub use autocxx;
 pub use cxx;
 pub use glam::Vec3A;
+
+autocxx::include_cpp! {
+    #include "extra.h"
+    name!(base)
+    safety!(unsafe)
+    generate_pod!("RocketSimStage")
+    generate!("RocketSim::Init")
+    generate!("RocketSim::GetStage")
+}
+
+pub use base::{
+    RocketSim::{GetStage as get_stage, Init as init},
+    RocketSimStage as Stages,
+};
 
 #[cxx::bridge]
 mod extra {
     unsafe extern "C++" {
         include!("extra.h");
 
-        type btVector3 = crate::Vec3;
         type CarConfig = crate::sim::car::CarConfig;
-        type ECarState = crate::sim::car::CarState;
-        type Arena = crate::sim::arena::Arena;
-        type Team = crate::sim::car::Team;
-        type EBallState = crate::sim::ball::BallState;
-        type CarControls = crate::sim::CarControls;
-        type EBoostPadState = crate::sim::boostpad::BoostPadState;
 
         #[rust_name = "get_octane"]
         fn getOctane() -> &'static CarConfig;
@@ -31,63 +37,6 @@ mod extra {
         fn getHybrid() -> &'static CarConfig;
         #[rust_name = "get_merc"]
         fn getMerc() -> &'static CarConfig;
-
-        #[rust_name = "num_cars"]
-        fn numCars(arena: &Arena) -> u32;
-
-        #[rust_name = "get_car_id"]
-        fn getCarID(arena: &Arena, index: u32) -> u32;
-
-        #[rust_name = "get_car_from_index"]
-        fn getCarFromIndex(arena: Pin<&mut Arena>, index: u32) -> UniquePtr<ECarState>;
-
-        #[rust_name = "get_car_state_from_id"]
-        fn getCarState(arena: Pin<&mut Arena>, car_id: u32) -> UniquePtr<ECarState>;
-
-        #[rust_name = "set_car_state"]
-        fn setCarState(arena: Pin<&mut Arena>, car_id: u32, state: &ECarState) -> bool;
-
-        #[rust_name = "add_car"]
-        fn addCar(arena: Pin<&mut Arena>, team: Team, config: &CarConfig) -> u32;
-
-        #[rust_name = "remove_car"]
-        fn removeCar(arena: Pin<&mut Arena>, car_id: u32) -> bool;
-
-        #[rust_name = "set_car_controls"]
-        fn setCarControls(arena: Pin<&mut Arena>, car_id: u32, controls: &CarControls) -> bool;
-
-        #[rust_name = "demolish_car"]
-        fn demolishCar(arena: Pin<&mut Arena>, car_id: u32) -> bool;
-
-        #[rust_name = "respawn_car"]
-        fn respawnCar(arena: Pin<&mut Arena>, car_id: u32, seed: i32) -> bool;
-
-        #[rust_name = "get_ball_state"]
-        fn getBallState(arena: &Arena) -> UniquePtr<EBallState>;
-
-        #[rust_name = "set_ball_state"]
-        fn setBallState(arena: Pin<&mut Arena>, state: &EBallState);
-
-        #[rust_name = "num_boost_pads"]
-        fn numBoostPads(arena: &Arena) -> u32;
-
-        #[rust_name = "get_boost_pad_is_big"]
-        fn getBoostPadIsBig(arena: &Arena, index: u32) -> bool;
-
-        #[rust_name = "get_boost_pad_pos"]
-        fn getBoostPadPos(arena: &Arena, index: u32) -> UniquePtr<btVector3>;
-
-        #[rust_name = "get_boost_pad_state"]
-        fn getBoostPadState(arena: &Arena, index: u32) -> EBoostPadState;
-
-        #[rust_name = "set_boost_pad_state"]
-        fn setBoostPadState(arena: Pin<&mut Arena>, state: &EBoostPadState);
-
-        #[rust_name = "get_tick_count"]
-        fn getTickCount(arena: &Arena) -> u64;
-
-        #[rust_name = "get_tick_rate"]
-        fn getTickRate(arena: &Arena) -> f32;
     }
 }
 
@@ -140,231 +89,159 @@ impl std::fmt::Display for NoCarFound {
 
 impl Error for NoCarFound {}
 
-impl sim::arena::Arena {
-    /// Returns the ID of the car that was added.
-    #[inline]
-    pub fn add_car(self: Pin<&mut Self>, team: sim::car::Team, config: &sim::car::CarConfig) -> u32 {
-        extra::add_car(self, team, config)
-    }
+// impl sim::arena::Arena {
+//     // #[inline]
+//     // pub fn create(game_mode: sim::arena::GameMode, tick_rate: f32) -> cxx::UniquePtr<Self> {
+//     //     extra::new_arena(game_mode, tick_rate)
+//     // }
 
-    #[inline]
-    pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-        if extra::remove_car(self, car_id) {
-            Ok(())
-        } else {
-            Err(NoCarFound(car_id))
-        }
-    }
+//     /// Returns the ID of the car that was added.
+//     #[inline]
+//     pub fn add_car(self: Pin<&mut Self>, team: sim::car::Team, config: &sim::car::CarConfig) -> u32 {
+//         extra::add_car(self, team, config)
+//     }
 
-    pub fn get_car_state_from_id(self: Pin<&mut Self>, car_id: u32) -> Result<cxx::UniquePtr<sim::car::CarState>, NoCarFound> {
-        let car = extra::get_car_state_from_id(self, car_id);
-        if car.is_null() {
-            Err(NoCarFound(car_id))
-        } else {
-            Ok(car)
-        }
-    }
+//     #[inline]
+//     pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+//         if extra::remove_car(self, car_id) {
+//             Ok(())
+//         } else {
+//             Err(NoCarFound(car_id))
+//         }
+//     }
 
-    #[inline]
-    pub fn set_car_state(self: Pin<&mut Self>, car_id: u32, state: &sim::car::CarState) -> Result<(), NoCarFound> {
-        if extra::set_car_state(self, car_id, state) {
-            Ok(())
-        } else {
-            Err(NoCarFound(car_id))
-        }
-    }
+//     /// Panics if the car ID is invalid.
+//     pub fn get_car_state_from_id(self: Pin<&mut Self>, car_id: u32) -> sim::car::CarState {
+//         extra::get_car_state_from_id(self, car_id)
+//     }
 
-    #[inline]
-    pub fn num_cars(&self) -> u32 {
-        extra::num_cars(self)
-    }
+//     #[inline]
+//     pub fn set_car_state(self: Pin<&mut Self>, car_id: u32, state: &sim::car::CarState) -> Result<(), NoCarFound> {
+//         if extra::set_car_state(self, car_id, state) {
+//             Ok(())
+//         } else {
+//             Err(NoCarFound(car_id))
+//         }
+//     }
 
-    #[inline]
-    pub fn get_car_id_from_index(&self, index: u32) -> u32 {
-        debug_assert!(index < self.num_cars(), "Index out of bounds: {} >= {}", index, self.num_cars());
-        extra::get_car_id(self, index)
-    }
+//     #[inline]
+//     pub fn num_cars(&self) -> u32 {
+//         extra::num_cars(self)
+//     }
 
-    pub fn get_car_from_index(self: Pin<&mut Self>, index: u32) -> cxx::UniquePtr<sim::car::CarState> {
-        debug_assert!(index < self.num_cars(), "Index out of bounds: {} >= {}", index, self.num_cars());
-        extra::get_car_from_index(self, index)
-    }
+//     #[inline]
+//     pub fn get_car_id_from_index(&self, index: u32) -> u32 {
+//         debug_assert!(index < self.num_cars(), "Index out of bounds: {} >= {}", index, self.num_cars());
+//         extra::get_car_id(self, index)
+//     }
 
-    #[inline]
-    pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-        if extra::demolish_car(self, car_id) {
-            Ok(())
-        } else {
-            Err(NoCarFound(car_id))
-        }
-    }
+//     pub fn get_car_from_index(self: Pin<&mut Self>, index: u32) -> sim::car::CarState {
+//         debug_assert!(index < self.num_cars(), "Index out of bounds: {} >= {}", index, self.num_cars());
+//         extra::get_car_from_index(self, index)
+//     }
 
-    #[inline]
-    pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>) -> Result<(), NoCarFound> {
-        if extra::respawn_car(self, car_id, seed.unwrap_or(-1)) {
-            Ok(())
-        } else {
-            Err(NoCarFound(car_id))
-        }
-    }
+//     #[inline]
+//     pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+//         if extra::demolish_car(self, car_id) {
+//             Ok(())
+//         } else {
+//             Err(NoCarFound(car_id))
+//         }
+//     }
 
-    #[inline]
-    #[must_use]
-    pub fn get_ball_state(&self) -> cxx::UniquePtr<sim::ball::BallState> {
-        extra::get_ball_state(self)
-    }
+//     #[inline]
+//     pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>) -> Result<(), NoCarFound> {
+//         if extra::respawn_car(self, car_id, seed.unwrap_or(-1)) {
+//             Ok(())
+//         } else {
+//             Err(NoCarFound(car_id))
+//         }
+//     }
 
-    #[inline]
-    pub fn set_ball_state(self: Pin<&mut Self>, state: &sim::ball::BallState) {
-        extra::set_ball_state(self, state);
-    }
+//     #[inline]
+//     #[must_use]
+//     pub fn get_ball_state(&self) -> sim::ball::BallState {
+//         extra::get_ball_state(self)
+//     }
 
-    #[inline]
-    pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, controls: &sim::CarControls) -> Result<(), NoCarFound> {
-        if extra::set_car_controls(self, car_id, controls) {
-            Ok(())
-        } else {
-            Err(NoCarFound(car_id))
-        }
-    }
+//     #[inline]
+//     pub fn set_ball_state(self: Pin<&mut Self>, state: &sim::ball::BallState) {
+//         extra::set_ball_state(self, state);
+//     }
 
-    #[inline]
-    pub fn num_boost_pads(&self) -> u32 {
-        extra::num_boost_pads(self)
-    }
+//     #[inline]
+//     pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, controls: &sim::CarControls) -> Result<(), NoCarFound> {
+//         if extra::set_car_controls(self, car_id, controls) {
+//             Ok(())
+//         } else {
+//             Err(NoCarFound(car_id))
+//         }
+//     }
 
-    #[must_use]
-    pub fn get_pad_is_big(&self, index: u32) -> bool {
-        debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
-        extra::get_boost_pad_is_big(self, index)
-    }
+//     #[inline]
+//     pub fn num_boost_pads(&self) -> u32 {
+//         extra::num_boost_pads(self)
+//     }
 
-    #[inline]
-    pub fn iter_pad_is_big(&self) -> impl Iterator<Item = bool> + '_ {
-        (0..self.num_boost_pads()).map(move |id| self.get_pad_is_big(id))
-    }
+//     #[must_use]
+//     pub fn get_pad_is_big(&self, index: u32) -> bool {
+//         debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
+//         extra::get_boost_pad_is_big(self, index)
+//     }
 
-    #[must_use]
-    pub fn get_pad_pos(&self, index: u32) -> UniquePtr<btVector3> {
-        debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
-        extra::get_boost_pad_pos(self, index)
-    }
+//     #[inline]
+//     pub fn iter_pad_is_big(&self) -> impl Iterator<Item = bool> + '_ {
+//         (0..self.num_boost_pads()).map(move |id| self.get_pad_is_big(id))
+//     }
 
-    #[inline]
-    pub fn iter_pad_pos(&self) -> impl Iterator<Item = UniquePtr<btVector3>> + '_ {
-        (0..self.num_boost_pads()).map(move |id| self.get_pad_pos(id))
-    }
+//     #[must_use]
+//     pub fn get_pad_pos(&self, index: u32) -> sim::math::Vec3 {
+//         debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
+//         extra::get_boost_pad_pos(self, index)
+//     }
 
-    #[inline]
-    #[must_use]
-    pub fn get_pad_state(&self, index: u32) -> sim::boostpad::BoostPadState {
-        debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
-        extra::get_boost_pad_state(self, index)
-    }
+//     #[inline]
+//     pub fn iter_pad_pos(&self) -> impl Iterator<Item = sim::math::Vec3> + '_ {
+//         (0..self.num_boost_pads()).map(move |id| self.get_pad_pos(id))
+//     }
 
-    #[inline]
-    pub fn iter_pad_state(&self) -> impl Iterator<Item = sim::boostpad::BoostPadState> + '_ {
-        (0..self.num_boost_pads()).map(move |id| self.get_pad_state(id))
-    }
+//     #[inline]
+//     #[must_use]
+//     pub fn get_pad_state(&self, index: u32) -> sim::boostpad::BoostPadState {
+//         debug_assert!(index < self.num_boost_pads(), "Index out of bounds: {} >= {}", index, self.num_boost_pads());
+//         extra::get_boost_pad_state(self, index)
+//     }
 
-    #[inline]
-    pub fn set_pad_state(self: Pin<&mut Self>, state: &sim::boostpad::BoostPadState) {
-        extra::set_boost_pad_state(self, state);
-    }
+//     #[inline]
+//     pub fn iter_pad_state(&self) -> impl Iterator<Item = sim::boostpad::BoostPadState> + '_ {
+//         (0..self.num_boost_pads()).map(move |id| self.get_pad_state(id))
+//     }
 
-    #[inline]
-    pub fn step(self: Pin<&mut Self>, ticks: i32) {
-        self.Step(c_int(ticks));
-    }
+//     #[inline]
+//     pub fn set_pad_state(self: Pin<&mut Self>, state: &sim::boostpad::BoostPadState) {
+//         extra::set_boost_pad_state(self, state);
+//     }
 
-    #[inline]
-    pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
-        self.ResetToRandomKickoff(c_int(seed.unwrap_or(-1)));
-    }
+//     #[inline]
+//     pub fn step(self: Pin<&mut Self>, ticks: i32) {
+//         self.Step(c_int(ticks));
+//     }
 
-    #[inline]
-    pub fn get_tick_count(&self) -> u64 {
-        extra::get_tick_count(self)
-    }
-    
-    #[inline]
-    pub fn get_tick_rate(&self) -> f32 {
-        extra::get_tick_rate(self)
-    }
-}
+//     #[inline]
+//     pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
+//         self.ResetToRandomKickoff(c_int(seed.unwrap_or(-1)));
+//     }
 
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
-pub struct btVector3(std::arch::x86_64::__m128);
-pub type Vec3 = btVector3;
+//     #[inline]
+//     pub fn get_tick_count(&self) -> u64 {
+//         extra::get_tick_count(self)
+//     }
 
-unsafe impl cxx::ExternType for btVector3 {
-    type Id = cxx::type_id!("btVector3");
-    type Kind = cxx::kind::Trivial;
-}
-
-impl std::fmt::Display for btVector3 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let [x, y, z] = self.to_glam().to_array();
-        write!(f, "[{}, {}, {}]", x, y, z)
-    }
-}
-
-#[cxx::bridge]
-mod bulletlink {
-    unsafe extern "C++" {
-        include!("BulletLink.h");
-        type btVector3 = crate::btVector3;
-        type Angle;
-    }
-
-    #[derive(Clone, Copy, Debug, Default)]
-    struct Angle {
-        yaw: f32,
-        pitch: f32,
-        roll: f32,
-    }
-
-    impl UniquePtr<btVector3> {}
-}
-
-pub use bulletlink::Angle;
-
-impl From<btVector3> for glam::Vec3A {
-    #[inline]
-    fn from(value: btVector3) -> Self {
-        value.to_glam()
-    }
-}
-
-impl From<glam::Vec3A> for btVector3 {
-    #[inline]
-    fn from(value: glam::Vec3A) -> Self {
-        Self::from_glam(value)
-    }
-}
-
-impl btVector3 {
-    #[inline]
-    pub const fn new(x: f32, y: f32, z: f32) -> Self {
-        Self::from_glam(Vec3A::new(x, y, z))
-    }
-
-    #[inline]
-    pub const fn from_array(a: [f32; 3]) -> Self {
-        Self::from_glam(Vec3A::from_array(a))
-    }
-
-    #[inline]
-    pub const fn to_glam(self) -> Vec3A {
-        unsafe { mem::transmute(self) }
-    }
-
-    #[inline]
-    pub const fn from_glam(v: Vec3A) -> Self {
-        unsafe { mem::transmute(v) }
-    }
-}
+//     #[inline]
+//     pub fn get_tick_rate(&self) -> f32 {
+//         extra::get_tick_rate(self)
+//     }
+// }
 
 // autocxx::include_cpp! {
 //     #include "CollisionMeshFile/CollisionMeshFile.h"
@@ -396,35 +273,86 @@ pub mod sim {
             pub jump: bool,
             pub handbrake: bool,
         }
-
-        impl UniquePtr<CarControls> {}
     }
 
-    use autocxx::WithinUniquePtr;
     pub use carcontrols::CarControls;
 
     pub mod arena {
         autocxx::include_cpp! {
-            #include "Sim/Arena/Arena.h"
+            #include "arenar.h"
             name!(arena)
             safety!(unsafe)
-            extern_cpp_type!("Ball", crate::sim::ball::Ball)
-            extern_cpp_type!("btVector3", crate::Vec3)
-            // extern_cpp_type!("CollisionMeshFile", crate::CollisionMeshFile)
-            block!("btManifoldPoint")
-            block!("btDynamicsWorld")
-            block!("Car")
+            block!("ECarState")
+            block!("BallState")
+            block!("EBoostPadState")
+            block!("CarConfig")
+            block!("CarControls")
+            block!("Vec")
+            block!("Team")
             generate_pod!("GameMode")
-            generate!("Arena")
+            generate!("Arenar")
         }
 
-        pub use arena::{Arena, GameMode};
-    }
+        #[cxx::bridge]
+        mod arena_extra {
+            unsafe extern "C++" {
+                include!("arenar.h");
 
-    impl arena::Arena {
-        #[inline]
-        pub fn default_soccar() -> cxx::UniquePtr<Self> {
-            Self::new(arena::GameMode::SOCCAR, 120.).within_unique_ptr()
+                type Arenar = super::Arena;
+                type ECarState = crate::sim::car::Car;
+                type BallState = crate::sim::ball::BallState;
+                type EBoostPadState = crate::sim::boostpad::BoostPadState;
+                type CarConfig = crate::sim::car::CarConfig;
+                type CarControls = crate::sim::CarControls;
+                type Vec = crate::sim::math::Vec3;
+                type Team = crate::sim::car::Team;
+
+                #[rust_name = "get_car_from_index"]
+                fn GetCarFromIndex(self: Pin<&mut Arenar>, index: u32) -> ECarState;
+                #[rust_name = "rsc"]
+                fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car_state: &ECarState) -> bool;
+                #[rust_name = "get_car"]
+                fn GetCar(self: Pin<&mut Arenar>, car_id: u32) -> ECarState;
+                #[rust_name = "add_car"]
+                fn AddCar(self: Pin<&mut Arenar>, team: Team, car_config: &CarConfig) -> u32;
+            }
+        }
+
+        use crate::NoCarFound;
+        use arena_extra::*;
+        use autocxx::WithinUniquePtr;
+        use std::pin::Pin;
+
+        pub use arena::{Arenar as Arena, GameMode};
+
+        impl Arena {
+            #[inline]
+            pub fn default_soccar() -> cxx::UniquePtr<Self> {
+                Self::new(arena::GameMode::SOCCAR, 120.).within_unique_ptr()
+            }
+
+            #[inline]
+            pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
+                self.ResetToRandomKickoff(seed.unwrap_or(-1));
+            }
+
+            #[inline]
+            pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+                if self.RemoveCar(car_id) {
+                    Ok(())
+                } else {
+                    Err(NoCarFound(car_id))
+                }
+            }
+
+            #[inline]
+            pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: &ECarState) -> Result<(), NoCarFound> {
+                if self.rsc(car_id, car_state) {
+                    Ok(())
+                } else {
+                    Err(NoCarFound(car_id))
+                }
+            }
         }
     }
 
@@ -433,7 +361,6 @@ pub mod sim {
             #include "Sim/Ball/Ball.h"
             name!(ball)
             safety!(unsafe)
-            extern_cpp_type!("btVector3", crate::Vec3)
             block!("btManifoldPoint")
             block!("btDynamicsWorld")
             block!("BallState")
@@ -443,24 +370,23 @@ pub mod sim {
         #[cxx::bridge]
         mod inner_bs {
             unsafe extern "C++" {
-                include!("extra.h");
+                include!("Sim/Ball/Ball.h");
 
-                type btVector3 = crate::Vec3;
-                type EBallState;
+                #[rust_name = "Vec3"]
+                type Vec = crate::sim::math::Vec3;
+                type BallState;
             }
 
-            #[derive(Debug)]
-            struct EBallState {
-                pos: UniquePtr<btVector3>,
-                vel: UniquePtr<btVector3>,
-                angvel: UniquePtr<btVector3>,
+            #[derive(Clone, Copy, Debug, Default)]
+            struct BallState {
+                pos: Vec3,
+                vel: Vec3,
+                angVel: Vec3,
             }
-
-            impl UniquePtr<EBallState> {}
         }
 
         pub use ball::Ball;
-        pub use inner_bs::EBallState as BallState;
+        pub use inner_bs::BallState;
     }
 
     pub mod car {
@@ -468,10 +394,7 @@ pub mod sim {
             #include "Sim/Car/Car.h"
             name!(car)
             safety!(unsafe)
-            block!("CarState")
-            block!("btDynamicsWorld")
             generate_pod!("Team")
-            generate!("Car")
         }
 
         #[cxx::bridge]
@@ -479,24 +402,25 @@ pub mod sim {
             unsafe extern "C++" {
                 include!("extra.h");
 
-                type Angle = crate::Angle;
+                #[rust_name = "Vec3"]
+                type Vec = crate::sim::math::Vec3;
+                type RotMat = crate::sim::math::RotMat;
                 type CarControls = crate::sim::CarControls;
-                type btVector3 = crate::Vec3;
 
                 type ECarState;
             }
 
             #[derive(Debug)]
             struct ECarState {
-                pos: UniquePtr<btVector3>,
-                angles: Angle,
-                vel: UniquePtr<btVector3>,
-                angvel: UniquePtr<btVector3>,
+                pos: Vec3,
+                rotMat: RotMat,
+                vel: Vec3,
+                angvel: Vec3,
                 isOnGround: bool,
                 hasJumped: bool,
                 hasDoubleJumped: bool,
                 hasFlipped: bool,
-                lastRelDodgeTorque: UniquePtr<btVector3>,
+                lastRelDodgeTorque: Vec3,
                 jumpTime: f32,
                 flipTime: f32,
                 isJumping: bool,
@@ -510,27 +434,24 @@ pub mod sim {
                 autoFlipTimer: f32,
                 autoFlipTorqueScale: f32,
                 hasContact: bool,
-                contactNormal: UniquePtr<btVector3>,
-                isContactingCar: bool,
-                otherCar: u32,
+                contactNormal: Vec3,
+                otherCarID: u32,
                 cooldownTimer: f32,
                 isDemoed: bool,
                 demoRespawnTimer: f32,
                 lastHitBallTick: u64,
                 lastControls: CarControls,
             }
-
-            impl UniquePtr<ECarState> {}
         }
 
-        pub use car::{Car, Team};
-        pub use inner_cs::ECarState as CarState;
+        pub use car::Team;
+        pub use inner_cs::ECarState as Car;
 
-        impl CarState {
+        impl Car {
             #[inline]
-            pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut super::arena::Arena>) -> Option<cxx::UniquePtr<Self>> {
-                if self.isContactingCar {
-                    Some(arena.get_car_state_from_id(self.otherCar).ok()?)
+            pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut super::arena::Arena>) -> Option<Self> {
+                if self.otherCarID != 0 {
+                    Some(arena.get_car(self.otherCarID))
                 } else {
                     None
                 }
@@ -542,7 +463,8 @@ pub mod sim {
             unsafe extern "C++" {
                 include!("Sim/Car/CarConfig/CarConfig.h");
 
-                type btVector3 = crate::Vec3;
+                #[rust_name = "Vec3"]
+                type Vec = crate::sim::math::Vec3;
 
                 type WheelPairConfig;
                 type CarConfig;
@@ -552,21 +474,17 @@ pub mod sim {
             struct WheelPairConfig {
                 wheelRadius: f32,
                 suspensionRestLength: f32,
-                connectionPointOffset: UniquePtr<btVector3>,
+                connectionPointOffset: Vec3,
             }
-
-            impl UniquePtr<WheelPairConfig> {}
 
             #[derive(Debug)]
             struct CarConfig {
-                hitboxSize: UniquePtr<btVector3>,
-                hitboxPosOffset: UniquePtr<btVector3>,
+                hitboxSize: Vec3,
+                hitboxPosOffset: Vec3,
                 frontWheels: WheelPairConfig,
                 backWheels: WheelPairConfig,
                 dodgeDeadzone: f32,
             }
-
-            impl UniquePtr<CarConfig> {}
         }
 
         pub use carconfig::{CarConfig, WheelPairConfig};
@@ -577,7 +495,7 @@ pub mod sim {
             #include "Sim/BoostPad/BoostPad.h"
             name!(boostpad)
             safety!(unsafe)
-            extern_cpp_type!("btVector3", crate::Vec3)
+            extern_cpp_type!("Vec", crate::sim::math::Vec3)
             block!("BoostPadState")
             block!("btDynamicsWorld")
             generate!("BoostPad")
@@ -602,5 +520,92 @@ pub mod sim {
         }
 
         pub use inner_bps::EBoostPadState as BoostPadState;
+    }
+
+    pub mod math {
+        use core::arch::x86_64::__m128;
+        use glam::{Vec3A, Vec4};
+
+        #[repr(C)]
+        #[derive(Clone, Copy, Debug, Default)]
+        pub struct Vec3 {
+            pub x: f32,
+            pub y: f32,
+            pub z: f32,
+            pub _w: f32,
+        }
+
+        unsafe impl cxx::ExternType for Vec3 {
+            #[allow(unused_attributes)]
+            #[doc(hidden)]
+            type Id = (::cxx::V, ::cxx::e, ::cxx::c);
+            type Kind = ::cxx::kind::Trivial;
+        }
+
+        #[cxx::bridge]
+        mod inner_math {
+            unsafe extern "C++" {
+                include!("extra.h");
+
+                #[rust_name = "Vec3"]
+                type Vec = super::Vec3;
+                type RotMat;
+                type Angle;
+            }
+
+            #[derive(Clone, Copy, Debug, Default)]
+            struct RotMat {
+                forward: Vec3,
+                right: Vec3,
+                up: Vec3,
+            }
+
+            #[derive(Clone, Copy, Debug, Default)]
+            struct Angle {
+                pitch: f32,
+                yaw: f32,
+                roll: f32,
+            }
+        }
+
+        impl std::fmt::Display for Vec3 {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "({}, {}, {})", self.x, self.y, self.z)
+            }
+        }
+
+        impl From<Vec3> for Vec3A {
+            #[inline]
+            fn from(value: Vec3) -> Self {
+                Vec3A::from(__m128::from(value.to_glam()))
+            }
+        }
+
+        impl From<glam::Vec3A> for Vec3 {
+            #[inline]
+            fn from(value: Vec3A) -> Self {
+                Self::from_glam(Vec4::from(__m128::from(value)))
+            }
+        }
+
+        impl Vec3 {
+            #[inline]
+            pub const fn new(x: f32, y: f32, z: f32) -> Self {
+                Self { x, y, z, _w: 0. }
+            }
+
+            #[inline]
+            pub const fn to_glam(self) -> Vec4 {
+                Vec4::new(self.x, self.y, self.z, self._w)
+            }
+
+            #[inline]
+            pub const fn from_glam(vec: Vec4) -> Self {
+                let [x, y, z, w] = vec.to_array();
+                Self { x, y, z, _w: w }
+            }
+        }
+
+        pub use inner_math::{Angle, RotMat};
     }
 }
