@@ -30,14 +30,14 @@ struct Arenar {
 		return a->_cars[index]->id;
 	}
 
-	ECarState GetCarFromIndex(uint32_t index);
-	ECarState GetCar(uint32_t car_id);
+	CarState GetCarFromIndex(uint32_t index);
+	CarState GetCar(uint32_t car_id);
 	/// @brief Sets the state of a car in the arena
 	/// @param arena
 	/// @param state
 	/// @param carID
 	/// @return True if the car was found and the state was set, false otherwise
-	bool SetCar(uint32_t car_id, const ECarState& state);
+	bool SetCar(uint32_t car_id, const CarState& state);
 
 	uint32_t AddCar(Team team, const CarConfig& config) {
 		return a->AddCar(team, config)->id;
@@ -51,23 +51,23 @@ struct Arenar {
 	/// @return True if the car was found and the state was set, false otherwise
 	bool SetCarControls(uint32_t car_id, const CarControls& controls);
 	bool DemolishCar(uint32_t car_id);
-	bool RespawnCar(uint32_t car_id, int seed);
+	bool RespawnCar(uint32_t car_id, int32_t seed);
 
 	// extra ball stuff
 
-	BallState get_ball_state() const;
-	void set_ball_state(const BallState& state);
+	BallState GetBall() const;
+	void SetBall(const BallState& state);
 
 	// boost pad stuff
 
-	uint32_t num_boost_pads() const{
+	uint32_t num_boost_pads() const {
 		return a->_boostPads.size();
 	}
 
-	bool get_boost_pad_is_big(uint32_t id) const;
-	Vec get_boost_pad_pos(uint32_t id) const;
-	void set_boost_pad_state(const EBoostPadState& state);
-	EBoostPadState get_boost_pad_state(uint32_t id) const;
+	bool get_pad_is_big(uint32_t index) const;
+	Vec GetPadPos(uint32_t index) const;
+	void SetPadState(const EBoostPadState& state);
+	EBoostPadState GetPadState(uint32_t index) const;
 
 	// extra misc stuff
 

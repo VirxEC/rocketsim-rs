@@ -21,5 +21,5 @@ miette = { version = "5", features = ["fancy"] }
 
 [profile.release]
 lto = true
-# strip = true
-# panic = "abort"
+strip = true
+panic = "abort"

@@ -21,6 +21,7 @@ fn main() -> Result<()> {
         .use_plt(false)
         .flag_if_supported("-std=c++20")
         .flag_if_supported("/std:c++20")
+        .flag_if_supported("-w")
         .file("RocketSim/libsrc/bullet3-3.24/btBulletCollisionAll.cpp")
         .file("RocketSim/libsrc/bullet3-3.24/btBulletDynamicsAll.cpp")
         .file("RocketSim/libsrc/bullet3-3.24/btLinearMathAll.cpp")

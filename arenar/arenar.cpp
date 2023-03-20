@@ -26,84 +26,24 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
-ECarState getECarState(CarState carstate) {
-    return ECarState {
-        carstate.pos,
-        carstate.rotMat,
-        carstate.vel,
-        carstate.angVel,
-        carstate.isOnGround,
-        carstate.hasJumped, carstate.hasDoubleJumped, carstate.hasFlipped,
-        carstate.lastRelDodgeTorque,
-        carstate.jumpTime, carstate.flipTime,
-        carstate.isJumping,
-        carstate.airTimeSinceJump,
-        carstate.boost,
-        carstate.timeSpentBoosting,
-        carstate.isSupersonic,
-        carstate.supersonicTime,
-        carstate.handbrakeVal,
-        carstate.isAutoFlipping,
-        carstate.autoFlipTimer,
-        carstate.autoFlipTorqueScale,
-        carstate.worldContact.hasContact,
-        carstate.worldContact.contactNormal,
-        carstate.carContact.otherCarID,
-        carstate.carContact.cooldownTimer,
-        carstate.isDemoed,
-        carstate.demoRespawnTimer,
-        carstate.lastHitBallTick,
-        carstate.lastControls
-    };
+CarState Arenar::GetCarFromIndex(uint32_t index) {
+    return a->_cars[index]->GetState();
 }
 
-ECarState Arenar::GetCarFromIndex(uint32_t index) {
-    return getECarState(a->_cars[index]->GetState());
-}
-
-ECarState Arenar::GetCar(uint32_t carID) {
+CarState Arenar::GetCar(uint32_t carID) {
     Car* car = a->GetCarFromID(carID);
     assert(car != NULL);
 
-    return getECarState(car->GetState());
+    return car->GetState();
 }
 
-bool Arenar::SetCar(uint32_t carID, const ECarState& state) {
+bool Arenar::SetCar(uint32_t carID, const CarState& state) {
     Car* car = a->GetCarFromID(carID);
     if (car == NULL) {
         return false;
     }
 
-    CarState estate = {
-        state.pos,
-        state.rotMat,
-        state.vel,
-        state.angVel,
-        state.isOnGround,
-        state.hasJumped, state.hasDoubleJumped, state.hasFlipped,
-        state.lastRelDodgeTorque,
-        state.jumpTime, state.flipTime,
-        state.isJumping,
-        state.airTimeSinceJump,
-        state.boost,
-        state.timeSpentBoosting,
-        state.isSupersonic,
-        state.supersonicTime,
-        state.handbrakeVal,
-        state.isAutoFlipping,
-        state.autoFlipTimer,
-        state.autoFlipTorqueScale,
-        state.hasContact,
-        state.contactNormal,
-        state.otherCarID,
-        state.cooldownTimer,
-        state.isDemoed,
-        state.demoRespawnTimer,
-        state.lastHitBallTick,
-        state.lastControls
-    };
-
-    car->SetState(estate);
+    car->SetState(state);
     return true;
 }
 
@@ -137,7 +77,7 @@ bool Arenar::DemolishCar(uint32_t carID) {
     return true;
 }
 
-bool Arenar::RespawnCar(uint32_t carID, int seed) {
+bool Arenar::RespawnCar(uint32_t carID, int32_t seed) {
     Car* car = a->GetCarFromID(carID);
     if (car == NULL) {
         return false;
@@ -147,37 +87,37 @@ bool Arenar::RespawnCar(uint32_t carID, int seed) {
     return true;
 }
 
-BallState Arenar::get_ball_state() const {
+BallState Arenar::GetBall() const {
     return a->ball->GetState();
 }
 
-void Arenar::set_ball_state(const BallState& state) {
+void Arenar::SetBall(const BallState& state) {
     a->ball->SetState(state);
 }
 
-Vec Arenar::get_boost_pad_pos(uint32_t id) const {
-    assert(id < a->_boostPads.size());
-    return a->_boostPads[id]->pos;
+Vec Arenar::GetPadPos(uint32_t index) const {
+    assert(index < a->_boostPads.size());
+    return a->_boostPads[index]->pos;
 }
 
-bool Arenar::get_boost_pad_is_big(uint32_t id) const {
-    assert(id < a->_boostPads.size());
-    return a->_boostPads[id]->isBig;
+bool Arenar::get_pad_is_big(uint32_t index) const {
+    assert(index < a->_boostPads.size());
+    return a->_boostPads[index]->isBig;
 }
 
-void Arenar::set_boost_pad_state(const EBoostPadState& state) {
+void Arenar::SetPadState(const EBoostPadState& state) {
     BoostPadState estate = BoostPadState {
         state.isActive,
         state.cooldown,
     };
-    a->_boostPads[state.id]->SetState(estate);
+    a->_boostPads[state.index]->SetState(estate);
 }
 
-EBoostPadState Arenar::get_boost_pad_state(uint32_t id) const {
-    assert(id < a->_boostPads.size());
-    BoostPadState state = a->_boostPads[id]->GetState();
+EBoostPadState Arenar::GetPadState(uint32_t index) const {
+    assert(index < a->_boostPads.size());
+    BoostPadState state = a->_boostPads[index]->GetState();
     return EBoostPadState {
-        id,
+        index,
         state.isActive,
         state.cooldown,
     };
