@@ -493,9 +493,9 @@ pub mod sim {
             #[inline]
             fn from(value: Mat3A) -> Self {
                 Self {
-                    forward: Vec3::from(value.x_axis()),
-                    right: Vec3::from(value.y_axis()),
-                    up: Vec3::from(value.z_axis()),
+                    forward: Vec3::from(value.x_axis),
+                    right: Vec3::from(value.y_axis),
+                    up: Vec3::from(value.z_axis),
                 }
             }
         }
