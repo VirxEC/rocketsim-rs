@@ -414,7 +414,7 @@ pub mod sim {
         use core::arch::x86_64::*;
 
         #[cfg(feature = "glam")]
-        use glam::{EulerRot, Quat, Vec3A, Vec4};
+        use glam::{EulerRot, Quat, Vec3A, Vec4, Mat3A};
 
         #[repr(C)]
         #[derive(Clone, Copy, Debug, Default)]
@@ -477,10 +477,34 @@ pub mod sim {
         }
 
         #[cfg(feature = "glam")]
+        impl From<RotMat> for Mat3A {
+            #[inline]
+            fn from(value: RotMat) -> Self {
+                Self::from_cols(
+                    Vec3A::from(value.forward),
+                    Vec3A::from(value.right),
+                    Vec3A::from(value.up),
+                )
+            }
+        }
+
+        #[cfg(feature = "glam")]
+        impl From<Mat3A> for RotMat {
+            #[inline]
+            fn from(value: Mat3A) -> Self {
+                Self {
+                    forward: Vec3::from(value.x_axis()),
+                    right: Vec3::from(value.y_axis()),
+                    up: Vec3::from(value.z_axis()),
+                }
+            }
+        }
+
+        #[cfg(feature = "glam")]
         impl From<Angle> for Quat {
             #[inline]
             fn from(value: Angle) -> Self {
-                Self::from_euler(EulerRot::XYZ, value.roll, roll.pitch, roll.yaw)
+                Self::from_euler(EulerRot::XYZ, value.roll, value.pitch, value.yaw)
             }
         }
 
