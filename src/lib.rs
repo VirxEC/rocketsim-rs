@@ -5,7 +5,7 @@ pub use cxx;
 pub use glam::Vec3A;
 
 autocxx::include_cpp! {
-    #include "extra.h"
+    #include "arenar.h"
     name!(base)
     safety!(unsafe)
     generate_pod!("RocketSimStage")
@@ -21,7 +21,7 @@ pub use base::{
 #[cxx::bridge]
 mod extra {
     unsafe extern "C++" {
-        include!("extra.h");
+        include!("arenar.h");
 
         type CarConfig = crate::sim::car::CarConfig;
 
@@ -143,8 +143,8 @@ pub mod sim {
                 type Vec = crate::sim::math::Vec3;
                 type Team = crate::sim::car::Team;
 
-                #[rust_name = "get_car_from_index"]
-                fn GetCarFromIndex(self: Pin<&mut Arenar>, index: u32) -> CarState;
+                #[rust_name = "get_cars"]
+                fn GetCars(self: Pin<&mut Arenar>) -> UniquePtr<CxxVector<CarState>>;
                 #[rust_name = "rsc"]
                 fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car_state: &CarState) -> bool;
                 #[rust_name = "get_car"]
@@ -160,7 +160,7 @@ pub mod sim {
                 #[rust_name = "get_pad_pos"]
                 fn GetPadPos(self: &Arenar, index: u32) -> Vec;
                 #[rust_name = "set_pad_state"]
-                fn SetPadState(self: Pin<&mut Arenar>, state: &EBoostPadState);
+                fn SetPadState(self: Pin<&mut Arenar>, id: u32, state: &EBoostPadState);
                 #[rust_name = "get_pad_state"]
                 fn GetPadState(self: &Arenar, index: u32) -> EBoostPadState;
             }
@@ -230,13 +230,21 @@ pub mod sim {
             }
 
             #[inline]
-            pub fn iter_pad_pos(&self) -> impl Iterator<Item = Vec> + '_ {
-                (0..self.num_boost_pads()).map(move |id| self.get_pad_pos(id))
+            /// Iterates over the (id, carstate) in the arena
+            pub fn iter_cars(self: Pin<&mut Self>) -> impl Iterator<Item = (u32, CarState)> + '_ {
+                self.get_cars().enumerate().map(|(i, state)| (self.get_car_id(i), state))
             }
 
             #[inline]
+            /// Iterates over the static (position, is_big) info of boost pads in the Arena
+            pub fn iter_pad_static(&self) -> impl Iterator<Item = (bool, Vec)> + '_ {
+                (0..self.num_pads()).map(|i| (self.get_pad_is_big(i), self.get_pad_pos(i)))
+            }
+
+            #[inline]
+            /// Iterates over the dynamic (isActive, cooldown) info of the boost pads in the arena
             pub fn iter_pad_state(&self) -> impl Iterator<Item = EBoostPadState> + '_ {
-                (0..self.num_boost_pads()).map(move |id| self.get_pad_state(id))
+                (0..self.num_pads()).map(|i| self.get_pad_state(i))
             }
         }
     }
@@ -327,6 +335,9 @@ pub mod sim {
                 lastHitBallTick: u64,
                 lastControls: CarControls,
             }
+
+            impl UniquePtr<CarState> {}
+            impl CxxVector<CarState> {}
         }
 
         pub use car::Team;
@@ -391,16 +402,17 @@ pub mod sim {
         #[cxx::bridge]
         mod inner_bps {
             unsafe extern "C++" {
-                include!("extra.h");
+                include!("arenar.h");
 
                 type EBoostPadState;
             }
 
             #[derive(Clone, Copy, Debug, Default)]
             struct EBoostPadState {
-                index: u32,
                 isActive: bool,
                 cooldown: f32,
+                curLockedCarId: u32,
+                prevLockedCarId: u32,
             }
         }
 
@@ -414,7 +426,7 @@ pub mod sim {
         use core::arch::x86_64::*;
 
         #[cfg(feature = "glam")]
-        use glam::{EulerRot, Quat, Vec3A, Vec4, Mat3A};
+        use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
         #[repr(C)]
         #[derive(Clone, Copy, Debug, Default)]
@@ -435,7 +447,7 @@ pub mod sim {
         #[cxx::bridge]
         mod inner_math {
             unsafe extern "C++" {
-                include!("extra.h");
+                include!("arenar.h");
 
                 #[rust_name = "Vec3"]
                 type Vec = super::Vec3;
@@ -480,11 +492,7 @@ pub mod sim {
         impl From<RotMat> for Mat3A {
             #[inline]
             fn from(value: RotMat) -> Self {
-                Self::from_cols(
-                    Vec3A::from(value.forward),
-                    Vec3A::from(value.right),
-                    Vec3A::from(value.up),
-                )
+                Self::from_cols(Vec3A::from(value.forward), Vec3A::from(value.right), Vec3A::from(value.up))
             }
         }
 

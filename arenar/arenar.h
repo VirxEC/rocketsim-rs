@@ -1,6 +1,37 @@
 #pragma once
 
-#include "extra.h"
+#include "RocketSim.h"
+
+const CarConfig& getOctane() {
+    return CAR_CONFIG_OCTANE;
+}
+
+const CarConfig& getDominus() {
+    return CAR_CONFIG_DOMINUS;
+}
+
+const CarConfig& getPlank() {
+    return CAR_CONFIG_PLANK;
+}
+
+const CarConfig& getBreakout() {
+    return CAR_CONFIG_BREAKOUT;
+}
+
+const CarConfig& getHybrid() {
+    return CAR_CONFIG_HYBRID;
+}
+
+const CarConfig& getMerc() {
+    return CAR_CONFIG_MERC;
+}
+
+struct EBoostPadState {
+	bool isActive;
+	float cooldown;
+	uint32_t curLockedCarId = 0;
+	uint32_t prevLockedCarID = 0;
+};
 
 struct Arenar {
     Arena* a;
@@ -30,7 +61,7 @@ struct Arenar {
 		return a->_cars[index]->id;
 	}
 
-	CarState GetCarFromIndex(uint32_t index);
+	std::unique_ptr<std::vector<CarState>> GetCars();
 	CarState GetCar(uint32_t car_id);
 	/// @brief Sets the state of a car in the arena
 	/// @param arena
@@ -55,18 +86,23 @@ struct Arenar {
 
 	// extra ball stuff
 
-	BallState GetBall() const;
-	void SetBall(const BallState& state);
+	BallState GetBall() const {
+		return a->ball->GetState();
+	}
+
+	void SetBall(const BallState& state) {
+		a->ball->SetState(state);
+	}
 
 	// boost pad stuff
 
-	uint32_t num_boost_pads() const {
+	uint32_t num_pads() const {
 		return a->_boostPads.size();
 	}
 
 	bool get_pad_is_big(uint32_t index) const;
 	Vec GetPadPos(uint32_t index) const;
-	void SetPadState(const EBoostPadState& state);
+	void SetPadState(uint32_t index, const EBoostPadState& state);
 	EBoostPadState GetPadState(uint32_t index) const;
 
 	// extra misc stuff

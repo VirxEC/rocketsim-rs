@@ -1,7 +1,7 @@
 [package]
 name = "rocketsim_rs"
 description = "Rust bindings for the RocketSim project"
-version = "0.6.1"
+version = "0.7.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
@@ -21,8 +21,6 @@ miette = { version = "5", features = ["fancy"] }
 
 [profile.release]
 lto = true
-strip = true
-panic = "abort"
 
 [features]
 default = ["glam"]

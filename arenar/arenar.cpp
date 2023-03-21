@@ -2,32 +2,12 @@
 
 #include "arenar.h"
 
-const CarConfig& getOctane() {
-    return CAR_CONFIG_OCTANE;
-}
-
-const CarConfig& getDominus() {
-    return CAR_CONFIG_DOMINUS;
-}
-
-const CarConfig& getPlank() {
-    return CAR_CONFIG_PLANK;
-}
-
-const CarConfig& getBreakout() {
-    return CAR_CONFIG_BREAKOUT;
-}
-
-const CarConfig& getHybrid() {
-    return CAR_CONFIG_HYBRID;
-}
-
-const CarConfig& getMerc() {
-    return CAR_CONFIG_MERC;
-}
-
-CarState Arenar::GetCarFromIndex(uint32_t index) {
-    return a->_cars[index]->GetState();
+std::unique_ptr<std::vector<CarState>> Arenar::GetCars() {
+    std::unique_ptr<std::vector<CarState>> states = std::make_unique<std::vector<CarState>>();
+    for (Car* car : a->_cars) {
+        states.get()->push_back(car->GetState());
+    }
+    return states;
 }
 
 CarState Arenar::GetCar(uint32_t carID) {
@@ -87,14 +67,6 @@ bool Arenar::RespawnCar(uint32_t carID, int32_t seed) {
     return true;
 }
 
-BallState Arenar::GetBall() const {
-    return a->ball->GetState();
-}
-
-void Arenar::SetBall(const BallState& state) {
-    a->ball->SetState(state);
-}
-
 Vec Arenar::GetPadPos(uint32_t index) const {
     assert(index < a->_boostPads.size());
     return a->_boostPads[index]->pos;
@@ -105,20 +77,29 @@ bool Arenar::get_pad_is_big(uint32_t index) const {
     return a->_boostPads[index]->isBig;
 }
 
-void Arenar::SetPadState(const EBoostPadState& state) {
+void Arenar::SetPadState(uint32_t index, const EBoostPadState& state) {
+    Car* curLockedCar = NULL;
+
+    if (state.curLockedCarId != 0) {
+        curLockedCar = a->GetCarFromID(state.curLockedCarId);
+    }
+
     BoostPadState estate = BoostPadState {
         state.isActive,
         state.cooldown,
+        curLockedCar,
+        state.prevLockedCarID,
     };
-    a->_boostPads[state.index]->SetState(estate);
+    a->_boostPads[index]->SetState(estate);
 }
 
 EBoostPadState Arenar::GetPadState(uint32_t index) const {
     assert(index < a->_boostPads.size());
     BoostPadState state = a->_boostPads[index]->GetState();
     return EBoostPadState {
-        index,
         state.isActive,
         state.cooldown,
+        state.curLockedCar ? state.curLockedCar->id : 0,
+        state.prevLockedCarID,
     };
 }

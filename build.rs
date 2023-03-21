@@ -7,9 +7,7 @@ fn main() -> Result<()> {
 
     let clang_args = if is_debug { ["-std=c++20"].as_slice() } else { ["-std=c++20", "-flto"].as_slice() };
 
-    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "extra_cpp/", "arenar/"])
-        .extra_clang_args(clang_args)
-        .build()?;
+    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "arenar/"]).extra_clang_args(clang_args).build()?;
 
     // A bug in AutoCXX prevents us from being able to use LTO
     // if !is_debug {
