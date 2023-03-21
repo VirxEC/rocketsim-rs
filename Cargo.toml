@@ -1,7 +1,7 @@
 [package]
 name = "rocketsim_rs"
 description = "Rust bindings for the RocketSim project"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
@@ -12,7 +12,7 @@ exclude = [".git*", "CMake*", "collision_meshes", "examples", "rustfmt.toml"]
 [dependencies]
 autocxx = "0.25.0"
 cxx = { version = "1.0.83", features = ["c++20"] }
-glam = "0.23.0"
+glam = { version = "0.23.0", optional = true }
 
 [build-dependencies]
 glob = "0.3.0"
@@ -23,3 +23,7 @@ miette = { version = "5", features = ["fancy"] }
 lto = true
 strip = true
 panic = "abort"
+
+[features]
+default = ["glam"]
+glam = ["dep:glam"]

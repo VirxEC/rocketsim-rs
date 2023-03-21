@@ -408,8 +408,13 @@ pub mod sim {
     }
 
     pub mod math {
-        use core::arch::x86_64::__m128;
-        use glam::{Vec3A, Vec4};
+        #[cfg(all(target_arch = "x86", feature = "glam"))]
+        use core::arch::x86::*;
+        #[cfg(all(target_arch = "x86_64", feature = "glam"))]
+        use core::arch::x86_64::*;
+
+        #[cfg(feature = "glam")]
+        use glam::{EulerRot, Quat, Vec3A, Vec4};
 
         #[repr(C)]
         #[derive(Clone, Copy, Debug, Default)]
@@ -453,12 +458,42 @@ pub mod sim {
             }
         }
 
-        impl std::fmt::Display for Vec3 {
+        impl std::fmt::Display for RotMat {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "({}, {}, {})", self.x, self.y, self.z)
+                write!(f, "f: {}, r: {}, u: {}", self.forward, self.right, self.up)
             }
         }
 
+        impl std::fmt::Display for Angle {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "(p: {}, y: {}, r: {})", self.pitch, self.yaw, self.roll)
+            }
+        }
+
+        impl std::fmt::Display for Vec3 {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "(x: {}, y: {}, z: {})", self.x, self.y, self.z)
+            }
+        }
+
+        #[cfg(feature = "glam")]
+        impl From<Angle> for Quat {
+            #[inline]
+            fn from(value: Angle) -> Self {
+                Self::from_euler(EulerRot::XYZ, value.roll, roll.pitch, roll.yaw)
+            }
+        }
+
+        #[cfg(feature = "glam")]
+        impl From<Quat> for Angle {
+            #[inline]
+            fn from(value: Quat) -> Self {
+                let (roll, pitch, yaw) = value.to_euler(EulerRot::XYZ);
+                Self { pitch, yaw, roll }
+            }
+        }
+
+        #[cfg(feature = "glam")]
         impl From<Vec3> for Vec3A {
             #[inline]
             fn from(value: Vec3) -> Self {
@@ -466,7 +501,8 @@ pub mod sim {
             }
         }
 
-        impl From<glam::Vec3A> for Vec3 {
+        #[cfg(feature = "glam")]
+        impl From<Vec3A> for Vec3 {
             #[inline]
             fn from(value: Vec3A) -> Self {
                 Self::from_glam(Vec4::from(__m128::from(value)))
@@ -478,7 +514,10 @@ pub mod sim {
             pub const fn new(x: f32, y: f32, z: f32) -> Self {
                 Self { x, y, z, _w: 0. }
             }
+        }
 
+        #[cfg(feature = "glam")]
+        impl Vec3 {
             #[inline]
             pub const fn to_glam(self) -> Vec4 {
                 Vec4::new(self.x, self.y, self.z, self._w)
