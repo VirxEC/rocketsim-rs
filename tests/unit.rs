@@ -5,7 +5,8 @@ use rocketsim_rs::{
     sim::{
         arena::Arena,
         car::{Car, CarConfig, Team},
-        CarControls, math::*,
+        math::*,
+        CarControls,
     },
 };
 
@@ -35,23 +36,29 @@ fn cars() {
     assert!(arena.pin_mut().get_cars().is_empty());
 
     let car_id = arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus());
-    arena.pin_mut().set_car(car_id, Car {
-        pos: Vec3::new(1., 2., 20.),
-        rotMat: RotMat::get_identity(),
-        vel: Vec3::new(4., 5., 100.),
-        angVel: Vec3::new(7., 8., 9.),
-        isOnGround: true,
-        hasJumped: true,
-        hasDoubleJumped: false,
-        hasFlipped: false,
-        lastRelDodgeTorque: Vec3::new(0., 0., 0.),
-        jumpTime: 0.1,
-        flipTime: 0.,
-        isJumping: true,
-        airTimeSinceJump: 0.1,
-        boost: 100. / 3.,
-        ..Default::default()
-    }).unwrap();
+    arena
+        .pin_mut()
+        .set_car(
+            car_id,
+            Car {
+                pos: Vec3::new(1., 2., 20.),
+                rotMat: RotMat::get_identity(),
+                vel: Vec3::new(4., 5., 100.),
+                angVel: Vec3::new(7., 8., 9.),
+                isOnGround: true,
+                hasJumped: true,
+                hasDoubleJumped: false,
+                hasFlipped: false,
+                lastRelDodgeTorque: Vec3::new(0., 0., 0.),
+                jumpTime: 0.1,
+                flipTime: 0.,
+                isJumping: true,
+                airTimeSinceJump: 0.1,
+                boost: 100. / 3.,
+                ..Default::default()
+            },
+        )
+        .unwrap();
     dbg!(arena.pin_mut().get_car(car_id));
     arena
         .pin_mut()

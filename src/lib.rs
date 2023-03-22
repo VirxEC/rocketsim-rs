@@ -462,8 +462,6 @@ pub mod sim {
         #[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"))]
         type F32x4 = f32x4;
 
-
-
         #[cfg(feature = "glam")]
         use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
@@ -581,7 +579,6 @@ pub mod sim {
 
         #[cfg(feature = "glam")]
         impl From<Vec3> for Vec3A {
-
             #[inline]
             fn from(value: Vec3) -> Self {
                 Vec3A::from(F32x4::from(value.to_glam()))
