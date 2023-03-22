@@ -3,4 +3,4 @@ __pycache__/
 target/
 Cargo.lock
 build/
-collision_meshes/
+collision_meshes/*/*.cmf

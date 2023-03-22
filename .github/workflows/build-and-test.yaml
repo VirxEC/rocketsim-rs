@@ -1,0 +1,60 @@
+name: Build and test
+
+on: [ workflow_dispatch, pull_request, push ]
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        toolchain: [stable] # can be stable, beta, and/or nightly
+        features: [ all, no, default ]
+        include:
+          - features: all
+            features_arg: --all-features
+          - features: no
+            features_arg: --no-default-features
+          - features: default
+            features_arg:
+
+    name: ${{ matrix.os }}, ${{ matrix.toolchain }} toolchain, ${{ matrix.features }} features
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - name: Check formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check
+      - name: Decrypt meshes
+        shell: bash
+        env:
+          LARGE_SECRET_PASSPHRASE: ${{ secrets.LARGE_SECRET_PASSPHRASE }}
+        run: |
+          for FILE in collision_meshes/**/*.gpg; do
+            gpg --quiet --batch --yes --decrypt --passphrase="$LARGE_SECRET_PASSPHRASE" --output "${FILE%.gpg}" "$FILE"
+          done
+      - name: Build project
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: ${{ matrix.features_arg }}
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: ${{ matrix.features_arg }}
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
