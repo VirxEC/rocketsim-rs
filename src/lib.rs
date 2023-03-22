@@ -1,7 +1,9 @@
+#![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
 use std::error::Error;
 
 pub use autocxx;
 pub use cxx;
+#[cfg(feature = "glam")]
 pub use glam::Vec3A;
 
 autocxx::include_cpp! {
@@ -452,6 +454,15 @@ pub mod sim {
         use core::arch::x86::*;
         #[cfg(all(target_arch = "x86_64", feature = "glam"))]
         use core::arch::x86_64::*;
+        #[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"))]
+        use core::simd::*;
+
+        #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "glam"))]
+        type F32x4 = __m128;
+        #[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"))]
+        type F32x4 = f32x4;
+
+
 
         #[cfg(feature = "glam")]
         use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
@@ -570,9 +581,10 @@ pub mod sim {
 
         #[cfg(feature = "glam")]
         impl From<Vec3> for Vec3A {
+
             #[inline]
             fn from(value: Vec3) -> Self {
-                Vec3A::from(__m128::from(value.to_glam()))
+                Vec3A::from(F32x4::from(value.to_glam()))
             }
         }
 
@@ -580,7 +592,7 @@ pub mod sim {
         impl From<Vec3A> for Vec3 {
             #[inline]
             fn from(value: Vec3A) -> Self {
-                Self::from_glam(Vec4::from(__m128::from(value)))
+                Self::from_glam(Vec4::from(F32x4::from(value)))
             }
         }
 
