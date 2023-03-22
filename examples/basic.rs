@@ -80,5 +80,9 @@ fn main() {
     }
 
     // Cast the ball state position to a glam Vec3A
-    println!("New ball location: {}", glam::Vec3A::from(arena.get_ball().pos))
+    #[cfg(feature = "glam")]
+    println!("New ball location: {}", glam::Vec3A::from(arena.get_ball().pos));
+
+    #[cfg(not(feature = "glam"))]
+    println!("New ball location: {}", arena.get_ball().pos);
 }
