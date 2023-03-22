@@ -53,7 +53,7 @@ fn main() {
         ball_state.pos.z = 1050.;
         ball_state.vel = Vec3::new(0., 0., 250.);
 
-        arena.pin_mut().set_ball(&ball_state);
+        arena.pin_mut().set_ball(ball_state);
 
         println!("Set ball state");
     }

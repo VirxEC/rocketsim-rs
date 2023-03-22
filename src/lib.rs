@@ -158,11 +158,11 @@ pub mod sim {
                 #[rust_name = "get_ball"]
                 fn GetBall(self: &Arenar) -> BallState;
                 #[rust_name = "set_ball"]
-                fn SetBall(self: Pin<&mut Arenar>, ball_state: &BallState);
+                fn SetBall(self: Pin<&mut Arenar>, ball_state: BallState);
                 #[rust_name = "get_pad_pos"]
                 fn GetPadPos(self: &Arenar, index: usize) -> Vec;
                 #[rust_name = "set_pad_state"]
-                fn SetPadState(self: Pin<&mut Arenar>, index: usize, state: &EBoostPadState);
+                fn SetPadState(self: Pin<&mut Arenar>, index: usize, state: EBoostPadState);
                 #[rust_name = "get_pad_state"]
                 fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
             }
@@ -270,7 +270,7 @@ pub mod sim {
             }
         }
 
-        pub use inner_bs::BallState as Ball;
+        pub use inner_bs::{BallState, BallState as Ball};
     }
 
     pub mod car {
@@ -371,7 +371,7 @@ pub mod sim {
         }
 
         pub use car::Team;
-        pub use inner_cs::CarState as Car;
+        pub use inner_cs::{CarState, CarState as Car};
 
         impl Car {
             #[inline]
@@ -446,7 +446,7 @@ pub mod sim {
             }
         }
 
-        pub use inner_bps::EBoostPadState as BoostPadState;
+        pub use inner_bps::{EBoostPadState, EBoostPadState as BoostPadState};
     }
 
     pub mod math {

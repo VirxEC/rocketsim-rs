@@ -101,7 +101,7 @@ bool Arenar::get_pad_is_big(size_t index) const {
     return a->_boostPads[index]->isBig;
 }
 
-void Arenar::SetPadState(size_t index, const EBoostPadState& state) {
+void Arenar::SetPadState(size_t index, const EBoostPadState state) {
     Car* curLockedCar = NULL;
 
     if (state.curLockedCarId != 0) {
