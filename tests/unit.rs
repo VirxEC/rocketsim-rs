@@ -72,9 +72,9 @@ fn ball() {
     assert!(ball.vel.x == 0.);
     assert!(ball.vel.y == 0.);
     assert!(ball.vel.z == -1.);
-    assert!(ball.angVel.x == 0.);
-    assert!(ball.angVel.y == 0.);
-    assert!(ball.angVel.z == 0.);
+    assert!(ball.ang_vel.x == 0.);
+    assert!(ball.ang_vel.y == 0.);
+    assert!(ball.ang_vel.z == 0.);
 
     arena.pin_mut().step(30);
 

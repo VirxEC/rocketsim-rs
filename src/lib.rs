@@ -266,7 +266,7 @@ pub mod sim {
             struct BallState {
                 pos: Vec3,
                 vel: Vec3,
-                angVel: Vec3,
+                ang_vel: Vec3,
             }
         }
 
@@ -297,34 +297,34 @@ pub mod sim {
             #[derive(Clone, Copy, Debug)]
             struct CarState {
                 pos: Vec3,
-                rotMat: RotMat,
+                rot_mat: RotMat,
                 vel: Vec3,
-                angVel: Vec3,
-                isOnGround: bool,
-                hasJumped: bool,
-                hasDoubleJumped: bool,
-                hasFlipped: bool,
-                lastRelDodgeTorque: Vec3,
-                jumpTime: f32,
-                flipTime: f32,
-                isJumping: bool,
-                airTimeSinceJump: f32,
+                ang_vel: Vec3,
+                is_on_ground: bool,
+                has_jumped: bool,
+                has_double_jumped: bool,
+                has_flipped: bool,
+                last_rel_dodge_torque: Vec3,
+                jump_time: f32,
+                flip_time: f32,
+                is_jumping: bool,
+                air_time_since_jump: f32,
                 boost: f32,
-                timeSpentBoosting: f32,
-                isSupersonic: bool,
-                supersonicTime: f32,
-                handbrakeVal: f32,
-                isAutoFlipping: bool,
-                autoFlipTimer: f32,
-                autoFlipTorqueScale: f32,
-                hasContact: bool,
-                contactNormal: Vec3,
-                otherCarID: u32,
-                cooldownTimer: f32,
-                isDemoed: bool,
-                demoRespawnTimer: f32,
-                lastHitBallTick: u64,
-                lastControls: CarControls,
+                time_spent_boosting: f32,
+                is_supersonic: bool,
+                supersonic_time: f32,
+                handbrake_val: f32,
+                is_auto_flipping: bool,
+                auto_flip_timer: f32,
+                auto_flip_torque_scale: f32,
+                has_contact: bool,
+                contact_normal: Vec3,
+                other_car_id: u32,
+                cooldown_timer: f32,
+                is_demoed: bool,
+                demo_respawn_timer: f32,
+                last_hit_ball_tick: u64,
+                last_controls: CarControls,
             }
 
             impl UniquePtr<CarState> {}
@@ -338,34 +338,34 @@ pub mod sim {
             fn default() -> Self {
                 Self {
                     pos: Vec3::new(0., 0., 17.),
-                    rotMat: RotMat::get_identity(),
+                    rot_mat: RotMat::get_identity(),
                     vel: Vec3::default(),
-                    angVel: Vec3::default(),
-                    isOnGround: true,
-                    hasJumped: false,
-                    hasDoubleJumped: false,
-                    hasFlipped: false,
-                    lastRelDodgeTorque: Vec3::default(),
-                    jumpTime: 0.,
-                    flipTime: 0.,
-                    isJumping: false,
-                    airTimeSinceJump: 0.,
+                    ang_vel: Vec3::default(),
+                    is_on_ground: true,
+                    has_jumped: false,
+                    has_double_jumped: false,
+                    has_flipped: false,
+                    last_rel_dodge_torque: Vec3::default(),
+                    jump_time: 0.,
+                    flip_time: 0.,
+                    is_jumping: false,
+                    air_time_since_jump: 0.,
                     boost: 100. / 3.,
-                    timeSpentBoosting: 0.,
-                    isSupersonic: false,
-                    supersonicTime: 0.,
-                    handbrakeVal: 0.,
-                    isAutoFlipping: false,
-                    autoFlipTimer: 0.,
-                    autoFlipTorqueScale: 0.,
-                    hasContact: false,
-                    contactNormal: Vec3::default(),
-                    otherCarID: 0,
-                    cooldownTimer: 0.,
-                    isDemoed: false,
-                    demoRespawnTimer: 0.,
-                    lastHitBallTick: 0,
-                    lastControls: CarControls::default(),
+                    time_spent_boosting: 0.,
+                    is_supersonic: false,
+                    supersonic_time: 0.,
+                    handbrake_val: 0.,
+                    is_auto_flipping: false,
+                    auto_flip_timer: 0.,
+                    auto_flip_torque_scale: 0.,
+                    has_contact: false,
+                    contact_normal: Vec3::default(),
+                    other_car_id: 0,
+                    cooldown_timer: 0.,
+                    is_demoed: false,
+                    demo_respawn_timer: 0.,
+                    last_hit_ball_tick: 0,
+                    last_controls: CarControls::default(),
                 }
             }
         }
@@ -376,8 +376,8 @@ pub mod sim {
         impl Car {
             #[inline]
             pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut super::arena::Arena>) -> Option<Self> {
-                if self.otherCarID != 0 {
-                    Some(arena.get_car(self.otherCarID))
+                if self.other_car_id != 0 {
+                    Some(arena.get_car(self.other_car_id))
                 } else {
                     None
                 }
@@ -398,18 +398,18 @@ pub mod sim {
 
             #[derive(Debug)]
             struct WheelPairConfig {
-                wheelRadius: f32,
-                suspensionRestLength: f32,
-                connectionPointOffset: Vec3,
+                wheel_radius: f32,
+                suspension_rest_length: f32,
+                connection_point_offset: Vec3,
             }
 
             #[derive(Debug)]
             struct CarConfig {
-                hitboxSize: Vec3,
-                hitboxPosOffset: Vec3,
-                frontWheels: WheelPairConfig,
-                backWheels: WheelPairConfig,
-                dodgeDeadzone: f32,
+                hitbox_size: Vec3,
+                hitbox_pos_offset: Vec3,
+                front_wheels: WheelPairConfig,
+                back_wheels: WheelPairConfig,
+                dodge_deadzone: f32,
             }
         }
 
@@ -439,10 +439,10 @@ pub mod sim {
 
             #[derive(Clone, Copy, Debug, Default)]
             struct EBoostPadState {
-                isActive: bool,
+                is_active: bool,
                 cooldown: f32,
-                curLockedCarId: u32,
-                prevLockedCarId: u32,
+                cur_locked_car_id: u32,
+                prev_locked_car_id: u32,
             }
         }
 
