@@ -46,6 +46,8 @@ jobs:
           for FILE in collision_meshes/**/*.gpg; do
             gpg --quiet --batch --yes --decrypt --passphrase="$LARGE_SECRET_PASSPHRASE" --output "${FILE%.gpg}" "$FILE"
           done
+      - name: Get cached dependencies
+        uses: Swatinem/rust-cache@v2
       - name: Build project
         uses: actions-rs/cargo@v1
         with:
@@ -56,5 +58,3 @@ jobs:
         with:
           command: test
           args: ${{ matrix.features_arg }}
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
