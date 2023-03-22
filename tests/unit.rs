@@ -4,8 +4,10 @@ use rocketsim_rs::{
     init,
     sim::{
         arena::Arena,
-        car::{Car, CarConfig, Team},
-        CarControls, math::*,
+        ball::Ball,
+        car::{CarConfig, Team},
+        math::*,
+        CarControls,
     },
 };
 
@@ -35,37 +37,52 @@ fn cars() {
     assert!(arena.pin_mut().get_cars().is_empty());
 
     let car_id = arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus());
-    arena.pin_mut().set_car(car_id, Car {
-        pos: Vec3::new(1., 2., 20.),
-        rotMat: RotMat::get_identity(),
-        vel: Vec3::new(4., 5., 100.),
-        angVel: Vec3::new(7., 8., 9.),
-        isOnGround: true,
-        hasJumped: true,
-        hasDoubleJumped: false,
-        hasFlipped: false,
-        lastRelDodgeTorque: Vec3::new(0., 0., 0.),
-        jumpTime: 0.1,
-        flipTime: 0.,
-        isJumping: true,
-        airTimeSinceJump: 0.1,
-        boost: 100. / 3.,
-        ..Default::default()
-    }).unwrap();
-    dbg!(arena.pin_mut().get_car(car_id));
+
     arena
         .pin_mut()
         .set_car_controls(
             car_id,
-            dbg!(CarControls {
+            CarControls {
                 boost: true,
                 ..Default::default()
-            }),
+            },
         )
         .unwrap();
 
     arena.pin_mut().step(1);
-    dbg!(arena.pin_mut().get_car(car_id));
 
-    assert!(dbg!(arena.pin_mut().get_car(car_id).boost) < 100. / 3.);
+    assert!(arena.pin_mut().get_car(car_id).boost < 100. / 3.);
+}
+
+#[test]
+fn ball() {
+    INIT.call_once(init);
+    let mut arena = Arena::default_soccar();
+
+    arena.pin_mut().set_ball(Ball {
+        pos: Vec3::new(1., 2., 1000.),
+        vel: Vec3::new(0., 0., -1.),
+        ..Default::default()
+    });
+
+    let ball = arena.pin_mut().get_ball();
+    assert!(ball.pos.x == 1.);
+    assert!(ball.pos.y == 2.);
+    assert!(ball.pos.z == 1000.);
+    assert!(ball.vel.x == 0.);
+    assert!(ball.vel.y == 0.);
+    assert!(ball.vel.z == -1.);
+    assert!(ball.angVel.x == 0.);
+    assert!(ball.angVel.y == 0.);
+    assert!(ball.angVel.z == 0.);
+
+    arena.pin_mut().step(30);
+
+    let ball = arena.pin_mut().get_ball();
+    assert!(ball.pos.x == 1.);
+    assert!(ball.pos.y == 2.);
+    assert!(ball.pos.z < 1000.);
+    assert!(ball.vel.x == 0.);
+    assert!(ball.vel.y == 0.);
+    assert!(ball.vel.z < 0.);
 }

@@ -73,7 +73,7 @@ struct Arenar {
 		return a->ball->GetState();
 	}
 
-	void SetBall(const BallState& state) {
+	void SetBall(const BallState state) {
 		a->ball->SetState(state);
 	}
 
@@ -85,7 +85,7 @@ struct Arenar {
 
 	bool get_pad_is_big(size_t index) const;
 	Vec GetPadPos(size_t index) const;
-	void SetPadState(size_t index, const EBoostPadState& state);
+	void SetPadState(size_t index, const EBoostPadState state);
 	EBoostPadState GetPadState(size_t index) const;
 
 	// extra misc stuff
