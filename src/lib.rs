@@ -492,9 +492,6 @@ pub mod sim {
             unsafe extern "C++" {
                 include!("arenar.h");
 
-                #[rust_name = "Vec3"]
-                type Vec = super::Vec3;
-                type RotMat = super::RotMat;
                 type Angle;
             }
 
