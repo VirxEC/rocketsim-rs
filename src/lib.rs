@@ -136,33 +136,33 @@ pub mod sim {
 
                 type Arenar = super::Arena;
                 type CarState = crate::sim::car::Car;
-                type BallState = crate::sim::ball::BallState;
+                type BallState = crate::sim::ball::Ball;
                 type EBoostPadState = crate::sim::boostpad::BoostPadState;
                 type CarConfig = crate::sim::car::CarConfig;
                 type CarControls = crate::sim::CarControls;
                 type Vec = crate::sim::math::Vec3;
                 type Team = crate::sim::car::Team;
 
-                #[rust_name = "get_cars"]
+                #[rust_name = "rgc"]
                 fn GetCars(self: Pin<&mut Arenar>) -> UniquePtr<CxxVector<CarState>>;
                 #[rust_name = "rsc"]
-                fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car_state: &CarState) -> bool;
+                fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car_state: CarState) -> bool;
                 #[rust_name = "get_car"]
                 fn GetCar(self: Pin<&mut Arenar>, car_id: u32) -> CarState;
                 #[rust_name = "add_car"]
                 fn AddCar(self: Pin<&mut Arenar>, team: Team, car_config: &CarConfig) -> u32;
                 #[rust_name = "scc"]
-                fn SetCarControls(self: Pin<&mut Arenar>, car_id: u32, car_controls: &CarControls) -> bool;
+                fn SetCarControls(self: Pin<&mut Arenar>, car_id: u32, car_controls: CarControls) -> bool;
                 #[rust_name = "get_ball"]
                 fn GetBall(self: &Arenar) -> BallState;
                 #[rust_name = "set_ball"]
                 fn SetBall(self: Pin<&mut Arenar>, ball_state: &BallState);
                 #[rust_name = "get_pad_pos"]
-                fn GetPadPos(self: &Arenar, index: u32) -> Vec;
+                fn GetPadPos(self: &Arenar, index: usize) -> Vec;
                 #[rust_name = "set_pad_state"]
-                fn SetPadState(self: Pin<&mut Arenar>, id: u32, state: &EBoostPadState);
+                fn SetPadState(self: Pin<&mut Arenar>, index: usize, state: &EBoostPadState);
                 #[rust_name = "get_pad_state"]
-                fn GetPadState(self: &Arenar, index: u32) -> EBoostPadState;
+                fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
             }
         }
 
@@ -194,7 +194,7 @@ pub mod sim {
             }
 
             #[inline]
-            pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: &CarState) -> Result<(), NoCarFound> {
+            pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: CarState) -> Result<(), NoCarFound> {
                 if self.rsc(car_id, car_state) {
                     Ok(())
                 } else {
@@ -203,7 +203,7 @@ pub mod sim {
             }
 
             #[inline]
-            pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: &CarControls) -> Result<(), NoCarFound> {
+            pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: CarControls) -> Result<(), NoCarFound> {
                 if self.scc(car_id, car_controls) {
                     Ok(())
                 } else {
@@ -230,19 +230,19 @@ pub mod sim {
             }
 
             #[inline]
-            /// Iterates over the (id, carstate) in the arena
-            pub fn iter_cars(self: Pin<&mut Self>) -> impl Iterator<Item = (u32, CarState)> + '_ {
-                self.get_cars().enumerate().map(|(i, state)| (self.get_car_id(i), state))
+            /// Returns all of the `(id, car_state)`s in the arena
+            pub fn get_cars(mut self: Pin<&mut Self>) -> std::vec::Vec<(u32, CarState)> {
+                self.as_mut().rgc().iter().enumerate().map(|(i, &state)| (self.get_car_id(i), state)).collect()
             }
 
             #[inline]
-            /// Iterates over the static (position, is_big) info of boost pads in the Arena
+            /// Iterates over the static `(position, is_big)` info of boost pads in the Arena
             pub fn iter_pad_static(&self) -> impl Iterator<Item = (bool, Vec)> + '_ {
                 (0..self.num_pads()).map(|i| (self.get_pad_is_big(i), self.get_pad_pos(i)))
             }
 
             #[inline]
-            /// Iterates over the dynamic (isActive, cooldown) info of the boost pads in the arena
+            /// Iterates over the dynamic `(isActive, cooldown)` info of the boost pads in the arena
             pub fn iter_pad_state(&self) -> impl Iterator<Item = EBoostPadState> + '_ {
                 (0..self.num_pads()).map(|i| self.get_pad_state(i))
             }
@@ -250,16 +250,6 @@ pub mod sim {
     }
 
     pub mod ball {
-        autocxx::include_cpp! {
-            #include "Sim/Ball/Ball.h"
-            name!(ball)
-            safety!(unsafe)
-            block!("btManifoldPoint")
-            block!("btDynamicsWorld")
-            block!("BallState")
-            generate!("Ball")
-        }
-
         #[cxx::bridge]
         mod inner_bs {
             unsafe extern "C++" {
@@ -278,8 +268,7 @@ pub mod sim {
             }
         }
 
-        pub use ball::Ball;
-        pub use inner_bs::BallState;
+        pub use inner_bs::BallState as Ball;
     }
 
     pub mod car {
@@ -303,12 +292,12 @@ pub mod sim {
                 type CarState;
             }
 
-            #[derive(Clone, Copy, Debug, Default)]
+            #[derive(Clone, Copy, Debug)]
             struct CarState {
                 pos: Vec3,
                 rotMat: RotMat,
                 vel: Vec3,
-                angvel: Vec3,
+                angVel: Vec3,
                 isOnGround: bool,
                 hasJumped: bool,
                 hasDoubleJumped: bool,
@@ -338,6 +327,45 @@ pub mod sim {
 
             impl UniquePtr<CarState> {}
             impl CxxVector<CarState> {}
+        }
+
+        use inner_cs::*;
+
+        impl Default for Car {
+            #[inline]
+            fn default() -> Self {
+                Self {
+                    pos: Vec3::new(0., 0., 17.),
+                    rotMat: RotMat::get_identity(),
+                    vel: Vec3::default(),
+                    angVel: Vec3::default(),
+                    isOnGround: true,
+                    hasJumped: false,
+                    hasDoubleJumped: false,
+                    hasFlipped: false,
+                    lastRelDodgeTorque: Vec3::default(),
+                    jumpTime: 0.,
+                    flipTime: 0.,
+                    isJumping: false,
+                    airTimeSinceJump: 0.,
+                    boost: 100. / 3.,
+                    timeSpentBoosting: 0.,
+                    isSupersonic: false,
+                    supersonicTime: 0.,
+                    handbrakeVal: 0.,
+                    isAutoFlipping: false,
+                    autoFlipTimer: 0.,
+                    autoFlipTorqueScale: 0.,
+                    hasContact: false,
+                    contactNormal: Vec3::default(),
+                    otherCarID: 0,
+                    cooldownTimer: 0.,
+                    isDemoed: false,
+                    demoRespawnTimer: 0.,
+                    lastHitBallTick: 0,
+                    lastControls: CarControls::default(),
+                }
+            }
         }
 
         pub use car::Team;
@@ -428,7 +456,7 @@ pub mod sim {
         #[cfg(feature = "glam")]
         use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
-        #[repr(C)]
+        #[repr(C, align(16))]
         #[derive(Clone, Copy, Debug, Default)]
         pub struct Vec3 {
             pub x: f32,
@@ -440,8 +468,23 @@ pub mod sim {
         unsafe impl cxx::ExternType for Vec3 {
             #[allow(unused_attributes)]
             #[doc(hidden)]
-            type Id = (::cxx::V, ::cxx::e, ::cxx::c);
-            type Kind = ::cxx::kind::Trivial;
+            type Id = (cxx::V, cxx::e, cxx::c);
+            type Kind = cxx::kind::Trivial;
+        }
+
+        #[repr(C, align(16))]
+        #[derive(Clone, Copy, Debug, Default)]
+        pub struct RotMat {
+            pub forward: Vec3,
+            pub right: Vec3,
+            pub up: Vec3,
+        }
+
+        unsafe impl cxx::ExternType for RotMat {
+            #[allow(unused_attributes)]
+            #[doc(hidden)]
+            type Id = (cxx::R, cxx::o, cxx::t, cxx::M, cxx::a, cxx::t);
+            type Kind = cxx::kind::Trivial;
         }
 
         #[cxx::bridge]
@@ -451,21 +494,14 @@ pub mod sim {
 
                 #[rust_name = "Vec3"]
                 type Vec = super::Vec3;
-                type RotMat;
+                type RotMat = super::RotMat;
                 type Angle;
             }
 
             #[derive(Clone, Copy, Debug, Default)]
-            struct RotMat {
-                forward: Vec3,
-                right: Vec3,
-                up: Vec3,
-            }
-
-            #[derive(Clone, Copy, Debug, Default)]
             struct Angle {
-                pitch: f32,
                 yaw: f32,
+                pitch: f32,
                 roll: f32,
             }
         }
@@ -473,18 +509,6 @@ pub mod sim {
         impl std::fmt::Display for RotMat {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 write!(f, "f: {}, r: {}, u: {}", self.forward, self.right, self.up)
-            }
-        }
-
-        impl std::fmt::Display for Angle {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "(p: {}, y: {}, r: {})", self.pitch, self.yaw, self.roll)
-            }
-        }
-
-        impl std::fmt::Display for Vec3 {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "(x: {}, y: {}, z: {})", self.x, self.y, self.z)
             }
         }
 
@@ -508,6 +532,22 @@ pub mod sim {
             }
         }
 
+        impl RotMat {
+            pub fn get_identity() -> Self {
+                Self {
+                    forward: Vec3::new(1., 0., 0.),
+                    right: Vec3::new(0., 1., 0.),
+                    up: Vec3::new(0., 0., 1.),
+                }
+            }
+        }
+
+        impl std::fmt::Display for Angle {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "(p: {}, y: {}, r: {})", self.pitch, self.yaw, self.roll)
+            }
+        }
+
         #[cfg(feature = "glam")]
         impl From<Angle> for Quat {
             #[inline]
@@ -522,6 +562,12 @@ pub mod sim {
             fn from(value: Quat) -> Self {
                 let (roll, pitch, yaw) = value.to_euler(EulerRot::XYZ);
                 Self { pitch, yaw, roll }
+            }
+        }
+
+        impl std::fmt::Display for Vec3 {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "(x: {}, y: {}, z: {})", self.x, self.y, self.z)
             }
         }
 
@@ -562,6 +608,6 @@ pub mod sim {
             }
         }
 
-        pub use inner_math::{Angle, RotMat};
+        pub use inner_math::Angle;
     }
 }

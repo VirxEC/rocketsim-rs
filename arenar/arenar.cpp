@@ -2,6 +2,30 @@
 
 #include "arenar.h"
 
+const CarConfig& getOctane() {
+    return CAR_CONFIG_OCTANE;
+}
+
+const CarConfig& getDominus() {
+    return CAR_CONFIG_DOMINUS;
+}
+
+const CarConfig& getPlank() {
+    return CAR_CONFIG_PLANK;
+}
+
+const CarConfig& getBreakout() {
+    return CAR_CONFIG_BREAKOUT;
+}
+
+const CarConfig& getHybrid() {
+    return CAR_CONFIG_HYBRID;
+}
+
+const CarConfig& getMerc() {
+    return CAR_CONFIG_MERC;
+}
+
 std::unique_ptr<std::vector<CarState>> Arenar::GetCars() {
     std::unique_ptr<std::vector<CarState>> states = std::make_unique<std::vector<CarState>>();
     for (Car* car : a->_cars) {
@@ -17,7 +41,7 @@ CarState Arenar::GetCar(uint32_t carID) {
     return car->GetState();
 }
 
-bool Arenar::SetCar(uint32_t carID, const CarState& state) {
+bool Arenar::SetCar(uint32_t carID, const CarState state) {
     Car* car = a->GetCarFromID(carID);
     if (car == NULL) {
         return false;
@@ -37,7 +61,7 @@ bool Arenar::RemoveCar(uint32_t carID) {
     return true;
 }
 
-bool Arenar::SetCarControls(uint32_t carID, const CarControls& controls) {
+bool Arenar::SetCarControls(uint32_t carID, const CarControls controls) {
     Car* car = a->GetCarFromID(carID);
     if (car == NULL) {
         return false;
@@ -67,17 +91,17 @@ bool Arenar::RespawnCar(uint32_t carID, int32_t seed) {
     return true;
 }
 
-Vec Arenar::GetPadPos(uint32_t index) const {
+Vec Arenar::GetPadPos(size_t index) const {
     assert(index < a->_boostPads.size());
     return a->_boostPads[index]->pos;
 }
 
-bool Arenar::get_pad_is_big(uint32_t index) const {
+bool Arenar::get_pad_is_big(size_t index) const {
     assert(index < a->_boostPads.size());
     return a->_boostPads[index]->isBig;
 }
 
-void Arenar::SetPadState(uint32_t index, const EBoostPadState& state) {
+void Arenar::SetPadState(size_t index, const EBoostPadState& state) {
     Car* curLockedCar = NULL;
 
     if (state.curLockedCarId != 0) {
@@ -93,7 +117,7 @@ void Arenar::SetPadState(uint32_t index, const EBoostPadState& state) {
     a->_boostPads[index]->SetState(estate);
 }
 
-EBoostPadState Arenar::GetPadState(uint32_t index) const {
+EBoostPadState Arenar::GetPadState(size_t index) const {
     assert(index < a->_boostPads.size());
     BoostPadState state = a->_boostPads[index]->GetState();
     return EBoostPadState {

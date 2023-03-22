@@ -2,29 +2,12 @@
 
 #include "RocketSim.h"
 
-const CarConfig& getOctane() {
-    return CAR_CONFIG_OCTANE;
-}
-
-const CarConfig& getDominus() {
-    return CAR_CONFIG_DOMINUS;
-}
-
-const CarConfig& getPlank() {
-    return CAR_CONFIG_PLANK;
-}
-
-const CarConfig& getBreakout() {
-    return CAR_CONFIG_BREAKOUT;
-}
-
-const CarConfig& getHybrid() {
-    return CAR_CONFIG_HYBRID;
-}
-
-const CarConfig& getMerc() {
-    return CAR_CONFIG_MERC;
-}
+const CarConfig& getOctane();
+const CarConfig& getDominus();
+const CarConfig& getPlank();
+const CarConfig& getBreakout();
+const CarConfig& getHybrid();
+const CarConfig& getMerc();
 
 struct EBoostPadState {
 	bool isActive;
@@ -53,11 +36,11 @@ struct Arenar {
     Arenar& operator =(Arenar && other) = default;
 
 	// extra car stuff
-	uint32_t num_cars() const {
+	size_t num_cars() const {
 		return a->_cars.size();
 	}
 
-	uint32_t get_car_id(uint32_t index) const {
+	uint32_t get_car_id(size_t index) const {
 		return a->_cars[index]->id;
 	}
 
@@ -68,7 +51,7 @@ struct Arenar {
 	/// @param state
 	/// @param carID
 	/// @return True if the car was found and the state was set, false otherwise
-	bool SetCar(uint32_t car_id, const CarState& state);
+	bool SetCar(uint32_t car_id, const CarState state);
 
 	uint32_t AddCar(Team team, const CarConfig& config) {
 		return a->AddCar(team, config)->id;
@@ -80,7 +63,7 @@ struct Arenar {
 	/// @param state
 	/// @param carID
 	/// @return True if the car was found and the state was set, false otherwise
-	bool SetCarControls(uint32_t car_id, const CarControls& controls);
+	bool SetCarControls(uint32_t car_id, const CarControls controls);
 	bool DemolishCar(uint32_t car_id);
 	bool RespawnCar(uint32_t car_id, int32_t seed);
 
@@ -96,14 +79,14 @@ struct Arenar {
 
 	// boost pad stuff
 
-	uint32_t num_pads() const {
+	size_t num_pads() const {
 		return a->_boostPads.size();
 	}
 
-	bool get_pad_is_big(uint32_t index) const;
-	Vec GetPadPos(uint32_t index) const;
-	void SetPadState(uint32_t index, const EBoostPadState& state);
-	EBoostPadState GetPadState(uint32_t index) const;
+	bool get_pad_is_big(size_t index) const;
+	Vec GetPadPos(size_t index) const;
+	void SetPadState(size_t index, const EBoostPadState& state);
+	EBoostPadState GetPadState(size_t index) const;
 
 	// extra misc stuff
 

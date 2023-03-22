@@ -33,7 +33,7 @@ fn main() {
             .pin_mut()
             .set_car_controls(
                 car_id,
-                &CarControls {
+                CarControls {
                     boost: true,
                     ..Default::default()
                 },
@@ -41,7 +41,7 @@ fn main() {
             .unwrap();
 
         // If car_id can't be found in arena than this will return Err
-        arena.pin_mut().set_car(car_id, &car_state).unwrap();
+        arena.pin_mut().set_car(car_id, car_state).unwrap();
         // dbg!(arena.pin_mut().get_car(car_id).unwrap());
 
         println!("Set car ({car_id}) state");
