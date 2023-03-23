@@ -25,7 +25,7 @@ lto = true
 [features]
 default = ["glam"]
 glam = ["dep:glam"]
-rlbot = []
+rlbot = ["glam"]
 
 [target.'cfg(not(any(target_arch = "x86", target_arch = "x86_64")))'.dependencies]
 
