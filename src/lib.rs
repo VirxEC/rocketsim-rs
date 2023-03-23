@@ -1,12 +1,11 @@
-#![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
-
 mod ext;
-
-use std::error::Error;
 
 pub use autocxx;
 pub use cxx;
 pub use ext::*;
+
+#[cfg(feature = "glam")]
+pub use glam;
 
 autocxx::include_cpp! {
     #include "arenar.h"
@@ -81,17 +80,6 @@ impl sim::car::CarConfig {
         extra::get_merc()
     }
 }
-
-#[derive(Debug)]
-pub struct NoCarFound(u32);
-
-impl std::fmt::Display for NoCarFound {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "No car found in the given arena at the given ID {}.", self.0)
-    }
-}
-
-impl Error for NoCarFound {}
 
 pub mod sim {
     #[cxx::bridge]
@@ -175,69 +163,7 @@ pub mod sim {
             }
         }
 
-        use crate::NoCarFound;
-        use arena_extra::*;
-        use autocxx::WithinUniquePtr;
-        use std::pin::Pin;
-
         pub use arena::{Arenar as Arena, GameMode};
-
-        impl Arena {
-            #[inline]
-            pub fn default_soccar() -> cxx::UniquePtr<Self> {
-                Self::new(arena::GameMode::SOCCAR, 120.).within_unique_ptr()
-            }
-
-            #[inline]
-            pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
-                self.ResetToRandomKickoff(seed.unwrap_or(-1));
-            }
-
-            #[inline]
-            pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-                if self.RemoveCar(car_id) {
-                    Ok(())
-                } else {
-                    Err(NoCarFound(car_id))
-                }
-            }
-
-            #[inline]
-            pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: CarState) -> Result<(), NoCarFound> {
-                if self.rsc(car_id, car_state) {
-                    Ok(())
-                } else {
-                    Err(NoCarFound(car_id))
-                }
-            }
-
-            #[inline]
-            pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: CarControls) -> Result<(), NoCarFound> {
-                if self.rscc(car_id, car_controls) {
-                    Ok(())
-                } else {
-                    Err(NoCarFound(car_id))
-                }
-            }
-
-            #[inline]
-            pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-                if self.DemolishCar(car_id) {
-                    Ok(())
-                } else {
-                    Err(NoCarFound(car_id))
-                }
-            }
-
-            #[inline]
-            pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>) -> Result<(), NoCarFound> {
-                if self.RespawnCar(car_id, seed.unwrap_or(-1)) {
-                    Ok(())
-                } else {
-                    Err(NoCarFound(car_id))
-                }
-            }
-        }
     }
 
     pub mod ball {
@@ -320,58 +246,8 @@ pub mod sim {
             impl CxxVector<CarState> {}
         }
 
-        use inner_cs::*;
-
-        impl Default for Car {
-            #[inline]
-            fn default() -> Self {
-                Self {
-                    pos: Vec3::new(0., 0., 17.),
-                    rot_mat: RotMat::get_identity(),
-                    vel: Vec3::default(),
-                    ang_vel: Vec3::default(),
-                    is_on_ground: true,
-                    has_jumped: false,
-                    has_double_jumped: false,
-                    has_flipped: false,
-                    last_rel_dodge_torque: Vec3::default(),
-                    jump_time: 0.,
-                    flip_time: 0.,
-                    is_jumping: false,
-                    air_time_since_jump: 0.,
-                    boost: 100. / 3.,
-                    time_spent_boosting: 0.,
-                    is_supersonic: false,
-                    supersonic_time: 0.,
-                    handbrake_val: 0.,
-                    is_auto_flipping: false,
-                    auto_flip_timer: 0.,
-                    auto_flip_torque_scale: 0.,
-                    has_contact: false,
-                    contact_normal: Vec3::default(),
-                    other_car_id: 0,
-                    cooldown_timer: 0.,
-                    is_demoed: false,
-                    demo_respawn_timer: 0.,
-                    last_hit_ball_tick: 0,
-                    last_controls: CarControls::default(),
-                }
-            }
-        }
-
         pub use car::Team;
         pub use inner_cs::{CarState, CarState as Car};
-
-        impl Car {
-            #[inline]
-            pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut super::arena::Arena>) -> Option<Self> {
-                if self.other_car_id != 0 {
-                    Some(arena.get_car(self.other_car_id))
-                } else {
-                    None
-                }
-            }
-        }
 
         #[cxx::bridge]
         mod carconfig {

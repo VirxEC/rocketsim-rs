@@ -1,3 +1,5 @@
+#![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
+
 #[cfg(all(target_arch = "x86", feature = "glam"))]
 use core::arch::x86::*;
 #[cfg(all(target_arch = "x86_64", feature = "glam"))]
@@ -11,20 +13,29 @@ type F32x4 = __m128;
 type F32x4 = f32x4;
 
 #[cfg(feature = "glam")]
-pub use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
+use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
-use crate::{
-    sim::{
-        arena::Arena,
-        ball::Ball,
-        boostpad::BoostPadState,
-        car::{Car, CarConfig},
-        math::{Angle, RotMat, Vec3},
-        CarControls,
-    },
-    NoCarFound,
+use crate::sim::{
+    arena::{Arena, GameMode},
+    ball::Ball,
+    boostpad::BoostPadState,
+    car::{Car, CarConfig},
+    math::{Angle, RotMat, Vec3},
+    CarControls,
 };
-use std::pin::Pin;
+use autocxx::WithinUniquePtr;
+use std::{error::Error, pin::Pin, fmt};
+
+#[derive(Debug)]
+pub struct NoCarFound(u32);
+
+impl fmt::Display for NoCarFound {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "No car found in the given arena at the given ID {}.", self.0)
+    }
+}
+
+impl Error for NoCarFound {}
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BoostPad {
@@ -43,8 +54,63 @@ pub struct GameState {
 
 impl Arena {
     #[inline]
+    pub fn default_soccar() -> cxx::UniquePtr<Self> {
+        Self::new(GameMode::SOCCAR, 120.).within_unique_ptr()
+    }
+
+    #[inline]
+    pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
+        self.ResetToRandomKickoff(seed.unwrap_or(-1));
+    }
+
+    #[inline]
+    pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+        if self.RemoveCar(car_id) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
+    pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: Car) -> Result<(), NoCarFound> {
+        if self.rsc(car_id, car_state) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
+    pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: CarControls) -> Result<(), NoCarFound> {
+        if self.rscc(car_id, car_controls) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
+    pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
+        if self.DemolishCar(car_id) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
+    pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>) -> Result<(), NoCarFound> {
+        if self.RespawnCar(car_id, seed.unwrap_or(-1)) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
+    }
+
+    #[inline]
     /// Returns all of the `(id, Car, CarConfig)`s in the arena
-    pub fn get_cars(mut self: Pin<&mut Self>) -> std::vec::Vec<(u32, Car, CarConfig)> {
+    pub fn get_cars(mut self: Pin<&mut Self>) -> Vec<(u32, Car, CarConfig)> {
         self.as_mut()
             .rgc()
             .iter()
@@ -93,8 +159,56 @@ impl Arena {
     }
 }
 
-impl std::fmt::Display for RotMat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Default for Car {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            pos: Vec3::new(0., 0., 17.),
+            rot_mat: RotMat::get_identity(),
+            vel: Vec3::default(),
+            ang_vel: Vec3::default(),
+            is_on_ground: true,
+            has_jumped: false,
+            has_double_jumped: false,
+            has_flipped: false,
+            last_rel_dodge_torque: Vec3::default(),
+            jump_time: 0.,
+            flip_time: 0.,
+            is_jumping: false,
+            air_time_since_jump: 0.,
+            boost: 100. / 3.,
+            time_spent_boosting: 0.,
+            is_supersonic: false,
+            supersonic_time: 0.,
+            handbrake_val: 0.,
+            is_auto_flipping: false,
+            auto_flip_timer: 0.,
+            auto_flip_torque_scale: 0.,
+            has_contact: false,
+            contact_normal: Vec3::default(),
+            other_car_id: 0,
+            cooldown_timer: 0.,
+            is_demoed: false,
+            demo_respawn_timer: 0.,
+            last_hit_ball_tick: 0,
+            last_controls: CarControls::default(),
+        }
+    }
+}
+
+impl Car {
+    #[inline]
+    pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut Arena>) -> Option<Self> {
+        if self.other_car_id != 0 {
+            Some(arena.get_car(self.other_car_id))
+        } else {
+            None
+        }
+    }
+}
+
+impl fmt::Display for RotMat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "f: {}, r: {}, u: {}", self.forward, self.right, self.up)
     }
 }
@@ -129,8 +243,8 @@ impl RotMat {
     }
 }
 
-impl std::fmt::Display for Angle {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Angle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "(p: {}, y: {}, r: {})", self.pitch, self.yaw, self.roll)
     }
 }
@@ -152,8 +266,8 @@ impl From<Quat> for Angle {
     }
 }
 
-impl std::fmt::Display for Vec3 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "(x: {}, y: {}, z: {})", self.x, self.y, self.z)
     }
 }
