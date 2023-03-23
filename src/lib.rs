@@ -1,11 +1,12 @@
 mod ext;
+#[cfg(feature = "glam")]
+mod glam_ext;
 
 pub use autocxx;
 pub use cxx;
 pub use ext::*;
-
 #[cfg(feature = "glam")]
-pub use glam;
+pub use glam_ext::*;
 
 autocxx::include_cpp! {
     #include "arenar.h"

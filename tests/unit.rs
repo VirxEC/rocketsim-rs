@@ -63,7 +63,6 @@ fn cars() {
     assert!(car_config.hitbox_size.x == dominus.hitbox_size.x);
     assert!(car_config.hitbox_size.y == dominus.hitbox_size.y);
     assert!(car_config.hitbox_size.z == dominus.hitbox_size.z);
-
 }
 
 #[test]
