@@ -44,6 +44,10 @@ struct Arenar {
 		return a->_cars[index]->id;
 	}
 
+	CarConfig GetCarConfigFromIndex(size_t index) const {
+		return a->_cars[index]->config;
+	}
+
 	std::unique_ptr<std::vector<CarState>> GetCars();
 	CarState GetCar(uint32_t car_id);
 	/// @brief Sets the state of a car in the arena

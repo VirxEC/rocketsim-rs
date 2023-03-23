@@ -18,7 +18,7 @@ use crate::{
         arena::Arena,
         ball::Ball,
         boostpad::BoostPadState,
-        car::Car,
+        car::{Car, CarConfig},
         math::{Angle, RotMat, Vec3},
         CarControls,
     },
@@ -36,29 +36,58 @@ pub struct BoostPad {
 #[derive(Clone, Debug, Default)]
 pub struct GameState {
     pub tick_count: u64,
-    pub cars: Vec<(u32, Car)>,
+    pub cars: Vec<(u32, Car, CarConfig)>,
     pub ball: Ball,
     pub pads: Vec<BoostPad>,
 }
 
 impl Arena {
     #[inline]
+    /// Returns all of the `(id, Car, CarConfig)`s in the arena
+    pub fn get_cars(mut self: Pin<&mut Self>) -> std::vec::Vec<(u32, Car, CarConfig)> {
+        self.as_mut()
+            .rgc()
+            .iter()
+            .enumerate()
+            .map(|(i, &state)| (self.get_car_id(i), state, self.get_car_config_from_index(i)))
+            .collect()
+    }
+
+    #[inline]
+    /// Iterates over the static `(position, is_big)` info of boost pads in the Arena
+    pub fn iter_pad_static(&self) -> impl Iterator<Item = (bool, Vec3)> + '_ {
+        (0..self.num_pads()).map(|i| (self.get_pad_is_big(i), self.get_pad_pos(i)))
+    }
+
+    #[inline]
+    /// Iterates over the dynamic `(is_active, cooldown)` info of the boost pads in the arena
+    pub fn iter_pad_state(&self) -> impl Iterator<Item = BoostPadState> + '_ {
+        (0..self.num_pads()).map(|i| self.get_pad_state(i))
+    }
+
+    #[inline]
+    /// Returns an iterator over the all BoostPad information in the arena
+    pub fn iter_pads(&self) -> impl Iterator<Item = BoostPad> + '_ {
+        (0..self.num_pads()).map(|i| BoostPad {
+            is_big: self.get_pad_is_big(i),
+            position: self.get_pad_pos(i),
+            state: self.get_pad_state(i),
+        })
+    }
+
+    #[inline]
+    /// Set the all of the car id <-> car control pairs in the arena
     pub fn set_all_controls(mut self: Pin<&mut Self>, controls: &[(u32, CarControls)]) -> Result<(), NoCarFound> {
         controls.iter().try_for_each(|&(car_id, car_controls)| self.as_mut().set_car_controls(car_id, car_controls))
     }
 
     #[inline]
+    /// Get all game state information in one struct
     pub fn get_game_state(self: Pin<&mut Self>) -> GameState {
         GameState {
             tick_count: self.get_tick_count(),
             ball: self.get_ball(),
-            pads: (0..self.num_pads())
-                .map(|i| BoostPad {
-                    is_big: self.get_pad_is_big(i),
-                    position: self.get_pad_pos(i),
-                    state: self.get_pad_state(i),
-                })
-                .collect(),
+            pads: self.iter_pads().collect(),
             cars: self.get_cars(),
         }
     }

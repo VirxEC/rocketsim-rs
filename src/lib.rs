@@ -170,6 +170,8 @@ pub mod sim {
                 fn SetPadState(self: Pin<&mut Arenar>, index: usize, state: EBoostPadState);
                 #[rust_name = "get_pad_state"]
                 fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
+                #[rust_name = "get_car_config_from_index"]
+                fn GetCarConfigFromIndex(self: &Arenar, index: usize) -> CarConfig;
             }
         }
 
@@ -234,24 +236,6 @@ pub mod sim {
                 } else {
                     Err(NoCarFound(car_id))
                 }
-            }
-
-            #[inline]
-            /// Returns all of the `(id, car_state)`s in the arena
-            pub fn get_cars(mut self: Pin<&mut Self>) -> std::vec::Vec<(u32, CarState)> {
-                self.as_mut().rgc().iter().enumerate().map(|(i, &state)| (self.get_car_id(i), state)).collect()
-            }
-
-            #[inline]
-            /// Iterates over the static `(position, is_big)` info of boost pads in the Arena
-            pub fn iter_pad_static(&self) -> impl Iterator<Item = (bool, Vec)> + '_ {
-                (0..self.num_pads()).map(|i| (self.get_pad_is_big(i), self.get_pad_pos(i)))
-            }
-
-            #[inline]
-            /// Iterates over the dynamic `(isActive, cooldown)` info of the boost pads in the arena
-            pub fn iter_pad_state(&self) -> impl Iterator<Item = EBoostPadState> + '_ {
-                (0..self.num_pads()).map(|i| self.get_pad_state(i))
             }
         }
     }
