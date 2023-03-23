@@ -16,6 +16,9 @@ pub use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 use crate::{
     sim::{
         arena::Arena,
+        ball::Ball,
+        boostpad::BoostPadState,
+        car::Car,
         math::{Angle, RotMat, Vec3},
         CarControls,
     },
@@ -23,10 +26,41 @@ use crate::{
 };
 use std::pin::Pin;
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct BoostPad {
+    pub is_big: bool,
+    pub position: Vec3,
+    pub state: BoostPadState,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct GameState {
+    pub tick_count: u64,
+    pub cars: Vec<(u32, Car)>,
+    pub ball: Ball,
+    pub pads: Vec<BoostPad>,
+}
+
 impl Arena {
     #[inline]
     pub fn set_all_controls(mut self: Pin<&mut Self>, controls: &[(u32, CarControls)]) -> Result<(), NoCarFound> {
         controls.iter().try_for_each(|&(car_id, car_controls)| self.as_mut().set_car_controls(car_id, car_controls))
+    }
+
+    #[inline]
+    pub fn get_game_state(self: Pin<&mut Self>) -> GameState {
+        GameState {
+            tick_count: self.get_tick_count(),
+            ball: self.get_ball(),
+            pads: (0..self.num_pads())
+                .map(|i| BoostPad {
+                    is_big: self.get_pad_is_big(i),
+                    position: self.get_pad_pos(i),
+                    state: self.get_pad_state(i),
+                })
+                .collect(),
+            cars: self.get_cars(),
+        }
     }
 }
 
