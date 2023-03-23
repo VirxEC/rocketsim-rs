@@ -1,14 +1,12 @@
 #![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
 
 mod ext;
-pub use ext::*;
 
 use std::error::Error;
 
 pub use autocxx;
 pub use cxx;
-#[cfg(feature = "glam")]
-pub use glam::Vec3A;
+pub use ext::*;
 
 autocxx::include_cpp! {
     #include "arenar.h"
@@ -149,15 +147,18 @@ pub mod sim {
                 type Vec = crate::sim::math::Vec3;
                 type Team = crate::sim::car::Team;
 
+                #[doc(hidden)]
                 #[rust_name = "rgc"]
                 fn GetCars(self: Pin<&mut Arenar>) -> UniquePtr<CxxVector<CarState>>;
+                #[doc(hidden)]
                 #[rust_name = "rsc"]
                 fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car_state: CarState) -> bool;
                 #[rust_name = "get_car"]
                 fn GetCar(self: Pin<&mut Arenar>, car_id: u32) -> CarState;
                 #[rust_name = "add_car"]
                 fn AddCar(self: Pin<&mut Arenar>, team: Team, car_config: &CarConfig) -> u32;
-                #[rust_name = "scc"]
+                #[doc(hidden)]
+                #[rust_name = "rscc"]
                 fn SetCarControls(self: Pin<&mut Arenar>, car_id: u32, car_controls: CarControls) -> bool;
                 #[rust_name = "get_ball"]
                 fn GetBall(self: &Arenar) -> BallState;
@@ -210,7 +211,7 @@ pub mod sim {
 
             #[inline]
             pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: CarControls) -> Result<(), NoCarFound> {
-                if self.scc(car_id, car_controls) {
+                if self.rscc(car_id, car_controls) {
                     Ok(())
                 } else {
                     Err(NoCarFound(car_id))
@@ -400,14 +401,14 @@ pub mod sim {
                 type CarConfig;
             }
 
-            #[derive(Debug)]
+            #[derive(Clone, Copy, Debug, Default)]
             struct WheelPairConfig {
                 wheel_radius: f32,
                 suspension_rest_length: f32,
                 connection_point_offset: Vec3,
             }
 
-            #[derive(Debug)]
+            #[derive(Clone, Copy, Debug, Default)]
             struct CarConfig {
                 hitbox_size: Vec3,
                 hitbox_pos_offset: Vec3,
@@ -454,21 +455,6 @@ pub mod sim {
     }
 
     pub mod math {
-        #[cfg(all(target_arch = "x86", feature = "glam"))]
-        use core::arch::x86::*;
-        #[cfg(all(target_arch = "x86_64", feature = "glam"))]
-        use core::arch::x86_64::*;
-        #[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"))]
-        use core::simd::*;
-
-        #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "glam"))]
-        type F32x4 = __m128;
-        #[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"))]
-        type F32x4 = f32x4;
-
-        #[cfg(feature = "glam")]
-        use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
-
         #[repr(C, align(16))]
         #[derive(Clone, Copy, Debug, Default)]
         pub struct Vec3 {
@@ -513,108 +499,6 @@ pub mod sim {
                 yaw: f32,
                 pitch: f32,
                 roll: f32,
-            }
-        }
-
-        impl std::fmt::Display for RotMat {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "f: {}, r: {}, u: {}", self.forward, self.right, self.up)
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl From<RotMat> for Mat3A {
-            #[inline]
-            fn from(value: RotMat) -> Self {
-                Self::from_cols(Vec3A::from(value.forward), Vec3A::from(value.right), Vec3A::from(value.up))
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl From<Mat3A> for RotMat {
-            #[inline]
-            fn from(value: Mat3A) -> Self {
-                Self {
-                    forward: Vec3::from(value.x_axis),
-                    right: Vec3::from(value.y_axis),
-                    up: Vec3::from(value.z_axis),
-                }
-            }
-        }
-
-        impl RotMat {
-            pub fn get_identity() -> Self {
-                Self {
-                    forward: Vec3::new(1., 0., 0.),
-                    right: Vec3::new(0., 1., 0.),
-                    up: Vec3::new(0., 0., 1.),
-                }
-            }
-        }
-
-        impl std::fmt::Display for Angle {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "(p: {}, y: {}, r: {})", self.pitch, self.yaw, self.roll)
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl From<Angle> for Quat {
-            #[inline]
-            fn from(value: Angle) -> Self {
-                Self::from_euler(EulerRot::XYZ, value.roll, value.pitch, value.yaw)
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl From<Quat> for Angle {
-            #[inline]
-            fn from(value: Quat) -> Self {
-                let (roll, pitch, yaw) = value.to_euler(EulerRot::XYZ);
-                Self { pitch, yaw, roll }
-            }
-        }
-
-        impl std::fmt::Display for Vec3 {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "(x: {}, y: {}, z: {})", self.x, self.y, self.z)
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl From<Vec3> for Vec3A {
-            #[inline]
-            fn from(value: Vec3) -> Self {
-                Vec3A::from(F32x4::from(value.to_glam()))
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl From<Vec3A> for Vec3 {
-            #[inline]
-            fn from(value: Vec3A) -> Self {
-                Self::from_glam(Vec4::from(F32x4::from(value)))
-            }
-        }
-
-        impl Vec3 {
-            #[inline]
-            pub const fn new(x: f32, y: f32, z: f32) -> Self {
-                Self { x, y, z, _w: 0. }
-            }
-        }
-
-        #[cfg(feature = "glam")]
-        impl Vec3 {
-            #[inline]
-            pub const fn to_glam(self) -> Vec4 {
-                Vec4::new(self.x, self.y, self.z, self._w)
-            }
-
-            #[inline]
-            pub const fn from_glam(vec: Vec4) -> Self {
-                let [x, y, z, w] = vec.to_array();
-                Self { x, y, z, _w: w }
             }
         }
 
