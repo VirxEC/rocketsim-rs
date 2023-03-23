@@ -1,12 +1,16 @@
 mod ext;
 #[cfg(feature = "glam")]
 mod glam_ext;
+#[cfg(feature = "rlbot")]
+mod rlbot;
 
 pub use autocxx;
 pub use cxx;
 pub use ext::*;
 #[cfg(feature = "glam")]
 pub use glam_ext::*;
+#[cfg(feature = "rlbot")]
+pub use rlbot::*;
 
 autocxx::include_cpp! {
     #include "arenar.h"
