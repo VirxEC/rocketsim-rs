@@ -9,8 +9,10 @@ use rocketsim_rs::{
         math::*,
         CarControls,
     },
-    GameStateA,
 };
+
+#[cfg(feature = "glam")]
+use rocketsim_rs::GameStateA;
 
 static INIT: Once = Once::new();
 
