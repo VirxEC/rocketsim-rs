@@ -9,6 +9,7 @@ use rocketsim_rs::{
         math::*,
         CarControls,
     },
+    GameStateA,
 };
 
 static INIT: Once = Once::new();
@@ -96,4 +97,29 @@ fn ball() {
     assert!(ball.vel.x == 0.);
     assert!(ball.vel.y == 0.);
     assert!(ball.vel.z < 0.);
+}
+
+#[test]
+fn game_state() {
+    INIT.call_once(init);
+    let mut arena = Arena::default_standard();
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    arena.pin_mut().step(120);
+
+    let game_state = arena.pin_mut().get_game_state();
+    assert_eq!(game_state.tick_count, 120);
+    assert!(game_state.ball.pos.z < 200.);
+    assert_eq!(game_state.cars.len(), 2);
+    assert_eq!(game_state.pads.len(), 34);
+
+    #[cfg(feature = "glam")]
+    {
+        // test converison to glam
+        let glam_state = GameStateA::from(game_state);
+        assert_eq!(glam_state.tick_count, 120);
+        assert!(glam_state.ball.pos.z < 200.);
+        assert_eq!(glam_state.cars.len(), 2);
+        assert_eq!(glam_state.pads.len(), 34);
+    }
 }

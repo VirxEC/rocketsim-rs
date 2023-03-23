@@ -150,6 +150,17 @@ impl Arena {
     }
 }
 
+impl Default for Ball {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            pos: Vec3::new(0., 0., 93.15),
+            vel: Vec3::default(),
+            ang_vel: Vec3::default(),
+        }
+    }
+}
+
 impl Default for Car {
     #[inline]
     fn default() -> Self {

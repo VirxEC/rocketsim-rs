@@ -182,7 +182,7 @@ pub mod sim {
                 type BallState;
             }
 
-            #[derive(Clone, Copy, Debug, Default)]
+            #[derive(Clone, Copy, Debug)]
             struct BallState {
                 pos: Vec3,
                 vel: Vec3,
@@ -287,18 +287,6 @@ pub mod sim {
     }
 
     pub mod boostpad {
-        autocxx::include_cpp! {
-            #include "Sim/BoostPad/BoostPad.h"
-            name!(boostpad)
-            safety!(unsafe)
-            extern_cpp_type!("Vec", crate::sim::math::Vec3)
-            block!("BoostPadState")
-            block!("btDynamicsWorld")
-            generate!("BoostPad")
-        }
-
-        pub use boostpad::BoostPad;
-
         #[cxx::bridge]
         mod inner_bps {
             unsafe extern "C++" {
