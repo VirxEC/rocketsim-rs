@@ -11,10 +11,8 @@ use rocketsim_rs::sim::{
 fn main() {
     const TICKS: i32 = 50000;
 
-    rocketsim_rs::init();
-
     // load in assets
-    Arena::default_soccar();
+    rocketsim_rs::init();
 
     let num_cpu = available_parallelism().unwrap().get();
 
@@ -24,7 +22,7 @@ fn main() {
     let threads = (0..num_cpu)
         .map(|_| {
             spawn(|| {
-                let mut arena = Arena::default_soccar();
+                let mut arena = Arena::default_standard();
 
                 arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
                 arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());

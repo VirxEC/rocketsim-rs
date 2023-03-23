@@ -140,7 +140,7 @@ pub mod sim {
                 fn GetCars(self: Pin<&mut Arenar>) -> UniquePtr<CxxVector<CarState>>;
                 #[doc(hidden)]
                 #[rust_name = "rsc"]
-                fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car_state: CarState) -> bool;
+                fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car: CarState) -> bool;
                 #[rust_name = "get_car"]
                 fn GetCar(self: Pin<&mut Arenar>, car_id: u32) -> CarState;
                 #[rust_name = "add_car"]
@@ -151,11 +151,11 @@ pub mod sim {
                 #[rust_name = "get_ball"]
                 fn GetBall(self: &Arenar) -> BallState;
                 #[rust_name = "set_ball"]
-                fn SetBall(self: Pin<&mut Arenar>, ball_state: BallState);
+                fn SetBall(self: Pin<&mut Arenar>, ball: BallState);
                 #[rust_name = "get_pad_pos"]
                 fn GetPadPos(self: &Arenar, index: usize) -> Vec;
                 #[rust_name = "set_pad_state"]
-                fn SetPadState(self: Pin<&mut Arenar>, index: usize, state: EBoostPadState);
+                fn SetPadState(self: Pin<&mut Arenar>, index: usize, pad: EBoostPadState);
                 #[rust_name = "get_pad_state"]
                 fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
                 #[rust_name = "get_car_config_from_index"]

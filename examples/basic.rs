@@ -10,7 +10,7 @@ fn main() {
     rocketsim_rs::init();
 
     // Create a new arena with gamemode soccar and a tick rate of 120
-    let mut arena = Arena::default_soccar();
+    let mut arena = Arena::default_standard();
     println!("Arena tick rate: {}", arena.get_tick_rate());
 
     let car_id = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());

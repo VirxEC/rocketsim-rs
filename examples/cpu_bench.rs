@@ -15,7 +15,7 @@ fn main() {
     println!("Running on {num_cpu} threads");
 
     let start_time = Instant::now();
-    let threads = (0..num_cpu).map(|_| spawn(|| Arena::default_soccar().pin_mut().step(TICKS))).collect::<Vec<_>>();
+    let threads = (0..num_cpu).map(|_| spawn(|| Arena::default_standard().pin_mut().step(TICKS))).collect::<Vec<_>>();
 
     threads.into_iter().for_each(|thread| thread.join().unwrap());
 
