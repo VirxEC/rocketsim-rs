@@ -368,6 +368,7 @@ impl CarA {
 
 #[derive(Clone, Debug, Default)]
 pub struct GameStateA {
+    pub tick_rate: f32,
     pub tick_count: u64,
     pub cars: Vec<(u32, CarA, CarConfigA)>,
     pub ball: BallA,
@@ -378,6 +379,7 @@ impl From<GameState> for GameStateA {
     #[inline]
     fn from(value: GameState) -> Self {
         Self {
+            tick_rate: value.tick_rate,
             tick_count: value.tick_count,
             cars: value.cars.into_iter().map(|(id, car, config)| (id, car.into(), config.into())).collect(),
             ball: value.ball.into(),

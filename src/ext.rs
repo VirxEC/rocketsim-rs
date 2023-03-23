@@ -30,6 +30,7 @@ pub struct BoostPad {
 
 #[derive(Clone, Debug, Default)]
 pub struct GameState {
+    pub tick_rate: f32,
     pub tick_count: u64,
     pub cars: Vec<(u32, Car, CarConfig)>,
     pub ball: Ball,
@@ -142,6 +143,7 @@ impl Arena {
     /// Get all game state information in one struct
     pub fn get_game_state(self: Pin<&mut Self>) -> GameState {
         GameState {
+            tick_rate: self.get_tick_rate(),
             tick_count: self.get_tick_count(),
             ball: self.get_ball(),
             pads: self.iter_pads().collect(),
