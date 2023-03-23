@@ -1,4 +1,8 @@
 #![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
+
+mod ext;
+pub use ext::*;
+
 use std::error::Error;
 
 pub use autocxx;
