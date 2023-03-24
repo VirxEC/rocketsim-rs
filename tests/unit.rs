@@ -1,4 +1,7 @@
-use std::sync::Once;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Once,
+};
 
 use rocketsim_rs::{
     init,
@@ -150,4 +153,27 @@ fn rlbot() {
     assert!(game_tick_packet.game_info.seconds_elapsed - 1. < 0.00001);
     assert_eq!(game_tick_packet.game_info.frame_num, 120);
     assert_eq!(game_tick_packet.game_info.world_gravity_z, -650.);
+}
+
+#[test]
+fn goal_score() {
+    static SCORED: AtomicBool = AtomicBool::new(false);
+    INIT.call_once(init);
+
+    let mut arena = Arena::default_standard();
+    arena.pin_mut().set_ball(Ball {
+        pos: Vec3::new(0., 5000., 100.),
+        vel: Vec3::new(0., 2000., 0.),
+        ..Default::default()
+    });
+
+    arena.pin_mut().set_goal_scored_callback(|arena, team| {
+        assert_eq!(arena.get_tick_count(), 12);
+        arena.reset_to_random_kickoff(None);
+        println!("GOAL SCORED BY {team:?}!");
+        SCORED.store(true, Ordering::Relaxed);
+    });
+
+    arena.pin_mut().step(15);
+    assert!(SCORED.load(Ordering::Relaxed));
 }

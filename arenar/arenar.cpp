@@ -26,6 +26,12 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
+void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team)> callback) {
+    a->SetGoalScoreCallback([callback](class Arena* arena, Team team, void* userInfo) {
+        callback(*((Arenar*) userInfo), team);
+    }, this);
+}
+
 size_t Arenar::get_car_index(uint32_t car_id) const {
     assert(car_id != 0);
 

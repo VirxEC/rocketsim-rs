@@ -119,6 +119,7 @@ pub mod sim {
             block!("CarControls")
             block!("Vec")
             block!("Team")
+            block!("Arena")
             generate_pod!("GameMode")
             generate!("Arenar")
         }
@@ -164,6 +165,8 @@ pub mod sim {
                 fn GetCarConfigFromIndex(self: &Arenar, index: usize) -> CarConfig;
                 #[rust_name = "get_car_team_from_index"]
                 fn GetCarTeamFromIndex(self: &Arenar, index: usize) -> Team;
+                #[rust_name = "set_goal_scored_callback"]
+                fn SetGoalScoreCallback(self: Pin<&mut Arenar>, callback: unsafe fn(Pin<&mut Arenar>, Team));
             }
         }
 

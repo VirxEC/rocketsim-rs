@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RocketSim.h"
+#include "cxx.h"
 
 const CarConfig& getOctane();
 const CarConfig& getDominus();
@@ -27,6 +28,8 @@ struct Arenar {
         delete a;
     }
 
+	void SetGoalScoreCallback(rust::Fn<void(Arenar&, Team)> callback);
+
     // No copy constructor
     Arenar(const Arenar & other) = delete;
     Arenar & operator =(const Arenar & other) = delete;
@@ -34,6 +37,11 @@ struct Arenar {
     // Move constructor
     Arenar(Arenar&& other) = default;
     Arenar& operator =(Arenar && other) = default;
+
+	// for make_unique
+	Arenar(Arena* arena) {
+		a = arena;
+	}
 
 	// extra car stuff
 	size_t num_cars() const {
