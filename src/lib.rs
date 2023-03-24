@@ -151,7 +151,7 @@ pub mod sim {
                 #[rust_name = "rscc"]
                 fn SetCarControls(self: Pin<&mut Arenar>, car_id: u32, car_controls: CarControls) -> bool;
                 #[rust_name = "get_ball"]
-                fn GetBall(self: &Arenar) -> BallState;
+                fn GetBall(self: Pin<&mut Arenar>) -> BallState;
                 #[rust_name = "set_ball"]
                 fn SetBall(self: Pin<&mut Arenar>, ball: BallState);
                 #[rust_name = "get_pad_pos"]
@@ -179,6 +179,16 @@ pub mod sim {
                 #[rust_name = "Vec3"]
                 type Vec = crate::sim::math::Vec3;
                 type BallState;
+                type BallHitInfo;
+            }
+
+            #[derive(Clone, Copy, Debug, Default)]
+            struct BallHitInfo {
+                car_id: u32,
+                relative_pos_on_ball: Vec3,
+                ball_pos: Vec3,
+                extra_hit_vel: Vec3,
+                tick_count_when_hit: u64,
             }
 
             #[derive(Clone, Copy, Debug)]
@@ -186,10 +196,11 @@ pub mod sim {
                 pos: Vec3,
                 vel: Vec3,
                 ang_vel: Vec3,
+                hit_info: BallHitInfo,
             }
         }
 
-        pub use inner_bs::{BallState, BallState as Ball};
+        pub use inner_bs::{BallHitInfo, BallState, BallState as Ball};
     }
 
     pub mod car {

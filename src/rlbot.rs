@@ -2,7 +2,11 @@ use std::pin::Pin;
 
 use glam::{Mat3A, Quat, Vec3A};
 
-use crate::sim::{arena::Arena, math::Angle};
+use crate::sim::{
+    arena::Arena,
+    ball::{BallHitInfo, BallState},
+    math::Angle,
+};
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BoostPadInfo {
@@ -28,6 +32,17 @@ pub struct Physics {
     pub rotation: Angle,
     pub velocity: Vec3A,
     pub angular_velocity: Vec3A,
+}
+
+impl From<BallState> for Physics {
+    fn from(ball: BallState) -> Self {
+        Self {
+            location: ball.pos.into(),
+            rotation: Angle::default(),
+            velocity: ball.vel.into(),
+            angular_velocity: ball.ang_vel.into(),
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -70,18 +85,52 @@ pub struct CollisionShape {
     pub cylinder: Cylinder,
 }
 
-// note: missing latest touch info because rocketsim doesn't have it
-// 'latest_touch': {
-//     'time_seconds': 120.63,
-//     'hit_location': {'x': 0.0, 'y': 0.0, 'z': 0.0},
-//     'hit_normal': {'x': 0.0, 'y': 0.0, 'z': 0.0},
-//     'team': 0,
-//     'player_index': 0
-// },
+#[derive(Clone, Copy, Debug, Default)]
+pub struct LastTouch {
+    pub time_seconds: f32,
+    pub hit_location: Vec3A,
+    pub team: u8,
+    pub player_index: usize,
+}
+
+impl LastTouch {
+    fn from(arena: &Arena, last_touch: BallHitInfo) -> Self {
+        if last_touch.car_id == 0 {
+            return Self::default();
+        }
+
+        let player_index = arena.get_car_index(last_touch.car_id);
+        Self {
+            time_seconds: last_touch.tick_count_when_hit as f32 / arena.get_tick_rate(),
+            hit_location: last_touch.ball_pos.into(),
+            team: arena.get_car_team_from_index(player_index) as u8,
+            player_index,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Ball {
     pub physics: Physics,
     pub collision_shape: CollisionShape,
+    pub last_touch: LastTouch,
+}
+
+impl Ball {
+    fn from(mut arena: Pin<&mut Arena>) -> Self {
+        let ball = arena.as_mut().get_ball();
+        Ball {
+            physics: ball.into(),
+            collision_shape: CollisionShape {
+                type_: 1,
+                sphere: Sphere {
+                    diameter: arena.get_ball_radius() * 2.,
+                },
+                ..Default::default()
+            },
+            last_touch: LastTouch::from(&arena, ball.hit_info),
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -144,24 +193,7 @@ impl Arena {
                 })
                 .collect(),
             num_boosts: self.num_pads(),
-            game_ball: {
-                let ball = self.get_ball();
-                Ball {
-                    physics: Physics {
-                        location: ball.pos.into(),
-                        rotation: Angle::default(),
-                        velocity: ball.vel.into(),
-                        angular_velocity: ball.ang_vel.into(),
-                    },
-                    collision_shape: CollisionShape {
-                        type_: 1,
-                        sphere: Sphere {
-                            diameter: self.get_ball_radius() * 2.,
-                        },
-                        ..Default::default()
-                    },
-                }
-            },
+            game_ball: Ball::from(self.as_mut()),
             game_info: GameInfo {
                 seconds_elapsed: self.get_tick_count() as f32 / self.get_tick_rate(),
                 world_gravity_z: -650.,

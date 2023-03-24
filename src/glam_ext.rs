@@ -19,7 +19,7 @@ use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 use crate::{
     sim::{
         arena::Arena,
-        ball::Ball,
+        ball::{Ball, BallHitInfo},
         boostpad::BoostPadState,
         car::{Car, CarConfig, Team, WheelPairConfig},
         math::{Angle, RotMat, Vec3},
@@ -106,11 +106,47 @@ impl From<BoostPad> for BoostPadA {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct BallHitInfoA {
+    pub car_id: u32,
+    pub relative_pos_on_ball: Vec3A,
+    pub ball_pos: Vec3A,
+    pub extra_hit_vel: Vec3A,
+    pub tick_count_when_hit: u64,
+}
+
+impl From<BallHitInfo> for BallHitInfoA {
+    #[inline]
+    fn from(value: BallHitInfo) -> Self {
+        Self {
+            car_id: value.car_id,
+            relative_pos_on_ball: value.relative_pos_on_ball.into(),
+            ball_pos: value.ball_pos.into(),
+            extra_hit_vel: value.extra_hit_vel.into(),
+            tick_count_when_hit: value.tick_count_when_hit,
+        }
+    }
+}
+
+impl From<BallHitInfoA> for BallHitInfo {
+    #[inline]
+    fn from(value: BallHitInfoA) -> Self {
+        Self {
+            car_id: value.car_id,
+            relative_pos_on_ball: value.relative_pos_on_ball.into(),
+            ball_pos: value.ball_pos.into(),
+            extra_hit_vel: value.extra_hit_vel.into(),
+            tick_count_when_hit: value.tick_count_when_hit,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct BallA {
     pub pos: Vec3A,
     pub vel: Vec3A,
     pub ang_vel: Vec3A,
+    pub hit_info: BallHitInfoA,
 }
 
 impl Default for BallA {
@@ -120,6 +156,7 @@ impl Default for BallA {
             pos: Vec3A::new(0., 0., 93.15),
             vel: Vec3A::default(),
             ang_vel: Vec3A::default(),
+            hit_info: BallHitInfoA::default(),
         }
     }
 }
@@ -131,6 +168,7 @@ impl From<Ball> for BallA {
             pos: value.pos.into(),
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
+            hit_info: value.hit_info.into(),
         }
     }
 }
@@ -142,6 +180,7 @@ impl From<BallA> for Ball {
             pos: value.pos.into(),
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
+            hit_info: value.hit_info.into(),
         }
     }
 }

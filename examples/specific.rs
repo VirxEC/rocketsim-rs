@@ -47,7 +47,7 @@ fn main() {
     }
 
     {
-        let mut ball_state = arena.get_ball();
+        let mut ball_state = arena.pin_mut().get_ball();
 
         ball_state.pos.z = 1050.;
         ball_state.vel = Vec3::new(0., 0., 250.);
@@ -80,8 +80,8 @@ fn main() {
 
     // Cast the ball state position to a glam Vec3A
     #[cfg(feature = "glam")]
-    println!("New ball location: {}", glam::Vec3A::from(arena.get_ball().pos));
+    println!("New ball location: {}", glam::Vec3A::from(arena.pin_mut().get_ball().pos));
 
     #[cfg(not(feature = "glam"))]
-    println!("New ball location: {}", arena.get_ball().pos);
+    println!("New ball location: {}", arena.pin_mut().get_ball().pos);
 }

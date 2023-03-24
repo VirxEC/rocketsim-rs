@@ -44,6 +44,8 @@ struct Arenar {
 		return a->_cars[index]->id;
 	}
 
+	size_t get_car_index(uint32_t car_id) const;
+
 	CarConfig GetCarConfigFromIndex(size_t index) const {
 		return a->_cars[index]->config;
 	}
@@ -77,7 +79,7 @@ struct Arenar {
 
 	// extra ball stuff
 
-	BallState GetBall() const {
+	BallState GetBall() {
 		return a->ball->GetState();
 	}
 
@@ -110,11 +112,11 @@ struct Arenar {
 		return 1 / a->tickTime;
 	}
 
-	void ResetToRandomKickoff(int32 seed = -1) {
+	void ResetToRandomKickoff(int32_t seed = -1) {
 		a->ResetToRandomKickoff(seed);
 	}
 
-	void step(int32 ticks = 1) {
+	void step(int32_t ticks = 1) {
 		a->Step(ticks);
 	}
 };

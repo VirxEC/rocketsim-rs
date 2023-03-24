@@ -26,6 +26,18 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
+size_t Arenar::get_car_index(uint32_t car_id) const {
+    assert(car_id != 0);
+
+    for (size_t i = 0; i < a->_cars.size(); i++) {
+        if (a->_cars[i]->id == car_id) {
+            return i;
+        }
+    }
+
+    assert(false);
+}
+
 std::unique_ptr<std::vector<CarState>> Arenar::GetCars() {
     std::unique_ptr<std::vector<CarState>> states = std::make_unique<std::vector<CarState>>();
     for (Car* car : a->_cars) {

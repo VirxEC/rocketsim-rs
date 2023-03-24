@@ -1,6 +1,6 @@
 use crate::sim::{
     arena::{Arena, GameMode},
-    ball::Ball,
+    ball::{Ball, BallHitInfo},
     boostpad::BoostPadState,
     car::{Car, CarConfig, Team},
     math::{Angle, RotMat, Vec3},
@@ -153,12 +153,12 @@ impl Arena {
 
     #[inline]
     /// Get all game state information in one struct
-    pub fn get_game_state(self: Pin<&mut Self>) -> GameState {
+    pub fn get_game_state(mut self: Pin<&mut Self>) -> GameState {
         GameState {
             tick_rate: self.get_tick_rate(),
             tick_count: self.get_tick_count(),
-            ball: self.get_ball(),
             pads: self.iter_pads().collect(),
+            ball: self.as_mut().get_ball(),
             cars: self.get_cars(),
         }
     }
@@ -171,6 +171,7 @@ impl Default for Ball {
             pos: Vec3::new(0., 0., 93.15),
             vel: Vec3::default(),
             ang_vel: Vec3::default(),
+            hit_info: BallHitInfo::default(),
         }
     }
 }
