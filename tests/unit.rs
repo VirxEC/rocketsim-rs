@@ -12,7 +12,7 @@ use rocketsim_rs::{
 };
 
 #[cfg(feature = "glam")]
-use rocketsim_rs::GameStateA;
+use rocketsim_rs::glam_ext::GameStateA;
 
 static INIT: Once = Once::new();
 

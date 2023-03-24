@@ -387,3 +387,9 @@ impl From<GameState> for GameStateA {
         }
     }
 }
+
+impl GameState {
+    pub fn to_glam(self) -> GameStateA {
+        self.into()
+    }
+}

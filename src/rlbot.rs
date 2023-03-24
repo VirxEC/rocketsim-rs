@@ -156,7 +156,7 @@ impl Arena {
                     collision_shape: CollisionShape {
                         type_: 1,
                         sphere: Sphere {
-                            diameter: self.get_ball_radius() * 50. * 2.,
+                            diameter: self.get_ball_radius() * 2.,
                         },
                         ..Default::default()
                     },
