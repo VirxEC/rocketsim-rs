@@ -163,6 +163,8 @@ pub mod sim {
                 fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
                 #[rust_name = "get_car_config_from_index"]
                 fn GetCarConfigFromIndex(self: &Arenar, index: usize) -> CarConfig;
+                #[rust_name = "get_car_team_from_index"]
+                fn GetCarTeamFromIndex(self: &Arenar, index: usize) -> Team;
             }
         }
 

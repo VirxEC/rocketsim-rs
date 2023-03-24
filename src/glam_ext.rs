@@ -21,7 +21,7 @@ use crate::{
         arena::Arena,
         ball::Ball,
         boostpad::BoostPadState,
-        car::{Car, CarConfig, WheelPairConfig},
+        car::{Car, CarConfig, Team, WheelPairConfig},
         math::{Angle, RotMat, Vec3},
         CarControls,
     },
@@ -370,7 +370,7 @@ impl CarA {
 pub struct GameStateA {
     pub tick_rate: f32,
     pub tick_count: u64,
-    pub cars: Vec<(u32, CarA, CarConfigA)>,
+    pub cars: Vec<(u32, Team, CarA, CarConfigA)>,
     pub ball: BallA,
     pub pads: Vec<BoostPadA>,
 }
@@ -381,7 +381,7 @@ impl From<GameState> for GameStateA {
         Self {
             tick_rate: value.tick_rate,
             tick_count: value.tick_count,
-            cars: value.cars.into_iter().map(|(id, car, config)| (id, car.into(), config.into())).collect(),
+            cars: value.cars.into_iter().map(|(id, team, car, config)| (id, team, car.into(), config.into())).collect(),
             ball: value.ball.into(),
             pads: value.pads.into_iter().map(BoostPadA::from).collect(),
         }

@@ -2,7 +2,7 @@ use crate::sim::{
     arena::{Arena, GameMode},
     ball::Ball,
     boostpad::BoostPadState,
-    car::{Car, CarConfig},
+    car::{Car, CarConfig, Team},
     math::{Angle, RotMat, Vec3},
     CarControls,
 };
@@ -21,6 +21,18 @@ impl fmt::Display for NoCarFound {
 
 impl Error for NoCarFound {}
 
+impl Copy for Team {}
+
+impl fmt::Debug for Team {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Team::BLUE => write!(f, "BLUE"),
+            Team::ORANGE => write!(f, "ORANGE"),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BoostPad {
     pub is_big: bool,
@@ -32,7 +44,7 @@ pub struct BoostPad {
 pub struct GameState {
     pub tick_rate: f32,
     pub tick_count: u64,
-    pub cars: Vec<(u32, Car, CarConfig)>,
+    pub cars: Vec<(u32, Team, Car, CarConfig)>,
     pub ball: Ball,
     pub pads: Vec<BoostPad>,
 }
@@ -102,12 +114,12 @@ impl Arena {
 
     #[inline]
     /// Returns all of the `(id, Car, CarConfig)`s in the arena
-    pub fn get_cars(mut self: Pin<&mut Self>) -> Vec<(u32, Car, CarConfig)> {
+    pub fn get_cars(mut self: Pin<&mut Self>) -> Vec<(u32, Team, Car, CarConfig)> {
         self.as_mut()
             .rgc()
             .iter()
             .enumerate()
-            .map(|(i, &state)| (self.get_car_id(i), state, self.get_car_config_from_index(i)))
+            .map(|(i, &state)| (self.get_car_id(i), self.get_car_team_from_index(i), state, self.get_car_config_from_index(i)))
             .collect()
     }
 

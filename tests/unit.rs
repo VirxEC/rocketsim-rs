@@ -58,8 +58,9 @@ fn cars() {
     let cars = arena.pin_mut().get_cars();
     assert!(cars.len() == 1);
 
-    let (_, car, car_config) = cars[0];
+    let (_, team, car, car_config) = cars[0];
 
+    assert!(team == Team::ORANGE);
     assert!(car.boost < 100. / 3.);
 
     // this differs the most between cars so we'll just this
@@ -124,4 +125,30 @@ fn game_state() {
         assert_eq!(glam_state.cars.len(), 2);
         assert_eq!(glam_state.pads.len(), 34);
     }
+}
+
+#[cfg(feature = "rlbot")]
+#[test]
+fn rlbot() {
+    INIT.call_once(init);
+    let mut arena = Arena::default_standard();
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    arena.pin_mut().step(120);
+
+    let game_tick_packet = arena.pin_mut().get_game_tick_packet();
+
+    assert_eq!(game_tick_packet.game_cars.len(), game_tick_packet.num_cars);
+    assert_eq!(game_tick_packet.num_cars, 2);
+
+    assert_eq!(game_tick_packet.game_boosts.len(), game_tick_packet.num_boosts);
+    assert_eq!(game_tick_packet.num_boosts, 34);
+
+    assert_eq!(game_tick_packet.game_ball.collision_shape.type_, 1);
+    // this is actually incorrect because of a bug in rocketsim
+    // assert_eq!(game_tick_packet.game_ball.collision_shape.sphere.diameter, 91.25 * 2.);
+
+    assert!(game_tick_packet.game_info.seconds_elapsed - 1. < 0.00001);
+    assert_eq!(game_tick_packet.game_info.frame_num, 120);
+    assert_eq!(game_tick_packet.game_info.world_gravity_z, -650.);
 }

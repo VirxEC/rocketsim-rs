@@ -48,6 +48,10 @@ struct Arenar {
 		return a->_cars[index]->config;
 	}
 
+	Team GetCarTeamFromIndex(size_t index) const {
+		return a->_cars[index]->team;
+	}
+
 	std::unique_ptr<std::vector<CarState>> GetCars();
 	CarState GetCar(uint32_t car_id);
 	/// @brief Sets the state of a car in the arena
@@ -79,6 +83,10 @@ struct Arenar {
 
 	void SetBall(const BallState state) {
 		a->ball->SetState(state);
+	}
+
+	float get_ball_radius() const {
+		return a->ball->GetRadius();
 	}
 
 	// boost pad stuff
