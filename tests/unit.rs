@@ -145,8 +145,7 @@ fn rlbot() {
     assert_eq!(game_tick_packet.num_boosts, 34);
 
     assert_eq!(game_tick_packet.game_ball.collision_shape.type_, 1);
-    // this is actually incorrect because of a bug in rocketsim
-    // assert_eq!(game_tick_packet.game_ball.collision_shape.sphere.diameter, 91.25 * 2.);
+    assert_eq!(game_tick_packet.game_ball.collision_shape.sphere.diameter, 91.25 * 2.);
 
     assert!(game_tick_packet.game_info.seconds_elapsed - 1. < 0.00001);
     assert_eq!(game_tick_packet.game_info.frame_num, 120);
