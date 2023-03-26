@@ -75,7 +75,6 @@ impl From<Quat> for Angle {
     }
 }
 
-
 impl From<Vec3> for Vec3A {
     #[inline]
     fn from(value: Vec3) -> Self {
