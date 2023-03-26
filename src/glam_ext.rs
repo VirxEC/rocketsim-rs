@@ -46,6 +46,20 @@ impl From<Mat3A> for RotMat {
     }
 }
 
+impl From<Angle> for Mat3A {
+    #[inline]
+    fn from(value: Angle) -> Self {
+        Self::from_quat(Quat::from(value))
+    }
+}
+
+impl From<Angle> for RotMat {
+    #[inline]
+    fn from(value: Angle) -> Self {
+        Self::from(Mat3A::from(value))
+    }
+}
+
 impl From<Angle> for Quat {
     #[inline]
     fn from(value: Angle) -> Self {
@@ -60,6 +74,7 @@ impl From<Quat> for Angle {
         Self { pitch, yaw, roll }
     }
 }
+
 
 impl From<Vec3> for Vec3A {
     #[inline]

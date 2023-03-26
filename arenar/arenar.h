@@ -38,9 +38,8 @@ struct Arenar {
     Arenar(Arenar&& other) = default;
     Arenar& operator =(Arenar && other) = default;
 
-	// for make_unique
-	Arenar(Arena* arena) {
-		a = arena;
+	Arenar Clone(bool copy_callbacks) {
+		return Arenar(a->Clone(copy_callbacks));
 	}
 
 	// extra car stuff
@@ -126,5 +125,10 @@ struct Arenar {
 
 	void step(int32_t ticks = 1) {
 		a->Step(ticks);
+	}
+
+private:
+	Arenar(Arena* arena) {
+		a = arena;
 	}
 };

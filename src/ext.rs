@@ -7,7 +7,15 @@ use crate::sim::{
     CarControls,
 };
 use autocxx::WithinUniquePtr;
+use cxx::UniquePtr;
 use std::{error::Error, fmt, pin::Pin};
+
+impl Arena {
+    #[inline]
+    pub fn clone(self: Pin<&mut Self>, copy_callbacks: bool) -> UniquePtr<Self> {
+        self.Clone(copy_callbacks).within_unique_ptr()
+    }
+}
 
 #[derive(Debug)]
 pub struct NoCarFound(u32);
