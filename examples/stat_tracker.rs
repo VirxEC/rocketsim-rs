@@ -18,13 +18,14 @@ pub struct Stats {
     // pub demolitions: u16,
 }
 
-static BALL_TOUCHES: Mutex<[Vec<u32>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
-static STATS: Mutex<Vec<(u32, Stats)>> = Mutex::new(Vec::new());
-static SCORE: Mutex<[u16; 2]> = Mutex::new([0; 2]);
-
 const TICK_SKIP: i32 = 8;
 
 fn main() {
+    // see the comment above `set_goal_scored_callback` for why we need Mutexes
+    static BALL_TOUCHES: Mutex<[Vec<u32>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
+    static STATS: Mutex<Vec<(u32, Stats)>> = Mutex::new(Vec::new());
+    static SCORE: Mutex<[u16; 2]> = Mutex::new([0; 2]);
+
     // Load in the Rocket League assets from the collision_meshes folder in the current directory
     rocketsim_rs::init();
 
@@ -47,6 +48,9 @@ fn main() {
     // set kickoff with random seed
     arena.pin_mut().reset_to_random_kickoff(None);
 
+    // note that this actually takes an `fn` type, not a closure
+    // this means that the closure can't capture any variables
+    // this is why our stats are stored in static Mutexes
     arena.pin_mut().set_goal_scored_callback(|mut arena, team| {
         println!("Goal scored by {:?}", team);
 
@@ -89,8 +93,8 @@ fn main() {
 
     let mut random = rand::thread_rng();
 
-    // run the simulation for 40 minutes (36000 * 8 = 288,000 ticks with 120 ticks per second and 60 seconds per minute)
-    let sim_rounds = 36000;
+    // run the simulation for 20 minutes (18000 * 8 = 144,000 ticks with 120 ticks per second and 60 seconds per minute)
+    let sim_rounds = 18000;
 
     println!("Simulating {} minutes", sim_rounds * TICK_SKIP / 120 / 60);
     let start_time = Instant::now();
