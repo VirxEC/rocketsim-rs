@@ -30,10 +30,6 @@ void init(rust::Str collision_meshes_folder) {
     RocketSim::Init(std::filesystem::path(string(collision_meshes_folder)));
 }
 
-bool load(rust::Vec<float> tris, rust::Vec<int32_t> verts) {
-    return false;
-}
-
 void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team)> callback) {
     a->SetGoalScoreCallback([callback](class Arena* arena, Team team, void* userInfo) {
         callback(*((Arenar*) userInfo), team);

@@ -9,8 +9,6 @@ pub use autocxx;
 pub use cxx;
 pub use ext::*;
 
-use std::{fmt, error::Error};
-
 autocxx::include_cpp! {
     #include "arenar.h"
     name!(base)
@@ -25,29 +23,6 @@ mod Init {
         include!("arenar.h");
 
         fn init(folder: &str);
-        fn load(tris: Vec<f32>, verts: Vec<i32>) -> bool;
-    }
-}
-
-#[derive(Debug)]
-pub struct InvalidMeshData;
-
-impl fmt::Display for InvalidMeshData {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "The given triangles and vertices are not valid for a collision mesh.")
-    }
-}
-
-impl Error for InvalidMeshData {}
-
-#[inline]
-/// Loads a custom collision mesh to RocketSim
-pub fn load(tris: Vec<f32>, verts: Vec<i32>) -> Result<(), InvalidMeshData> {
-    if Init::load(tris, verts) {
-        Ok(())
-    } else {
-        Err(InvalidMeshData)
     }
 }
 
