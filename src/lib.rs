@@ -9,6 +9,8 @@ pub use autocxx;
 pub use cxx;
 pub use ext::*;
 
+use std::{fmt, error::Error};
+
 autocxx::include_cpp! {
     #include "arenar.h"
     name!(base)
@@ -22,13 +24,37 @@ mod Init {
     unsafe extern "C++" {
         include!("arenar.h");
 
-        fn init(folder: &CxxString);
+        fn init(folder: &str);
+        fn load(tris: Vec<f32>, verts: Vec<i32>) -> bool;
     }
 }
 
+#[derive(Debug)]
+pub struct InvalidMeshData;
+
+impl fmt::Display for InvalidMeshData {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "The given triangles and vertices are not valid for a collision mesh.")
+    }
+}
+
+impl Error for InvalidMeshData {}
+
+#[inline]
+/// Loads a custom collision mesh to RocketSim
+pub fn load(tris: Vec<f32>, verts: Vec<i32>) -> Result<(), InvalidMeshData> {
+    if Init::load(tris, verts) {
+        Ok(())
+    } else {
+        Err(InvalidMeshData)
+    }
+}
+
+#[inline]
+/// Initializes the collision mesh system for RocketSim
 pub fn init(collision_meshes_folder: Option<&str>) {
-    cxx::let_cxx_string!(folder = collision_meshes_folder.unwrap_or("collision_meshes"));
-    Init::init(&folder);
+    Init::init(collision_meshes_folder.unwrap_or("collision_meshes"));
 }
 
 pub use base::{RocketSim::GetStage as get_stage, RocketSimStage as Stages};

@@ -10,7 +10,8 @@ const CarConfig& getBreakout();
 const CarConfig& getHybrid();
 const CarConfig& getMerc();
 
-void init(const string& collision_meshes_folder);
+void init(rust::Str collision_meshes_folder);
+bool load(rust::Vec<float> tris, rust::Vec<int32_t> verts);
 
 struct EBoostPadState {
 	bool isActive;

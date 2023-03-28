@@ -9,8 +9,9 @@ use crate::{
     },
 };
 use autocxx::WithinUniquePtr;
+use core::pin::Pin;
 use cxx::UniquePtr;
-use std::{error::Error, fmt, pin::Pin};
+use std::{error::Error, fmt};
 
 impl Arena {
     #[inline]
@@ -226,7 +227,7 @@ impl Default for Car {
 impl Car {
     #[inline]
     /// Returns the other Car that this Car is currently contacting, if any
-    pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut Arena>) -> Option<Self> {
+    pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
         if self.other_car_id != 0 {
             Some(arena.get_car(self.other_car_id))
         } else {

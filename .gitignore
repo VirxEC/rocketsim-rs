@@ -4,3 +4,4 @@ target/
 Cargo.lock
 build/
 collision_meshes/*/*.cmf
+cxx.h

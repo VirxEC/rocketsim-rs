@@ -14,6 +14,7 @@ type F32x4 = __m128;
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 type F32x4 = f32x4;
 
+use core::pin::Pin;
 use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
 use crate::{
@@ -410,7 +411,7 @@ impl From<CarA> for Car {
 impl CarA {
     #[inline]
     /// Returns the other Car that this Car is currently contacting, if any
-    pub fn get_contacting_car(&self, arena: std::pin::Pin<&mut Arena>) -> Option<Self> {
+    pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
         if self.other_car_id != 0 {
             Some(arena.get_car(self.other_car_id).into())
         } else {
