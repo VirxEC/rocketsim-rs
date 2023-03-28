@@ -1,10 +1,12 @@
-use crate::sim::{
-    arena::{Arena, GameMode},
-    ball::{Ball, BallHitInfo},
-    boostpad::BoostPadState,
-    car::{Car, CarConfig, Team},
+use crate::{
     math::{Angle, RotMat, Vec3},
-    CarControls,
+    sim::{
+        arena::{Arena, GameMode},
+        ball::{Ball, BallHitInfo},
+        boostpad::BoostPadState,
+        car::{Car, CarConfig, Team},
+        CarControls,
+    },
 };
 use autocxx::WithinUniquePtr;
 use cxx::UniquePtr;

@@ -8,7 +8,7 @@ use rocketsim_rs::sim::arena::Arena;
 fn main() {
     const TICKS: i32 = 600000;
 
-    rocketsim_rs::init();
+    rocketsim_rs::init(None);
 
     let num_cpu = available_parallelism().unwrap().get();
 

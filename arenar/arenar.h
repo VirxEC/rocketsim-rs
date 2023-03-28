@@ -10,6 +10,8 @@ const CarConfig& getBreakout();
 const CarConfig& getHybrid();
 const CarConfig& getMerc();
 
+void init(const string& collision_meshes_folder);
+
 struct EBoostPadState {
 	bool isActive;
 	float cooldown;

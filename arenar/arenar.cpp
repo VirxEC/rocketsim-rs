@@ -26,6 +26,10 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
+void init(const string& collision_meshes_folder) {
+    RocketSim::Init(std::filesystem::path(collision_meshes_folder));
+}
+
 void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team)> callback) {
     a->SetGoalScoreCallback([callback](class Arena* arena, Team team, void* userInfo) {
         callback(*((Arenar*) userInfo), team);

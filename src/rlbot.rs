@@ -1,11 +1,13 @@
-use std::pin::Pin;
+use core::pin::Pin;
 
 use glam::{Mat3A, Quat, Vec3A};
 
-use crate::sim::{
-    arena::Arena,
-    ball::{BallHitInfo, BallState},
+use crate::{
     math::Angle,
+    sim::{
+        arena::Arena,
+        ball::{BallHitInfo, BallState},
+    },
 };
 
 #[derive(Clone, Copy, Debug, Default)]

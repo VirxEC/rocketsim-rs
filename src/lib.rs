@@ -14,14 +14,24 @@ autocxx::include_cpp! {
     name!(base)
     safety!(unsafe)
     generate_pod!("RocketSimStage")
-    generate!("RocketSim::Init")
     generate!("RocketSim::GetStage")
 }
 
-pub use base::{
-    RocketSim::{GetStage as get_stage, Init as init},
-    RocketSimStage as Stages,
-};
+#[cxx::bridge]
+mod Init {
+    unsafe extern "C++" {
+        include!("arenar.h");
+
+        fn init(folder: &CxxString);
+    }
+}
+
+pub fn init(collision_meshes_folder: Option<&str>) {
+    cxx::let_cxx_string!(folder = collision_meshes_folder.unwrap_or("collision_meshes"));
+    Init::init(&folder);
+}
+
+pub use base::{RocketSim::GetStage as get_stage, RocketSimStage as Stages};
 
 #[cxx::bridge]
 mod extra {
@@ -135,7 +145,7 @@ pub mod sim {
                 type EBoostPadState = crate::sim::boostpad::BoostPadState;
                 type CarConfig = crate::sim::car::CarConfig;
                 type CarControls = crate::sim::CarControls;
-                type Vec = crate::sim::math::Vec3;
+                type Vec = crate::math::Vec3;
                 type Team = crate::sim::car::Team;
 
                 #[doc(hidden)]
@@ -180,7 +190,7 @@ pub mod sim {
                 include!("Sim/Ball/Ball.h");
 
                 #[rust_name = "Vec3"]
-                type Vec = crate::sim::math::Vec3;
+                type Vec = crate::math::Vec3;
                 type BallState;
                 type BallHitInfo;
             }
@@ -220,8 +230,8 @@ pub mod sim {
                 include!("Sim/Car/Car.h");
 
                 #[rust_name = "Vec3"]
-                type Vec = crate::sim::math::Vec3;
-                type RotMat = crate::sim::math::RotMat;
+                type Vec = crate::math::Vec3;
+                type RotMat = crate::math::RotMat;
                 type CarControls = crate::sim::CarControls;
 
                 type CarState;
@@ -273,7 +283,7 @@ pub mod sim {
                 include!("Sim/Car/CarConfig/CarConfig.h");
 
                 #[rust_name = "Vec3"]
-                type Vec = crate::sim::math::Vec3;
+                type Vec = crate::math::Vec3;
 
                 type WheelPairConfig;
                 type CarConfig;
@@ -319,55 +329,55 @@ pub mod sim {
 
         pub use inner_bps::{EBoostPadState, EBoostPadState as BoostPadState};
     }
+}
 
-    pub mod math {
-        #[repr(C, align(16))]
-        #[derive(Clone, Copy, Debug, Default)]
-        pub struct Vec3 {
-            pub x: f32,
-            pub y: f32,
-            pub z: f32,
-            pub _w: f32,
-        }
-
-        unsafe impl cxx::ExternType for Vec3 {
-            #[allow(unused_attributes)]
-            #[doc(hidden)]
-            type Id = (cxx::V, cxx::e, cxx::c);
-            type Kind = cxx::kind::Trivial;
-        }
-
-        #[repr(C, align(16))]
-        #[derive(Clone, Copy, Debug, Default)]
-        pub struct RotMat {
-            pub forward: Vec3,
-            pub right: Vec3,
-            pub up: Vec3,
-        }
-
-        unsafe impl cxx::ExternType for RotMat {
-            #[allow(unused_attributes)]
-            #[doc(hidden)]
-            type Id = (cxx::R, cxx::o, cxx::t, cxx::M, cxx::a, cxx::t);
-            type Kind = cxx::kind::Trivial;
-        }
-
-        #[cxx::bridge]
-        mod inner_math {
-            unsafe extern "C++" {
-                include!("arenar.h");
-
-                type Angle;
-            }
-
-            #[derive(Clone, Copy, Debug, Default)]
-            struct Angle {
-                yaw: f32,
-                pitch: f32,
-                roll: f32,
-            }
-        }
-
-        pub use inner_math::Angle;
+pub mod math {
+    #[repr(C, align(16))]
+    #[derive(Clone, Copy, Debug, Default)]
+    pub struct Vec3 {
+        pub x: f32,
+        pub y: f32,
+        pub z: f32,
+        pub _w: f32,
     }
+
+    unsafe impl cxx::ExternType for Vec3 {
+        #[allow(unused_attributes)]
+        #[doc(hidden)]
+        type Id = (cxx::V, cxx::e, cxx::c);
+        type Kind = cxx::kind::Trivial;
+    }
+
+    #[repr(C, align(16))]
+    #[derive(Clone, Copy, Debug, Default)]
+    pub struct RotMat {
+        pub forward: Vec3,
+        pub right: Vec3,
+        pub up: Vec3,
+    }
+
+    unsafe impl cxx::ExternType for RotMat {
+        #[allow(unused_attributes)]
+        #[doc(hidden)]
+        type Id = (cxx::R, cxx::o, cxx::t, cxx::M, cxx::a, cxx::t);
+        type Kind = cxx::kind::Trivial;
+    }
+
+    #[cxx::bridge]
+    mod inner_math {
+        unsafe extern "C++" {
+            include!("arenar.h");
+
+            type Angle;
+        }
+
+        #[derive(Clone, Copy, Debug, Default)]
+        struct Angle {
+            yaw: f32,
+            pitch: f32,
+            roll: f32,
+        }
+    }
+
+    pub use inner_math::Angle;
 }

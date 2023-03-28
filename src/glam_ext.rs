@@ -17,12 +17,12 @@ type F32x4 = f32x4;
 use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
 use crate::{
+    math::{Angle, RotMat, Vec3},
     sim::{
         arena::Arena,
         ball::{Ball, BallHitInfo},
         boostpad::BoostPadState,
         car::{Car, CarConfig, Team, WheelPairConfig},
-        math::{Angle, RotMat, Vec3},
         CarControls,
     },
     BoostPad, GameState,

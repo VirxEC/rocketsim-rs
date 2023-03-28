@@ -5,11 +5,11 @@ use std::sync::{
 
 use rocketsim_rs::{
     init,
+    math::*,
     sim::{
         arena::Arena,
         ball::Ball,
         car::{CarConfig, Team},
-        math::*,
         CarControls,
     },
 };
@@ -21,7 +21,7 @@ static INIT: Once = Once::new();
 
 #[test]
 fn pads() {
-    INIT.call_once(init);
+    INIT.call_once(|| init(None));
     let arena = Arena::default_standard();
 
     let statics = arena.iter_pad_static().collect::<Vec<_>>();
@@ -33,7 +33,7 @@ fn pads() {
 
 #[test]
 fn cars() {
-    INIT.call_once(init);
+    INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
 
     let car_id = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
@@ -74,7 +74,7 @@ fn cars() {
 
 #[test]
 fn ball() {
-    INIT.call_once(init);
+    INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
 
     arena.pin_mut().set_ball(Ball {
@@ -107,7 +107,7 @@ fn ball() {
 
 #[test]
 fn game_state() {
-    INIT.call_once(init);
+    INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
     arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
     arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
@@ -133,7 +133,7 @@ fn game_state() {
 #[cfg(feature = "rlbot")]
 #[test]
 fn rlbot() {
-    INIT.call_once(init);
+    INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
     arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
     arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
@@ -158,7 +158,7 @@ fn rlbot() {
 #[test]
 fn goal_score() {
     static SCORED: AtomicBool = AtomicBool::new(false);
-    INIT.call_once(init);
+    INIT.call_once(|| init(None));
 
     let mut arena = Arena::default_standard();
     arena.pin_mut().set_ball(Ball {
