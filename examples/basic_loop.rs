@@ -23,9 +23,12 @@ fn main() {
     arena.pin_mut().reset_to_random_kickoff(None);
 
     // reset to a random kickoff when a goal is scored
-    arena.pin_mut().set_goal_scored_callback(|arena, _| {
-        arena.reset_to_random_kickoff(None);
-    });
+    arena.pin_mut().set_goal_scored_callback(
+        |arena, _, _| {
+            arena.reset_to_random_kickoff(None);
+        },
+        0,
+    );
 
     // run the simulation for 2 seconds (30 * 8 = 240 ticks with 120 ticks per second)
     for _ in 0..30 {

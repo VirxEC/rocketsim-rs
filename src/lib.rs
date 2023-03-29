@@ -177,7 +177,7 @@ pub mod sim {
                 #[rust_name = "get_car_team_from_index"]
                 fn GetCarTeamFromIndex(self: &Arenar, index: usize) -> Team;
                 #[rust_name = "set_goal_scored_callback"]
-                fn SetGoalScoreCallback(self: Pin<&mut Arenar>, callback: unsafe fn(Pin<&mut Arenar>, Team));
+                fn SetGoalScoreCallback(self: Pin<&mut Arenar>, callback: unsafe fn(Pin<&mut Arenar>, Team, usize), user_data: usize);
             }
         }
 
@@ -319,7 +319,7 @@ pub mod sim {
                 type EBoostPadState;
             }
 
-            #[derive(Clone, Copy, Debug, Default)]
+            #[derive(Clone, Copy, Debug, Default, PartialEq)]
             struct EBoostPadState {
                 is_active: bool,
                 cooldown: f32,
@@ -334,7 +334,7 @@ pub mod sim {
 
 pub mod math {
     #[repr(C, align(16))]
-    #[derive(Clone, Copy, Debug, Default)]
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
     pub struct Vec3 {
         pub x: f32,
         pub y: f32,
@@ -350,7 +350,7 @@ pub mod math {
     }
 
     #[repr(C, align(16))]
-    #[derive(Clone, Copy, Debug, Default)]
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
     pub struct RotMat {
         pub forward: Vec3,
         pub right: Vec3,
@@ -372,7 +372,7 @@ pub mod math {
             type Angle;
         }
 
-        #[derive(Clone, Copy, Debug, Default)]
+        #[derive(Clone, Copy, Debug, Default, PartialEq)]
         struct Angle {
             yaw: f32,
             pitch: f32,

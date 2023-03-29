@@ -30,10 +30,12 @@ void init(rust::Str collision_meshes_folder) {
     RocketSim::Init(std::filesystem::path(string(collision_meshes_folder)));
 }
 
-void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team)> callback) {
+void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team, size_t)> callback, size_t userInfo) {
+
     a->SetGoalScoreCallback([callback](class Arena* arena, Team team, void* userInfo) {
-        callback(*((Arenar*) userInfo), team);
-    }, this);
+        std::pair<Arenar*, size_t>* userInfoPair = (std::pair<Arenar*, size_t>*) userInfo;
+        callback(*(userInfoPair->first), team, userInfoPair->second);
+    }, new std::pair(this, userInfo));
 }
 
 size_t Arenar::get_car_index(uint32_t car_id) const {

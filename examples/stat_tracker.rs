@@ -51,45 +51,48 @@ fn main() {
     // note that this actually takes an `fn` type, not a closure
     // this means that the closure can't capture any variables
     // this is why our stats are stored in static Mutexes
-    arena.pin_mut().set_goal_scored_callback(|mut arena, team| {
-        println!("Goal scored by {:?}", team);
+    arena.pin_mut().set_goal_scored_callback(
+        |mut arena, team, _| {
+            println!("Goal scored by {:?}", team);
 
-        // update stats
-        let t_index = team as u8 as usize;
+            // update stats
+            let t_index = team as u8 as usize;
 
-        // record the scored goal
-        SCORE.lock().unwrap()[t_index] += 1;
+            // record the scored goal
+            SCORE.lock().unwrap()[t_index] += 1;
 
-        let ball_touches = BALL_TOUCHES.lock().unwrap().clone();
-        let mut stats = STATS.lock().unwrap();
-        let mut scorer = None;
+            let ball_touches = BALL_TOUCHES.lock().unwrap().clone();
+            let mut stats = STATS.lock().unwrap();
+            let mut scorer = None;
 
-        // it's possible no car touched the ball on the team that got the goal
-        // so ensure that were was at least one ball touch
-        if !ball_touches[t_index].is_empty() {
-            // the latest ball touch on the same team is the scorer
-            scorer = ball_touches[t_index].last().copied();
-            // mark up the scorer's stats
-            stats.iter_mut().find(|(id, _)| Some(*id) == scorer).unwrap().1.goals += 1;
+            // it's possible no car touched the ball on the team that got the goal
+            // so ensure that were was at least one ball touch
+            if !ball_touches[t_index].is_empty() {
+                // the latest ball touch on the same team is the scorer
+                scorer = ball_touches[t_index].last().copied();
+                // mark up the scorer's stats
+                stats.iter_mut().find(|(id, _)| Some(*id) == scorer).unwrap().1.goals += 1;
 
-            if ball_touches[t_index].len() > 1 {
-                // if there were two ball touches, they get the assist
-                let assist = ball_touches[t_index][ball_touches[t_index].len() - 2];
-                stats.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
+                if ball_touches[t_index].len() > 1 {
+                    // if there were two ball touches, they get the assist
+                    let assist = ball_touches[t_index][ball_touches[t_index].len() - 2];
+                    stats.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
+                }
             }
-        }
 
-        let last_hit_id = arena.as_mut().get_ball().hit_info.car_id;
-        if last_hit_id != 0 && Some(last_hit_id) != scorer {
-            // if the last hit was not the scorer, they get the own goal
-            stats.iter_mut().find(|(id, _)| *id == last_hit_id).unwrap().1.own_goals += 1;
-        }
+            let last_hit_id = arena.as_mut().get_ball().hit_info.car_id;
+            if last_hit_id != 0 && Some(last_hit_id) != scorer {
+                // if the last hit was not the scorer, they get the own goal
+                stats.iter_mut().find(|(id, _)| *id == last_hit_id).unwrap().1.own_goals += 1;
+            }
 
-        // reset to a random kickoff to continue the game
-        // this also reset info like last ball touch
-        // so it needs to be done last
-        arena.reset_to_random_kickoff(None);
-    });
+            // reset to a random kickoff to continue the game
+            // this also reset info like last ball touch
+            // so it needs to be done last
+            arena.reset_to_random_kickoff(None);
+        },
+        0,
+    );
 
     let mut random = rand::thread_rng();
 

@@ -30,7 +30,7 @@ struct Arenar {
         delete a;
     }
 
-	void SetGoalScoreCallback(rust::Fn<void(Arenar&, Team)> callback);
+	void SetGoalScoreCallback(rust::Fn<void(Arenar&, Team, size_t)> callback, size_t);
 
     // No copy constructor
     Arenar(const Arenar & other) = delete;
