@@ -111,7 +111,7 @@ fn main() {
         let game_state = arena.pin_mut().get_game_state().to_glam();
 
         // for tracking the ball touches
-        if game_state.ball.hit_info.tick_count_when_hit == game_state.tick_count - 1 {
+        if game_state.tick_count != 0 && game_state.ball.hit_info.tick_count_when_hit == game_state.tick_count - 1 {
             // get info on the car that hit the ball
             let (id, team, _, _) = game_state.cars.iter().find(|&car| car.0 == game_state.ball.hit_info.car_id).unwrap();
 

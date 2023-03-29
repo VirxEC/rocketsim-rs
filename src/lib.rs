@@ -319,7 +319,7 @@ pub mod sim {
                 type EBoostPadState;
             }
 
-            #[derive(Clone, Copy, Debug, Default, PartialEq)]
+            #[derive(Clone, Copy, Debug, Default)]
             struct EBoostPadState {
                 is_active: bool,
                 cooldown: f32,
@@ -372,7 +372,7 @@ pub mod math {
             type Angle;
         }
 
-        #[derive(Clone, Copy, Debug, Default, PartialEq)]
+        #[derive(Clone, Copy, Debug, Default)]
         struct Angle {
             yaw: f32,
             pitch: f32,

@@ -13,6 +13,23 @@ use core::pin::Pin;
 use cxx::UniquePtr;
 use std::{error::Error, fmt};
 
+impl PartialEq for Angle {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.pitch == other.pitch && self.yaw == other.yaw && self.roll == other.roll
+    }
+}
+
+impl PartialEq for BoostPadState {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.is_active == other.is_active
+            && self.cooldown == other.cooldown
+            && self.cur_locked_car_id == other.cur_locked_car_id
+            && self.prev_locked_car_id == other.prev_locked_car_id
+    }
+}
+
 impl Arena {
     #[inline]
     pub fn clone(self: Pin<&mut Self>, copy_callbacks: bool) -> UniquePtr<Self> {
