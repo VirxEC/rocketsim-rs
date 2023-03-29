@@ -167,12 +167,15 @@ fn goal_score() {
         ..Default::default()
     });
 
-    arena.pin_mut().set_goal_scored_callback(|arena, team| {
-        assert_eq!(arena.get_tick_count(), 12);
-        arena.reset_to_random_kickoff(None);
-        println!("GOAL SCORED BY {team:?}!");
-        SCORED.store(true, Ordering::Relaxed);
-    });
+    arena.pin_mut().set_goal_scored_callback(
+        |arena, team, _| {
+            assert_eq!(arena.get_tick_count(), 12);
+            arena.reset_to_random_kickoff(None);
+            println!("GOAL SCORED BY {team:?}!");
+            SCORED.store(true, Ordering::Relaxed);
+        },
+        0,
+    );
 
     arena.pin_mut().step(15);
     assert!(SCORED.load(Ordering::Relaxed));
