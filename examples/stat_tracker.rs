@@ -2,27 +2,22 @@ use std::{sync::Mutex, time::Instant};
 
 use rand::Rng;
 
-use rocketsim_rs::sim::{
-    arena::Arena,
-    car::{CarConfig, Team},
-    CarControls,
-};
+use rocketsim_rs::sim::{Arena, CarConfig, CarControls, Team};
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Stats {
     pub goals: u16,
     pub own_goals: u16,
     pub assists: u16,
+    pub demolitions: u16,
     // pub saves: u16,
     // pub shots: u16,
-    // pub demolitions: u16,
 }
 
 const TICK_SKIP: i32 = 8;
 
 fn main() {
     // see the comment above `set_goal_scored_callback` for why we need Mutexes
-    static BALL_TOUCHES: Mutex<[Vec<u32>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
     static STATS: Mutex<Vec<(u32, Stats)>> = Mutex::new(Vec::new());
     static SCORE: Mutex<[u16; 2]> = Mutex::new([0; 2]);
 
@@ -32,15 +27,15 @@ fn main() {
     // Create a new arena with gamemode soccar and a tick rate of 120
     let mut arena = Arena::default_standard();
 
-    // spawn a orange team breakout hitbox car
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
-
-    // spawn a blue team hybrid hibox car
+    // spawn the blue team is various hitboxes
     arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
     arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
     arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
+
+    // spawn the orange team is various hitboxes
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
 
     // Add a new default stats entry for each car
     STATS.lock().unwrap().extend(arena.pin_mut().get_cars().iter().map(|(id, _, _, _)| (*id, Stats::default())));
@@ -55,41 +50,78 @@ fn main() {
         |mut arena, team, _| {
             println!("Goal scored by {:?}", team);
 
+            // Collect all valid ball touches
+            let mut all_ball_touches = arena
+                .as_mut()
+                .get_cars()
+                .into_iter()
+                .filter(|(_, _, state, _)| state.ball_hit_info.is_valid)
+                .map(|(id, team, state, _)| (id, team, state.ball_hit_info.tick_count_when_hit))
+                .collect::<Vec<_>>();
+            // Sort by ball touch time
+            all_ball_touches.sort_by_key(|(_, _, tick_count_when_hit)| *tick_count_when_hit);
+
+            // Sort ball touches by team
+            let ball_touches = [
+                all_ball_touches.iter().filter(|(_, team, _)| *team == Team::BLUE).map(|(id, _, _)| *id).collect::<Vec<_>>(),
+                all_ball_touches
+                    .iter()
+                    .filter(|(_, team, _)| *team == Team::ORANGE)
+                    .map(|(id, _, _)| *id)
+                    .collect::<Vec<_>>(),
+            ];
+
             // update stats
             let t_index = team as u8 as usize;
 
             // record the scored goal
             SCORE.lock().unwrap()[t_index] += 1;
 
-            let ball_touches = BALL_TOUCHES.lock().unwrap().clone();
             let mut stats = STATS.lock().unwrap();
-            let mut scorer = None;
 
             // it's possible no car touched the ball on the team that got the goal
             // so ensure that were was at least one ball touch
             if !ball_touches[t_index].is_empty() {
                 // the latest ball touch on the same team is the scorer
-                scorer = ball_touches[t_index].last().copied();
+                let scorer = ball_touches[t_index].last().copied().unwrap();
+                println!("Scorer: {scorer}");
                 // mark up the scorer's stats
-                stats.iter_mut().find(|(id, _)| Some(*id) == scorer).unwrap().1.goals += 1;
+                stats.iter_mut().find(|(id, _)| *id == scorer).unwrap().1.goals += 1;
 
                 if ball_touches[t_index].len() > 1 {
                     // if there were two ball touches, they get the assist
                     let assist = ball_touches[t_index][ball_touches[t_index].len() - 2];
+                    println!("Assist: {assist}");
                     stats.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
                 }
-            }
 
-            let last_hit_id = arena.as_mut().get_ball().hit_info.car_id;
-            if last_hit_id != 0 && Some(last_hit_id) != scorer {
-                // if the last hit was not the scorer, they get the own goal
-                stats.iter_mut().find(|(id, _)| *id == last_hit_id).unwrap().1.own_goals += 1;
+                if let Some(latest_hit_id) = all_ball_touches.last().map(|(id, _, _)| *id) {
+                    // if the last hit was not the scorer, they get the own goal
+                    // rocket league tracks this stat in secret and isn't shown on the scoreboard
+                    if latest_hit_id != scorer {
+                        println!("Own goal: {latest_hit_id}");
+                        stats.iter_mut().find(|(id, _)| *id == latest_hit_id).unwrap().1.own_goals += 1;
+                    }
+                }
             }
 
             // reset to a random kickoff to continue the game
             // this also reset info like last ball touch
             // so it needs to be done last
             arena.reset_to_random_kickoff(None);
+        },
+        0,
+    );
+
+
+    arena.pin_mut().set_car_bump_callback(
+        |_, bumper, victim, is_demo, _| {
+            // If there was a demo (and not just a normal bump)
+            if is_demo {
+                println!("Car {:?} DEMOED {:?}", bumper, victim);
+                // +1 demo for bumper
+                STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
+            }
         },
         0,
     );
@@ -109,23 +141,6 @@ fn main() {
 
         #[cfg(feature = "glam")]
         let game_state = arena.pin_mut().get_game_state().to_glam();
-
-        // for tracking the ball touches
-        if game_state.tick_count != 0 && game_state.ball.hit_info.tick_count_when_hit == game_state.tick_count - 1 {
-            // get info on the car that hit the ball
-            let (id, team, _, _) = game_state.cars.iter().find(|&car| car.0 == game_state.ball.hit_info.car_id).unwrap();
-
-            let mut ball_touches = BALL_TOUCHES.lock().unwrap();
-            let t_index = *team as u8 as usize;
-            // add the car id to the list of cars that have touched the ball on it's team
-            ball_touches[t_index].push(*id);
-
-            // if there are more than 2 cars that have touched the ball on the team
-            if ball_touches.len() > 2 {
-                // remove the oldest car id
-                ball_touches[t_index].remove(0);
-            }
-        }
 
         let mut all_controls = Vec::new();
 

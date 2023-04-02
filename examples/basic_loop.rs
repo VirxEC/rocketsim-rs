@@ -1,8 +1,4 @@
-use rocketsim_rs::sim::{
-    arena::Arena,
-    car::{CarConfig, Team},
-    CarControls,
-};
+use rocketsim_rs::sim::{Arena, CarConfig, CarControls, Team};
 
 const TICK_SKIP: i32 = 8;
 

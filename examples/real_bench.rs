@@ -3,10 +3,7 @@ use std::{
     time::Instant,
 };
 
-use rocketsim_rs::sim::{
-    arena::Arena,
-    car::{CarConfig, Team},
-};
+use rocketsim_rs::sim::{Arena, CarConfig, Team};
 
 fn main() {
     const TICKS: i32 = 50000;

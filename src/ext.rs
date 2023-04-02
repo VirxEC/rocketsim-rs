@@ -1,12 +1,6 @@
 use crate::{
     math::{Angle, RotMat, Vec3},
-    sim::{
-        arena::{Arena, GameMode},
-        ball::{Ball, BallHitInfo},
-        boostpad::BoostPadState,
-        car::{Car, CarConfig, Team},
-        CarControls,
-    },
+    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, Team},
 };
 use autocxx::WithinUniquePtr;
 use core::pin::Pin;
@@ -55,8 +49,21 @@ impl fmt::Debug for Team {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Team::BLUE => write!(f, "BLUE"),
-            Team::ORANGE => write!(f, "ORANGE"),
+            Self::BLUE => write!(f, "BLUE"),
+            Self::ORANGE => write!(f, "ORANGE"),
+        }
+    }
+}
+
+impl Copy for DemoMode {}
+
+impl fmt::Debug for DemoMode {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::DISABLED => write!(f, "DISABLED"),
+            Self::NORMAL => write!(f, "NORMAL"),
+            Self::ON_CONTACT => write!(f, "ON_CONTACT"),
         }
     }
 }
@@ -72,8 +79,8 @@ pub struct BoostPad {
 pub struct GameState {
     pub tick_rate: f32,
     pub tick_count: u64,
-    pub cars: Vec<(u32, Team, Car, CarConfig)>,
-    pub ball: Ball,
+    pub cars: Vec<(u32, Team, CarState, CarConfig)>,
+    pub ball: BallState,
     pub pads: Vec<BoostPad>,
 }
 
@@ -102,7 +109,7 @@ impl Arena {
 
     #[inline]
     /// Sets the state of the car at the given ID
-    pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: Car) -> Result<(), NoCarFound> {
+    pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: CarState) -> Result<(), NoCarFound> {
         if self.rsc(car_id, car_state) {
             Ok(())
         } else {
@@ -141,8 +148,8 @@ impl Arena {
     }
 
     #[inline]
-    /// Returns all of the `(id, Car, CarConfig)`s in the arena
-    pub fn get_cars(mut self: Pin<&mut Self>) -> Vec<(u32, Team, Car, CarConfig)> {
+    /// Returns all of the `(id, Team, CarState, CarConfig)`s in the arena
+    pub fn get_cars(mut self: Pin<&mut Self>) -> Vec<(u32, Team, CarState, CarConfig)> {
         self.as_mut()
             .rgc()
             .iter()
@@ -190,21 +197,32 @@ impl Arena {
             cars: self.get_cars(),
         }
     }
+
+    #[inline]
+    /// Returns true if the ball is probably going in, does not account for wall or ceiling bounces
+    /// NOTE: Purposefully overestimates, just like the real RL's shot prediction
+    /// To check which goal it will score in, use the ball's velocity
+    ///
+    /// # Arguments
+    ///
+    /// * `max_time` - The maximum time to check for, if None, will default to 0.2s
+    pub fn is_ball_probably_going_in(&self, max_time: Option<f32>) -> bool {
+        self.IsBallProbablyGoingIn(max_time.unwrap_or(0.2))
+    }
 }
 
-impl Default for Ball {
+impl Default for BallState {
     #[inline]
     fn default() -> Self {
         Self {
             pos: Vec3::new(0., 0., 93.15),
             vel: Vec3::default(),
             ang_vel: Vec3::default(),
-            hit_info: BallHitInfo::default(),
         }
     }
 }
 
-impl Default for Car {
+impl Default for CarState {
     #[inline]
     fn default() -> Self {
         Self {
@@ -235,13 +253,13 @@ impl Default for Car {
             cooldown_timer: 0.,
             is_demoed: false,
             demo_respawn_timer: 0.,
-            last_hit_ball_tick: 0,
+            ball_hit_info: BallHitInfo::default(),
             last_controls: CarControls::default(),
         }
     }
 }
 
-impl Car {
+impl CarState {
     #[inline]
     /// Returns the other Car that this Car is currently contacting, if any
     pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {

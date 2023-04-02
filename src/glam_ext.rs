@@ -19,13 +19,7 @@ use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 
 use crate::{
     math::{Angle, RotMat, Vec3},
-    sim::{
-        arena::Arena,
-        ball::{Ball, BallHitInfo},
-        boostpad::BoostPadState,
-        car::{Car, CarConfig, Team, WheelPairConfig},
-        CarControls,
-    },
+    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, Team, WheelPairConfig},
     BoostPad, GameState,
 };
 
@@ -123,22 +117,24 @@ impl From<BoostPad> for BoostPadA {
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BallHitInfoA {
-    pub car_id: u32,
+    pub is_valid: bool,
     pub relative_pos_on_ball: Vec3A,
     pub ball_pos: Vec3A,
     pub extra_hit_vel: Vec3A,
     pub tick_count_when_hit: u64,
+    pub tick_count_when_extra_impulse_applied: u64,
 }
 
 impl From<BallHitInfo> for BallHitInfoA {
     #[inline]
     fn from(value: BallHitInfo) -> Self {
         Self {
-            car_id: value.car_id,
+            is_valid: value.is_valid,
             relative_pos_on_ball: value.relative_pos_on_ball.into(),
             ball_pos: value.ball_pos.into(),
             extra_hit_vel: value.extra_hit_vel.into(),
             tick_count_when_hit: value.tick_count_when_hit,
+            tick_count_when_extra_impulse_applied: value.tick_count_when_extra_impulse_applied,
         }
     }
 }
@@ -147,11 +143,12 @@ impl From<BallHitInfoA> for BallHitInfo {
     #[inline]
     fn from(value: BallHitInfoA) -> Self {
         Self {
-            car_id: value.car_id,
+            is_valid: value.is_valid,
             relative_pos_on_ball: value.relative_pos_on_ball.into(),
             ball_pos: value.ball_pos.into(),
             extra_hit_vel: value.extra_hit_vel.into(),
             tick_count_when_hit: value.tick_count_when_hit,
+            tick_count_when_extra_impulse_applied: value.tick_count_when_extra_impulse_applied,
         }
     }
 }
@@ -161,7 +158,6 @@ pub struct BallA {
     pub pos: Vec3A,
     pub vel: Vec3A,
     pub ang_vel: Vec3A,
-    pub hit_info: BallHitInfoA,
 }
 
 impl Default for BallA {
@@ -171,31 +167,28 @@ impl Default for BallA {
             pos: Vec3A::new(0., 0., 93.15),
             vel: Vec3A::default(),
             ang_vel: Vec3A::default(),
-            hit_info: BallHitInfoA::default(),
         }
     }
 }
 
-impl From<Ball> for BallA {
+impl From<BallState> for BallA {
     #[inline]
-    fn from(value: Ball) -> Self {
+    fn from(value: BallState) -> Self {
         Self {
             pos: value.pos.into(),
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
-            hit_info: value.hit_info.into(),
         }
     }
 }
 
-impl From<BallA> for Ball {
+impl From<BallA> for BallState {
     #[inline]
     fn from(value: BallA) -> Self {
         Self {
             pos: value.pos.into(),
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
-            hit_info: value.hit_info.into(),
         }
     }
 }
@@ -293,7 +286,7 @@ pub struct CarA {
     pub cooldown_timer: f32,
     pub is_demoed: bool,
     pub demo_respawn_timer: f32,
-    pub last_hit_ball_tick: u64,
+    pub ball_hit_info: BallHitInfoA,
     pub last_controls: CarControls,
 }
 
@@ -328,15 +321,15 @@ impl Default for CarA {
             cooldown_timer: 0.,
             is_demoed: false,
             demo_respawn_timer: 0.,
-            last_hit_ball_tick: 0,
+            ball_hit_info: BallHitInfoA::default(),
             last_controls: CarControls::default(),
         }
     }
 }
 
-impl From<Car> for CarA {
+impl From<CarState> for CarA {
     #[inline]
-    fn from(value: Car) -> Self {
+    fn from(value: CarState) -> Self {
         Self {
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
@@ -365,13 +358,13 @@ impl From<Car> for CarA {
             cooldown_timer: value.cooldown_timer,
             is_demoed: value.is_demoed,
             demo_respawn_timer: value.demo_respawn_timer,
-            last_hit_ball_tick: value.last_hit_ball_tick,
+            ball_hit_info: value.ball_hit_info.into(),
             last_controls: value.last_controls,
         }
     }
 }
 
-impl From<CarA> for Car {
+impl From<CarA> for CarState {
     #[inline]
     fn from(value: CarA) -> Self {
         Self {
@@ -402,7 +395,7 @@ impl From<CarA> for Car {
             cooldown_timer: value.cooldown_timer,
             is_demoed: value.is_demoed,
             demo_respawn_timer: value.demo_respawn_timer,
-            last_hit_ball_tick: value.last_hit_ball_tick,
+            ball_hit_info: value.ball_hit_info.into(),
             last_controls: value.last_controls,
         }
     }

@@ -1,10 +1,6 @@
 use rocketsim_rs::{
     math::Vec3,
-    sim::{
-        arena::Arena,
-        car::{CarConfig, Team},
-        CarControls,
-    },
+    sim::{Arena, CarConfig, CarControls, Team},
 };
 
 fn main() {

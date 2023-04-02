@@ -3,7 +3,7 @@ use std::{
     time::Instant,
 };
 
-use rocketsim_rs::sim::arena::Arena;
+use rocketsim_rs::sim::Arena;
 
 fn main() {
     const TICKS: i32 = 600000;

@@ -3,10 +3,7 @@ use glam::{Mat3A, Quat, Vec3A};
 
 use crate::{
     math::Angle,
-    sim::{
-        arena::Arena,
-        ball::{BallHitInfo, BallState},
-    },
+    sim::{Arena, BallState},
 };
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -95,12 +92,23 @@ pub struct LastTouch {
 }
 
 impl LastTouch {
-    fn from(arena: &Arena, last_touch: BallHitInfo) -> Self {
-        if last_touch.car_id == 0 {
+    fn from(mut arena: Pin<&mut Arena>) -> Self {
+        let filtered_touch = arena
+            .as_mut()
+            .get_cars()
+            .iter()
+            .map(|&(car_id, _, state, _)| (car_id, state.ball_hit_info))
+            .max_by_key(|&(_, last_touch)| last_touch.tick_count_when_hit);
+
+        let Some((car_id, last_touch)) = filtered_touch else {
+            return Self::default();
+        };
+
+        if !last_touch.is_valid {
             return Self::default();
         }
 
-        let player_index = arena.get_car_index(last_touch.car_id);
+        let player_index = arena.get_car_index(car_id);
         Self {
             time_seconds: last_touch.tick_count_when_hit as f32 / arena.get_tick_rate(),
             hit_location: last_touch.ball_pos.into(),
@@ -118,10 +126,11 @@ pub struct Ball {
 }
 
 impl Ball {
+    #[inline]
     fn from(mut arena: Pin<&mut Arena>) -> Self {
-        let ball = arena.as_mut().get_ball();
         Ball {
-            physics: ball.into(),
+            physics: arena.as_mut().get_ball().into(),
+            last_touch: LastTouch::from(arena.as_mut()),
             collision_shape: CollisionShape {
                 type_: 1,
                 sphere: Sphere {
@@ -129,7 +138,6 @@ impl Ball {
                 },
                 ..Default::default()
             },
-            last_touch: LastTouch::from(&arena, ball.hit_info),
         }
     }
 }

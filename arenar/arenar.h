@@ -31,6 +31,7 @@ struct Arenar {
     }
 
 	void SetGoalScoreCallback(rust::Fn<void(Arenar&, Team, size_t)> callback, size_t);
+	void SetCarBumpCallback(rust::Fn<void(Arenar&, uint32_t, uint32_t, bool, size_t)> callback, size_t user_info);
 
     // No copy constructor
     Arenar(const Arenar & other) = delete;
@@ -127,6 +128,18 @@ struct Arenar {
 
 	void step(int32_t ticks = 1) {
 		a->Step(ticks);
+	}
+
+	bool IsBallProbablyGoingIn(float maxTime = 2.f) const {
+		return a->IsBallProbablyGoingIn(maxTime);
+	}
+
+	MutatorConfig GetMutatorConfig() const {
+		return a->GetMutatorConfig();
+	}
+
+	void SetMutatorConfig(MutatorConfig mutatorConfig) {
+		a->SetMutatorConfig(mutatorConfig);
 	}
 
 private:
