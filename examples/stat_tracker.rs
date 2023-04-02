@@ -113,7 +113,6 @@ fn main() {
         0,
     );
 
-
     arena.pin_mut().set_car_bump_callback(
         |_, bumper, victim, is_demo, _| {
             // If there was a demo (and not just a normal bump)

@@ -6,7 +6,7 @@ use std::sync::{
 use rocketsim_rs::{
     init,
     math::*,
-    sim::{Arena, BallState, CarConfig, CarControls, Team, CarState},
+    sim::{Arena, BallState, CarConfig, CarControls, CarState, Team},
 };
 
 #[cfg(feature = "glam")]
@@ -186,19 +186,41 @@ fn demoed() {
     let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
     let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
 
-    arena.pin_mut().set_car(orange, CarState {
-        pos: Vec3::new(0., 0., 17.),
-        ..Default::default()
-    }).unwrap();
+    arena
+        .pin_mut()
+        .set_car(
+            orange,
+            CarState {
+                pos: Vec3::new(0., 0., 17.),
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
-    arena.pin_mut().set_car(blue, CarState {
-        pos: Vec3::new(-300., 0., 17.),
-        vel: Vec3::new(2300., 0., 0.),
-        boost: 100.,
-        ..Default::default()
-    }).unwrap();
+    arena
+        .pin_mut()
+        .set_car(
+            blue,
+            CarState {
+                pos: Vec3::new(-300., 0., 17.),
+                vel: Vec3::new(2300., 0., 0.),
+                boost: 100.,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
-    arena.pin_mut().set_car_controls(blue, CarControls { throttle: 1., boost: true, ..Default::default() }).unwrap();
+    arena
+        .pin_mut()
+        .set_car_controls(
+            blue,
+            CarControls {
+                throttle: 1.,
+                boost: true,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
     arena.pin_mut().set_car_bump_callback(
         |arena, bumper, victim, is_demo, _| {
