@@ -1,6 +1,6 @@
 use crate::{
     math::{Angle, RotMat, Vec3},
-    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, Team, MutatorConfig},
+    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, MutatorConfig, Team},
 };
 use autocxx::WithinUniquePtr;
 use core::pin::Pin;
