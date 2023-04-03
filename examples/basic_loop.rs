@@ -44,7 +44,7 @@ fn main() {
         // team: either Team::ORANGE or TEAM::BLUE
         // state: e.x. the position, velocity, boost amount, etc.
         // config: the car config info, e.x. hitbox size, wheel base, etc.
-        for (car_id, _team, _state, _config) in game_state.cars {
+        for car_info in game_state.cars {
             // In this case we're going for kickoff
             // so we're just going to drive forwards and boost
             // (for both cars)
@@ -56,7 +56,7 @@ fn main() {
             };
 
             // rocketsim wants car_id/control pairs so it knows which car to apply the controls to
-            all_controls.push((car_id, controls));
+            all_controls.push((car_info.id, controls));
         }
 
         // set all the controls

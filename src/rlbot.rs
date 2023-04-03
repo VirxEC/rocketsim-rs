@@ -97,7 +97,7 @@ impl LastTouch {
             .as_mut()
             .get_cars()
             .iter()
-            .map(|&(car_id, _, state, _)| (car_id, state.ball_hit_info))
+            .map(|&car_id| (car_id, arena.as_mut().get_car(car_id).ball_hit_info))
             .max_by_key(|&(_, last_touch)| last_touch.tick_count_when_hit);
 
         let Some((car_id, last_touch)) = filtered_touch else {
@@ -108,12 +108,11 @@ impl LastTouch {
             return Self::default();
         }
 
-        let player_index = arena.get_car_index(car_id);
         Self {
             time_seconds: last_touch.tick_count_when_hit as f32 / arena.get_tick_rate(),
             hit_location: last_touch.ball_pos.into(),
-            team: arena.get_car_team_from_index(player_index) as u8,
-            player_index,
+            team: arena.get_car_team(car_id) as u8,
+            player_index: arena.GetCars().iter().position(|&id| id == car_id).unwrap(),
         }
     }
 }
@@ -165,11 +164,11 @@ impl Arena {
         GameTickPacket {
             game_cars: self
                 .as_mut()
-                .rgc()
+                .GetCars()
                 .iter()
-                .enumerate()
-                .map(|(i, car)| {
-                    let car_config = self.get_car_config_from_index(i);
+                .map(|&car_id| {
+                    let car = self.as_mut().get_car(car_id);
+                    let car_config = self.get_car_config(car_id);
                     Car {
                         physics: Physics {
                             location: car.pos.into(),
@@ -182,7 +181,7 @@ impl Arena {
                         is_super_sonic: car.is_supersonic,
                         jumped: car.has_jumped,
                         double_jumped: car.has_double_jumped,
-                        team: self.get_car_team_from_index(i) as u8,
+                        team: self.get_car_team(car_id) as u8,
                         boost: car.boost,
                         hitbox: Cuboid {
                             length: car_config.hitbox_size.x,

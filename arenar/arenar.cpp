@@ -44,35 +44,23 @@ void Arenar::SetCarBumpCallback(rust::Fn<void(Arenar&, uint32_t, uint32_t, bool,
     }, new std::pair(this, user_info));
 }
 
-size_t Arenar::get_car_index(uint32_t car_id) const {
-    assert(car_id != 0);
-
-    for (size_t i = 0; i < a->_cars.size(); i++) {
-        if (a->_cars[i]->id == car_id) {
-            return i;
-        }
-    }
-
-    assert(false);
-}
-
-std::unique_ptr<std::vector<CarState>> Arenar::GetCars() {
-    std::unique_ptr<std::vector<CarState>> states = std::make_unique<std::vector<CarState>>();
+std::unique_ptr<std::vector<uint32_t>> Arenar::GetCars() const {
+    std::unique_ptr<std::vector<uint32_t>> cars(new std::vector<uint32_t>());
     for (Car* car : a->_cars) {
-        states.get()->push_back(car->GetState());
+        cars->push_back(car->id);
     }
-    return states;
+    return cars;
 }
 
 CarState Arenar::GetCar(uint32_t carID) {
-    Car* car = a->GetCarFromID(carID);
+    Car* car = a->GetCar(carID);
     assert(car != NULL);
 
     return car->GetState();
 }
 
 bool Arenar::SetCar(uint32_t carID, const CarState state) {
-    Car* car = a->GetCarFromID(carID);
+    Car* car = a->GetCar(carID);
     if (car == NULL) {
         return false;
     }
@@ -82,7 +70,7 @@ bool Arenar::SetCar(uint32_t carID, const CarState state) {
 }
 
 bool Arenar::RemoveCar(uint32_t carID) {
-    Car* car = a->GetCarFromID(carID);
+    Car* car = a->GetCar(carID);
     if (car == NULL) {
         return false;
     }
@@ -92,7 +80,7 @@ bool Arenar::RemoveCar(uint32_t carID) {
 }
 
 bool Arenar::SetCarControls(uint32_t carID, const CarControls controls) {
-    Car* car = a->GetCarFromID(carID);
+    Car* car = a->GetCar(carID);
     if (car == NULL) {
         return false;
     }
@@ -102,7 +90,7 @@ bool Arenar::SetCarControls(uint32_t carID, const CarControls controls) {
 }
 
 bool Arenar::DemolishCar(uint32_t carID) {
-    Car* car = a->GetCarFromID(carID);
+    Car* car = a->GetCar(carID);
     if (car == NULL) {
         return false;
     }
@@ -112,7 +100,7 @@ bool Arenar::DemolishCar(uint32_t carID) {
 }
 
 bool Arenar::RespawnCar(uint32_t carID, int32_t seed) {
-    Car* car = a->GetCarFromID(carID);
+    Car* car = a->GetCar(carID);
     if (car == NULL) {
         return false;
     }
@@ -135,7 +123,7 @@ void Arenar::SetPadState(size_t index, const EBoostPadState state) {
     Car* curLockedCar = NULL;
 
     if (state.curLockedCarId != 0) {
-        curLockedCar = a->GetCarFromID(state.curLockedCarId);
+        curLockedCar = a->GetCar(state.curLockedCarId);
     }
 
     BoostPadState estate = BoostPadState {

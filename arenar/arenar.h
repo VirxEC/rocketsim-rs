@@ -50,21 +50,16 @@ struct Arenar {
 		return a->_cars.size();
 	}
 
-	uint32_t get_car_id(size_t index) const {
-		return a->_cars[index]->id;
+	std::unique_ptr<std::vector<uint32_t>> GetCars() const;
+
+	CarConfig GetCarConfig(uint32_t car_id) const {
+		return a->GetCar(car_id)->config;
 	}
 
-	size_t get_car_index(uint32_t car_id) const;
-
-	CarConfig GetCarConfigFromIndex(size_t index) const {
-		return a->_cars[index]->config;
+	Team GetCarTeam(uint32_t car_id) const {
+		return a->GetCar(car_id)->team;
 	}
 
-	Team GetCarTeamFromIndex(size_t index) const {
-		return a->_cars[index]->team;
-	}
-
-	std::unique_ptr<std::vector<CarState>> GetCars();
 	CarState GetCar(uint32_t car_id);
 	/// @brief Sets the state of a car in the arena
 	/// @param arena

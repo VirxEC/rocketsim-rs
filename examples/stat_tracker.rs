@@ -38,7 +38,7 @@ fn main() {
     arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
 
     // Add a new default stats entry for each car
-    STATS.lock().unwrap().extend(arena.pin_mut().get_cars().iter().map(|(id, _, _, _)| (*id, Stats::default())));
+    STATS.lock().unwrap().extend(arena.pin_mut().get_cars().iter().map(|&id| (id, Stats::default())));
 
     // set kickoff with random seed
     arena.pin_mut().reset_to_random_kickoff(None);
@@ -53,10 +53,15 @@ fn main() {
             // Collect all valid ball touches
             let mut all_ball_touches = arena
                 .as_mut()
-                .get_cars()
+                .get_car_infos()
                 .into_iter()
-                .filter(|(_, _, state, _)| state.ball_hit_info.is_valid)
-                .map(|(id, team, state, _)| (id, team, state.ball_hit_info.tick_count_when_hit))
+                .filter_map(|car_info| {
+                    if car_info.state.ball_hit_info.is_valid {
+                        Some((car_info.id, car_info.team, car_info.state.ball_hit_info.tick_count_when_hit))
+                    } else {
+                        None
+                    }
+                })
                 .collect::<Vec<_>>();
             // Sort by ball touch time
             all_ball_touches.sort_by_key(|(_, _, tick_count_when_hit)| *tick_count_when_hit);
@@ -91,8 +96,16 @@ fn main() {
                 if ball_touches[t_index].len() > 1 {
                     // if there were two ball touches, they get the assist
                     let assist = ball_touches[t_index][ball_touches[t_index].len() - 2];
-                    println!("Assist: {assist}");
-                    stats.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
+
+                    // Get the tick count of when the scorer and assist touched the ball
+                    let scorer_tick = arena.as_mut().get_car(scorer).ball_hit_info.tick_count_when_hit;
+                    let assist_tick = arena.as_mut().get_car(assist).ball_hit_info.tick_count_when_hit;
+
+                    // ensure that the assist is < 5s before the touch of the scoring player
+                    if (assist_tick - scorer_tick) as f32 / arena.get_tick_rate() < 5. {
+                        println!("Assist: {assist}");
+                        stats.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
+                    }
                 }
 
                 if let Some(latest_hit_id) = all_ball_touches.last().map(|(id, _, _)| *id) {
@@ -143,7 +156,7 @@ fn main() {
 
         let mut all_controls = Vec::new();
 
-        for (car_id, _team, _state, _config) in game_state.cars {
+        for car_info in game_state.cars {
             // Randomize the controls
             let controls = CarControls {
                 throttle: random.gen_range(0.1..1.0),
@@ -153,7 +166,7 @@ fn main() {
             };
 
             // rocketsim wants car_id/control pairs so it knows which car to apply the controls to
-            all_controls.push((car_id, controls));
+            all_controls.push((car_info.id, controls));
         }
 
         // set all the controls

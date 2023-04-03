@@ -151,9 +151,6 @@ pub mod sim {
             type MutatorConfig = crate::sim::MutatorConfig;
 
             #[doc(hidden)]
-            #[rust_name = "rgc"]
-            fn GetCars(self: Pin<&mut Arenar>) -> UniquePtr<CxxVector<CarState>>;
-            #[doc(hidden)]
             #[rust_name = "rsc"]
             fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car: CarState) -> bool;
             #[rust_name = "get_car"]
@@ -173,10 +170,10 @@ pub mod sim {
             fn SetPadState(self: Pin<&mut Arenar>, index: usize, pad: EBoostPadState);
             #[rust_name = "get_pad_state"]
             fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
-            #[rust_name = "get_car_config_from_index"]
-            fn GetCarConfigFromIndex(self: &Arenar, index: usize) -> CarConfig;
-            #[rust_name = "get_car_team_from_index"]
-            fn GetCarTeamFromIndex(self: &Arenar, index: usize) -> Team;
+            #[rust_name = "get_car_config"]
+            fn GetCarConfig(self: &Arenar, id: u32) -> CarConfig;
+            #[rust_name = "get_car_team"]
+            fn GetCarTeam(self: &Arenar, id: u32) -> Team;
             #[rust_name = "set_goal_scored_callback"]
             fn SetGoalScoreCallback(self: Pin<&mut Arenar>, callback: fn(arena: Pin<&mut Arenar>, car_team: Team, user_data: usize), user_data: usize);
             #[rust_name = "set_car_bump_callback"]

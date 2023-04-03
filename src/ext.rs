@@ -45,6 +45,13 @@ impl Error for NoCarFound {}
 
 impl Copy for Team {}
 
+impl Default for Team {
+    #[inline]
+    fn default() -> Self {
+        Self::BLUE
+    }
+}
+
 impl fmt::Debug for Team {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -75,11 +82,19 @@ pub struct BoostPad {
     pub state: BoostPadState,
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct CarInfo {
+    pub id: u32,
+    pub team: Team,
+    pub state: CarState,
+    pub config: CarConfig,
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct GameState {
     pub tick_rate: f32,
     pub tick_count: u64,
-    pub cars: Vec<(u32, Team, CarState, CarConfig)>,
+    pub cars: Vec<CarInfo>,
     pub ball: BallState,
     pub pads: Vec<BoostPad>,
 }
@@ -148,14 +163,26 @@ impl Arena {
     }
 
     #[inline]
-    /// Returns all of the `(id, Team, CarState, CarConfig)`s in the arena
-    pub fn get_cars(mut self: Pin<&mut Self>) -> Vec<(u32, Team, CarState, CarConfig)> {
-        self.as_mut()
-            .rgc()
-            .iter()
-            .enumerate()
-            .map(|(i, &state)| (self.get_car_id(i), self.get_car_team_from_index(i), state, self.get_car_config_from_index(i)))
-            .collect()
+    // Returns all of the car ids
+    pub fn get_cars(&self) -> Vec<u32> {
+        self.GetCars().iter().copied().collect()
+    }
+
+    #[inline]
+    /// Get all the avalible information on a car
+    pub fn get_car_info(self: Pin<&mut Self>, car_id: u32) -> CarInfo {
+        CarInfo {
+            id: car_id,
+            team: self.get_car_team(car_id),
+            config: self.get_car_config(car_id),
+            state: self.get_car(car_id),
+        }
+    }
+
+    #[inline]
+    /// Returns all of the `CarInfo`s in the arena
+    pub fn get_car_infos(mut self: Pin<&mut Self>) -> Vec<CarInfo> {
+        self.GetCars().iter().map(|&car_id| self.as_mut().get_car_info(car_id)).collect()
     }
 
     #[inline]
@@ -194,7 +221,7 @@ impl Arena {
             tick_count: self.get_tick_count(),
             pads: self.iter_pads().collect(),
             ball: self.as_mut().get_ball(),
-            cars: self.get_cars(),
+            cars: self.get_car_infos(),
         }
     }
 

@@ -20,7 +20,7 @@ use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
 use crate::{
     math::{Angle, RotMat, Vec3},
     sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, Team, WheelPairConfig},
-    BoostPad, GameState,
+    BoostPad, CarInfo, GameState,
 };
 
 impl From<RotMat> for Mat3A {
@@ -258,7 +258,7 @@ impl From<CarConfigA> for CarConfig {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct CarA {
+pub struct CarStateA {
     pub pos: Vec3A,
     pub rot_mat: Mat3A,
     pub vel: Vec3A,
@@ -290,7 +290,7 @@ pub struct CarA {
     pub last_controls: CarControls,
 }
 
-impl Default for CarA {
+impl Default for CarStateA {
     #[inline]
     fn default() -> Self {
         Self {
@@ -327,7 +327,7 @@ impl Default for CarA {
     }
 }
 
-impl From<CarState> for CarA {
+impl From<CarState> for CarStateA {
     #[inline]
     fn from(value: CarState) -> Self {
         Self {
@@ -364,9 +364,9 @@ impl From<CarState> for CarA {
     }
 }
 
-impl From<CarA> for CarState {
+impl From<CarStateA> for CarState {
     #[inline]
-    fn from(value: CarA) -> Self {
+    fn from(value: CarStateA) -> Self {
         Self {
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
@@ -401,7 +401,7 @@ impl From<CarA> for CarState {
     }
 }
 
-impl CarA {
+impl CarStateA {
     #[inline]
     /// Returns the other Car that this Car is currently contacting, if any
     pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
@@ -413,11 +413,43 @@ impl CarA {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct CarInfoA {
+    pub id: u32,
+    pub team: Team,
+    pub state: CarStateA,
+    pub config: CarConfigA,
+}
+
+impl From<CarInfo> for CarInfoA {
+    #[inline]
+    fn from(value: CarInfo) -> Self {
+        Self {
+            id: value.id,
+            team: value.team,
+            state: value.state.into(),
+            config: value.config.into(),
+        }
+    }
+}
+
+impl From<CarInfoA> for CarInfo {
+    #[inline]
+    fn from(value: CarInfoA) -> Self {
+        Self {
+            id: value.id,
+            team: value.team,
+            state: value.state.into(),
+            config: value.config.into(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct GameStateA {
     pub tick_rate: f32,
     pub tick_count: u64,
-    pub cars: Vec<(u32, Team, CarA, CarConfigA)>,
+    pub cars: Vec<CarInfoA>,
     pub ball: BallA,
     pub pads: Vec<BoostPadA>,
 }
@@ -428,7 +460,7 @@ impl From<GameState> for GameStateA {
         Self {
             tick_rate: value.tick_rate,
             tick_count: value.tick_count,
-            cars: value.cars.into_iter().map(|(id, team, car, config)| (id, team, car.into(), config.into())).collect(),
+            cars: value.cars.into_iter().map(CarInfoA::from).collect(),
             ball: value.ball.into(),
             pads: value.pads.into_iter().map(BoostPadA::from).collect(),
         }

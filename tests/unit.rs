@@ -53,18 +53,18 @@ fn cars() {
 
     arena.pin_mut().step(1);
 
-    let cars = arena.pin_mut().get_cars();
+    let cars = arena.pin_mut().get_car_infos();
     assert!(cars.len() == 1);
 
-    let (_, team, car, car_config) = cars[0];
+    let car_info = cars[0];
 
-    assert!(team == Team::ORANGE);
-    assert!(car.boost < 100. / 3.);
+    assert!(car_info.team == Team::ORANGE);
+    assert!(car_info.state.boost < 100. / 3.);
 
     // this differs the most between cars so we'll just this
-    assert!(car_config.hitbox_size.x == dominus.hitbox_size.x);
-    assert!(car_config.hitbox_size.y == dominus.hitbox_size.y);
-    assert!(car_config.hitbox_size.z == dominus.hitbox_size.z);
+    assert!(car_info.config.hitbox_size.x == dominus.hitbox_size.x);
+    assert!(car_info.config.hitbox_size.y == dominus.hitbox_size.y);
+    assert!(car_info.config.hitbox_size.z == dominus.hitbox_size.z);
 }
 
 #[test]
