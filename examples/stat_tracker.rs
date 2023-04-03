@@ -10,8 +10,8 @@ pub struct Stats {
     pub own_goals: u16,
     pub assists: u16,
     pub demolitions: u16,
+    pub shots: u16,
     // pub saves: u16,
-    // pub shots: u16,
 }
 
 const TICK_SKIP: i32 = 8;
@@ -146,13 +146,36 @@ fn main() {
     println!("Simulating {} minutes", sim_rounds * TICK_SKIP / 120 / 60);
     let start_time = Instant::now();
 
+    let mut prev_ball_hit = 0;
+
     for _ in 0..sim_rounds {
         #[cfg(not(feature = "glam"))]
-        // Get the game state
+        // get the game state
         let game_state = arena.pin_mut().get_game_state();
 
         #[cfg(feature = "glam")]
         let game_state = arena.pin_mut().get_game_state().to_glam();
+
+        // if the ball might go into the goal
+        if arena.is_ball_probably_going_in(None) {
+            // get the latest ball touch
+            if let Some((car_id, tick_count_when_hit)) = game_state
+                .cars
+                .iter()
+                .filter(|car_info| car_info.state.ball_hit_info.is_valid)
+                .map(|car_info| (car_info.id, car_info.state.ball_hit_info.tick_count_when_hit))
+                .max_by_key(|(_, tick_count_when_hit)| *tick_count_when_hit)
+            {
+                // ensure we haven't already handled this ball touch
+                if prev_ball_hit != tick_count_when_hit {
+                    println!("Car {car_id:?} SHOT ON GOAL");
+                    // add to the stats
+                    STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == car_id).unwrap().1.shots += 1;
+                    // ensure we don't handle this ball touch twice
+                    prev_ball_hit = tick_count_when_hit;
+                }
+            }
+        }
 
         let mut all_controls = Vec::new();
 
