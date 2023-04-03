@@ -1,11 +1,41 @@
 use crate::{
     math::{Angle, RotMat, Vec3},
-    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, Team},
+    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, Team, MutatorConfig},
 };
 use autocxx::WithinUniquePtr;
 use core::pin::Pin;
 use cxx::UniquePtr;
 use std::{error::Error, fmt};
+
+impl Default for MutatorConfig {
+    fn default() -> Self {
+        Self {
+            gravity: Vec3::new(0., 0., -650.),
+            car_mass: 180.,
+            car_world_friction: 0.3,
+            car_world_restitution: 0.3,
+            ball_mass: 30.,
+            ball_max_speed: 6000.,
+            ball_drag: 0.3,
+            ball_world_friction: 0.35,
+            ball_world_restitution: 0.6,
+            jump_accel: 4375. / 3.,
+            jump_immediate_force: 875. / 3.,
+            boost_force: 3816.,
+            boost_used_per_second: 100. / 3.,
+            respawn_delay: 3.,
+            bump_cooldown_time: 0.25,
+            boost_pad_cooldown_big: 10.,
+            boost_pad_cooldown_small: 4.,
+            car_spawn_boost_amount: 100. / 3.,
+            ball_hit_extra_force_scale: 1.,
+            bump_force_scale: 1.,
+            ball_radius: 91.25,
+            demo_mode: DemoMode::NORMAL,
+            enable_team_demos: false,
+        }
+    }
+}
 
 impl PartialEq for Angle {
     #[inline]
