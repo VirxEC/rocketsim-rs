@@ -11,7 +11,7 @@ pub struct Stats {
     pub assists: u16,
     pub demolitions: u16,
     pub shots: u16,
-    // pub saves: u16,
+    pub saves: u16,
 }
 
 const TICK_SKIP: i32 = 8;
@@ -89,8 +89,9 @@ fn main() {
             if !ball_touches[t_index].is_empty() {
                 // the latest ball touch on the same team is the scorer
                 let scorer = ball_touches[t_index].last().copied().unwrap();
-                println!("Scorer: {scorer}");
-                // mark up the scorer's stats
+                println!("Car {scorer} SCORED");
+
+                // +1 to the car's goals stat
                 stats.iter_mut().find(|(id, _)| *id == scorer).unwrap().1.goals += 1;
 
                 if ball_touches[t_index].len() > 1 {
@@ -103,7 +104,9 @@ fn main() {
 
                     // ensure that the assist is < 5s before the touch of the scoring player
                     if (assist_tick - scorer_tick) as f32 / arena.get_tick_rate() < 5. {
-                        println!("Assist: {assist}");
+                        println!("CAR {assist} got an ASSIST");
+
+                        // +1 to the car's assists stat
                         stats.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
                     }
                 }
@@ -112,7 +115,9 @@ fn main() {
                     // if the last hit was not the scorer, they get the own goal
                     // rocket league tracks this stat in secret and isn't shown on the scoreboard
                     if latest_hit_id != scorer {
-                        println!("Own goal: {latest_hit_id}");
+                        println!("CAR {latest_hit_id} OWN GOALED");
+
+                        // +1 to the car's own goals stat
                         stats.iter_mut().find(|(id, _)| *id == latest_hit_id).unwrap().1.own_goals += 1;
                     }
                 }
@@ -126,13 +131,27 @@ fn main() {
         0,
     );
 
+    // (time, bumper, victim)
+    static PREV_DEMO: Mutex<(u64, u32, u32)> = Mutex::new((0, 0, 0));
+
     arena.pin_mut().set_car_bump_callback(
-        |_, bumper, victim, is_demo, _| {
+        |arena, bumper, victim, is_demo, _| {
             // If there was a demo (and not just a normal bump)
             if is_demo {
-                println!("Car {:?} DEMOED {:?}", bumper, victim);
-                // +1 demo for bumper
-                STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
+                // there's also a bug in RocketSim
+                // where the demo callback is called multiple times for the same demo
+                let mut prev_demo = PREV_DEMO.lock().unwrap();
+                let curr_tick_count = arena.get_tick_count();
+
+                // so this is to ensure we don't count the same demo twice
+                if prev_demo.0 != curr_tick_count && prev_demo.1 != bumper && prev_demo.2 != victim {
+                    println!("Car {:?} DEMOED {:?}", bumper, victim);
+                    // +1 to the bumper's demolitions stat
+                    STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
+
+                    // update the previous demo
+                    *prev_demo = (curr_tick_count, bumper, victim);
+                }
             }
         },
         0,
@@ -143,10 +162,11 @@ fn main() {
     // run the simulation for 20 minutes (18000 * 8 = 144,000 ticks with 120 ticks per second and 60 seconds per minute)
     let sim_rounds = 18000;
 
-    println!("Simulating {} minutes", sim_rounds * TICK_SKIP / 120 / 60);
+    println!("Simulating {} minutes\n", sim_rounds * TICK_SKIP / 120 / 60);
     let start_time = Instant::now();
 
-    let mut prev_ball_hit = 0;
+    let mut prev_ball_touch_time = 0;
+    let mut prev_ball_going_in = false;
 
     for _ in 0..sim_rounds {
         #[cfg(not(feature = "glam"))]
@@ -156,24 +176,41 @@ fn main() {
         #[cfg(feature = "glam")]
         let game_state = arena.pin_mut().get_game_state().to_glam();
 
-        // if the ball might go into the goal
-        if arena.is_ball_probably_going_in(None) {
-            // get the latest ball touch
-            if let Some((car_id, tick_count_when_hit)) = game_state
-                .cars
-                .iter()
-                .filter(|car_info| car_info.state.ball_hit_info.is_valid)
-                .map(|car_info| (car_info.id, car_info.state.ball_hit_info.tick_count_when_hit))
-                .max_by_key(|(_, tick_count_when_hit)| *tick_count_when_hit)
-            {
-                // ensure we haven't already handled this ball touch
-                if prev_ball_hit != tick_count_when_hit {
-                    println!("Car {car_id:?} SHOT ON GOAL");
-                    // add to the stats
-                    STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == car_id).unwrap().1.shots += 1;
-                    // ensure we don't handle this ball touch twice
-                    prev_ball_hit = tick_count_when_hit;
+        // get the latest ball touch
+        if let Some((car_id, tick_count_when_hit)) = game_state
+            .cars
+            .iter()
+            .filter(|car_info| car_info.state.ball_hit_info.is_valid)
+            .map(|car_info| (car_info.id, car_info.state.ball_hit_info.tick_count_when_hit))
+            .max_by_key(|(_, tick_count_when_hit)| *tick_count_when_hit)
+        {
+            // ensure we haven't already processed this ball touch
+            if tick_count_when_hit != prev_ball_touch_time {
+                let ball_going_in = arena.is_ball_probably_going_in(None);
+
+                // if the ball is suddenly going in
+                // OR if the ball suddenly isn't going in
+                if (ball_going_in && !prev_ball_going_in) || (!ball_going_in && prev_ball_going_in) {
+                    if ball_going_in {
+                        println!("Car {car_id:?} SHOT ON GOAL");
+
+                        // +1 to the car's shots stat
+                        STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == car_id).unwrap().1.shots += 1;
+                    } else {
+                        println!("Car {car_id:?} SAVED SHOT");
+
+                        // +1 to the car's saves stat
+                        STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == car_id).unwrap().1.saves += 1;
+                    }
+
+                    // ensure we don't process this ball touch again
+                    // we want this to be in the conditional
+                    // because is_ball_probably_going_in only looks 0.2 seconds into the future
+                    prev_ball_touch_time = tick_count_when_hit;
                 }
+
+                // ensure we know when the ball changes between going in and not going in
+                prev_ball_going_in = ball_going_in;
             }
         }
 
@@ -200,7 +237,7 @@ fn main() {
         arena.pin_mut().step(TICK_SKIP);
     }
 
-    println!("Simulation complete in {:.2} seconds", start_time.elapsed().as_secs_f32());
+    println!("\nSimulation complete in {:.2} seconds", start_time.elapsed().as_secs_f32());
 
     let stats = STATS.lock().unwrap();
     let score = SCORE.lock().unwrap();
