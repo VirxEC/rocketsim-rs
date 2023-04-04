@@ -1,5 +1,3 @@
-#![cfg_attr(not(any(target_arch = "x86", target_arch = "x86_64")), feature(portable_simd))]
-
 pub use glam;
 
 #[cfg(target_arch = "x86")]
