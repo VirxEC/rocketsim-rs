@@ -1,6 +1,6 @@
 name: Build and test
 
-on: [ workflow_dispatch, pull_request, push ]
+on: [ workflow_dispatch, pull_request_target, push ]
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
