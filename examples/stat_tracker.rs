@@ -131,27 +131,13 @@ fn main() {
         0,
     );
 
-    // (time, bumper, victim)
-    static PREV_DEMO: Mutex<(u64, u32, u32)> = Mutex::new((0, 0, 0));
-
     arena.pin_mut().set_car_bump_callback(
-        |arena, bumper, victim, is_demo, _| {
+        |_, bumper, victim, is_demo, _| {
             // If there was a demo (and not just a normal bump)
             if is_demo {
-                // there's also a bug in RocketSim
-                // where the demo callback is called multiple times for the same demo
-                let mut prev_demo = PREV_DEMO.lock().unwrap();
-                let curr_tick_count = arena.get_tick_count();
-
-                // so this is to ensure we don't count the same demo twice
-                if prev_demo.0 != curr_tick_count && prev_demo.1 != bumper && prev_demo.2 != victim {
-                    println!("Car {:?} DEMOED {:?}", bumper, victim);
-                    // +1 to the bumper's demolitions stat
-                    STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
-
-                    // update the previous demo
-                    *prev_demo = (curr_tick_count, bumper, victim);
-                }
+                println!("Car {:?} DEMOED {:?}", bumper, victim);
+                // +1 to the bumper's demolitions stat
+                STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
             }
         },
         0,
