@@ -256,7 +256,7 @@ impl Arena {
     }
 
     /// Full game state setter
-    /// 
+    ///
     /// Note: Some things cannot be state set, such game tick count/tick rate - these will be ignored
     pub fn set_game_state(mut self: Pin<&mut Self>, game_state: &GameState) {
         for car in &game_state.cars {
