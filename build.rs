@@ -15,7 +15,6 @@ fn main() -> Result<()> {
     // }
 
     builder
-        .static_flag(true)
         .use_plt(false)
         .flag_if_supported("-std=c++20")
         .flag_if_supported("/std:c++20")
