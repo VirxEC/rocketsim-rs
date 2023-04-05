@@ -1,5 +1,7 @@
 #![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
 
+#[cfg(feature = "bin")]
+pub mod bytes;
 #[cfg(feature = "glam")]
 pub mod glam_ext;
 #[cfg(feature = "rlbot")]
