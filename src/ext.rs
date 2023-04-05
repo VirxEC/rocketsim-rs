@@ -255,6 +255,21 @@ impl Arena {
         }
     }
 
+    /// Full game state setter
+    /// 
+    /// Note: Some things cannot be state set, such game tick count/tick rate - these will be ignored
+    pub fn set_game_state(mut self: Pin<&mut Self>, game_state: &GameState) {
+        for car in &game_state.cars {
+            self.as_mut().set_car(car.id, car.state).unwrap();
+        }
+
+        for (i, pad) in game_state.pads.iter().enumerate() {
+            self.as_mut().set_pad_state(i, pad.state);
+        }
+
+        self.set_ball(game_state.ball);
+    }
+
     #[inline]
     /// Returns true if the ball is probably going in, does not account for wall or ceiling bounces
     /// NOTE: Purposefully overestimates, just like the real RL's shot prediction
