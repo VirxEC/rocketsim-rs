@@ -7,7 +7,9 @@ use std::{
 
 use rocketsim_rs::{
     bytes::{FromBytes, ToBytes},
-    sim::Arena,
+    cxx::UniquePtr,
+    math::Vec3,
+    sim::{Arena, BallState, CarConfig, CarControls, Team},
     GameState,
 };
 
@@ -35,8 +37,7 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
     // We now don't want to wait for anything UDP so set to non-blocking
     socket.set_nonblocking(true)?;
 
-    // Create a new arena
-    let mut arena = Arena::default_standard();
+    let mut arena = setup_arena();
 
     // we only want to loop at 120hz
     let interval = Duration::from_secs_f32(1. / 120.);
@@ -65,4 +66,49 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
         }
         next_time += interval;
     }
+}
+
+fn setup_arena() -> UniquePtr<Arena> {
+    let mut arena = Arena::default_standard();
+
+    arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
+    arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::hybrid());
+    arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
+
+    arena.pin_mut().set_ball(BallState {
+        pos: Vec3::new(0., -2000., 1500.),
+        vel: Vec3::new(0., 1500., 1.),
+        ..Default::default()
+    });
+
+    arena.pin_mut().set_goal_scored_callback(
+        |arena, _, _| {
+            arena.reset_to_random_kickoff(None);
+        },
+        0,
+    );
+
+    arena
+        .pin_mut()
+        .set_all_controls(
+            (1..=6u32)
+                .map(|i| {
+                    (
+                        i,
+                        CarControls {
+                            throttle: 1.,
+                            boost: true,
+                            ..Default::default()
+                        },
+                    )
+                })
+                .collect::<Vec<_>>()
+                .as_slice(),
+        )
+        .unwrap();
+
+    arena
 }
