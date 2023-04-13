@@ -126,6 +126,7 @@ pub struct GameState {
     pub tick_count: u64,
     pub cars: Vec<CarInfo>,
     pub ball: BallState,
+    pub ball_rot: [f32; 4],
     pub pads: Vec<BoostPad>,
 }
 
@@ -251,6 +252,7 @@ impl Arena {
             tick_count: self.get_tick_count(),
             pads: self.iter_pads().collect(),
             ball: self.as_mut().get_ball(),
+            ball_rot: self.get_ball_rotation(),
             cars: self.get_car_infos(),
         }
     }

@@ -186,6 +186,8 @@ pub mod sim {
             fn GetMutatorConfig(self: &Arenar) -> MutatorConfig;
             #[rust_name = "set_mutator_config"]
             fn SetMutatorConfig(self: Pin<&mut Arenar>, config: MutatorConfig);
+            #[rust_name = "get_ball_rotation"]
+            fn GetBallRotation(self: &Arenar) -> [f32; 4];
         }
     }
 

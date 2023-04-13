@@ -58,13 +58,13 @@ fn cars() {
 
     let car_info = cars[0];
 
-    assert!(car_info.team == Team::ORANGE);
+    assert_eq!(car_info.team, Team::ORANGE);
     assert!(car_info.state.boost < 100. / 3.);
 
     // this differs the most between cars so we'll just this
-    assert!(car_info.config.hitbox_size.x == dominus.hitbox_size.x);
-    assert!(car_info.config.hitbox_size.y == dominus.hitbox_size.y);
-    assert!(car_info.config.hitbox_size.z == dominus.hitbox_size.z);
+    assert_eq!(car_info.config.hitbox_size.x, dominus.hitbox_size.x);
+    assert_eq!(car_info.config.hitbox_size.y, dominus.hitbox_size.y);
+    assert_eq!(car_info.config.hitbox_size.z, dominus.hitbox_size.z);
 }
 
 #[test]
@@ -79,25 +79,27 @@ fn ball() {
     });
 
     let ball = arena.pin_mut().get_ball();
-    assert!(ball.pos.x == 1.);
-    assert!(ball.pos.y == 2.);
-    assert!(ball.pos.z == 1000.);
-    assert!(ball.vel.x == 0.);
-    assert!(ball.vel.y == 0.);
-    assert!(ball.vel.z == -1.);
-    assert!(ball.ang_vel.x == 0.);
-    assert!(ball.ang_vel.y == 0.);
-    assert!(ball.ang_vel.z == 0.);
+    assert_eq!(ball.pos.x, 1.);
+    assert_eq!(ball.pos.y, 2.);
+    assert_eq!(ball.pos.z, 1000.);
+    assert_eq!(ball.vel.x, 0.);
+    assert_eq!(ball.vel.y, 0.);
+    assert_eq!(ball.vel.z, -1.);
+    assert_eq!(ball.ang_vel.x, 0.);
+    assert_eq!(ball.ang_vel.y, 0.);
+    assert_eq!(ball.ang_vel.z, 0.);
 
     arena.pin_mut().step(30);
 
     let ball = arena.pin_mut().get_ball();
-    assert!(ball.pos.x == 1.);
-    assert!(ball.pos.y == 2.);
+    assert_eq!(ball.pos.x, 1.);
+    assert_eq!(ball.pos.y, 2.);
     assert!(ball.pos.z < 1000.);
-    assert!(ball.vel.x == 0.);
-    assert!(ball.vel.y == 0.);
+    assert_eq!(ball.vel.x, 0.);
+    assert_eq!(ball.vel.y, 0.);
     assert!(ball.vel.z < 0.);
+
+    assert_eq!(arena.get_ball_rotation(), [0., 0., 0., 1.]);
 }
 
 #[test]
@@ -123,6 +125,8 @@ fn game_state() {
         assert_eq!(glam_state.cars.len(), 2);
         assert_eq!(glam_state.pads.len(), 34);
     }
+
+    arena.pin_mut().reset_tick_count();
 }
 
 #[cfg(feature = "rlbot")]

@@ -96,6 +96,16 @@ struct Arenar {
 		return a->ball->GetRadius();
 	}
 
+	std::array<float, 4> GetBallRotation() const {
+		btQuaternion rot = a->ball->_rigidBody->getOrientation();
+		return {
+			rot.getX(),
+			rot.getY(),
+			rot.getZ(),
+			rot.getW()
+		};
+	}
+
 	// boost pad stuff
 
 	size_t num_pads() const {
@@ -108,6 +118,10 @@ struct Arenar {
 	EBoostPadState GetPadState(size_t index) const;
 
 	// extra misc stuff
+
+	void reset_tick_count() {
+		a->tickCount = 0;
+	}
 
 	uint64_t get_tick_count() const {
 		return a->tickCount;

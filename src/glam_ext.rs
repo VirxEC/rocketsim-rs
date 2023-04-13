@@ -449,6 +449,7 @@ pub struct GameStateA {
     pub tick_count: u64,
     pub cars: Vec<CarInfoA>,
     pub ball: BallA,
+    pub ball_rot: Quat,
     pub pads: Vec<BoostPadA>,
 }
 
@@ -460,6 +461,7 @@ impl From<GameState> for GameStateA {
             tick_count: value.tick_count,
             cars: value.cars.into_iter().map(CarInfoA::from).collect(),
             ball: value.ball.into(),
+            ball_rot: Quat::from_xyzw(value.ball_rot[0], value.ball_rot[1], value.ball_rot[2], value.ball_rot[3]),
             pads: value.pads.into_iter().map(BoostPadA::from).collect(),
         }
     }
