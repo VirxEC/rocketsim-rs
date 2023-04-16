@@ -185,7 +185,7 @@ impl Arena {
 
     #[inline]
     /// Respawns the car with the given ID with the given seed for the random spawn and the amount of boost to spawn the car with
-    /// 
+    ///
     /// - If the seed is None, the seed will be random
     /// - If the boost amount is None, the boost amount will be 33.333
     pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>, boost_amount: Option<f32>) -> Result<(), NoCarFound> {
