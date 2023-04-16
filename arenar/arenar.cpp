@@ -99,13 +99,13 @@ bool Arenar::DemolishCar(uint32_t carID) {
     return true;
 }
 
-bool Arenar::RespawnCar(uint32_t carID, int32_t seed) {
+bool Arenar::RespawnCar(uint32_t carID, int32_t seed, float boostAmount) {
     Car* car = a->GetCar(carID);
     if (car == NULL) {
         return false;
     }
 
-    car->Respawn(seed);
+    car->Respawn(seed, boostAmount);
     return true;
 }
 

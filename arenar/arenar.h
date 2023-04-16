@@ -80,7 +80,7 @@ struct Arenar {
 	/// @return True if the car was found and the state was set, false otherwise
 	bool SetCarControls(uint32_t car_id, const CarControls controls);
 	bool DemolishCar(uint32_t car_id);
-	bool RespawnCar(uint32_t car_id, int32_t seed);
+	bool RespawnCar(uint32_t car_id, int32_t seed, float boost_amount);
 
 	// extra ball stuff
 
