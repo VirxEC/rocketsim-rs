@@ -31,7 +31,7 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
     let (_, src) = socket.recv_from(&mut buf)?;
 
     if buf[0] == 1 {
-        println!("Connection established to {}", src);
+        println!("Connection established to {src}");
     }
 
     // We now don't want to wait for anything UDP so set to non-blocking
@@ -44,28 +44,38 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
     let mut next_time = Instant::now() + interval;
     let mut min_state_set_buf = [0; GameState::MIN_NUM_BYTES];
 
+    // we loop forever - can be broken by pressing Ctrl+C in terminal
     loop {
         if socket.peek_from(&mut min_state_set_buf).is_ok() {
-            let num_bytes = GameState::get_num_bytes(&min_state_set_buf);
-            let mut state_set_buf = vec![0; num_bytes];
-            socket.recv_from(&mut state_set_buf)?;
-
-            let game_state = GameState::from_bytes(&state_set_buf);
-            arena.pin_mut().set_game_state(&game_state);
+            // the socket sent data back
+            // this is the other side telling us to update the game state
+            handle_state_set(&min_state_set_buf, &socket, &mut arena)?;
         }
 
+        // advance the simulation by 1 tick
         arena.pin_mut().step(1);
 
+        // send the new game state back
         let game_state = arena.pin_mut().get_game_state();
-
         socket.send_to(&game_state.to_bytes(), src)?;
 
+        // ensure we only calculate 120 steps per second
         let wait_time = next_time - Instant::now();
         if wait_time > Duration::default() {
             sleep(wait_time);
         }
         next_time += interval;
     }
+}
+
+fn handle_state_set(min_state_set_buf: &[u8], socket: &UdpSocket, arena: &mut UniquePtr<Arena>) -> io::Result<()> {
+    let num_bytes = GameState::get_num_bytes(min_state_set_buf);
+    let mut state_set_buf = vec![0; num_bytes];
+    socket.recv_from(&mut state_set_buf)?;
+    let game_state = GameState::from_bytes(&state_set_buf);
+    Ok(if let Err(e) = arena.pin_mut().set_game_state(&game_state) {
+        println!("Error setting game state: {e}");
+    })
 }
 
 fn setup_arena() -> UniquePtr<Arena> {

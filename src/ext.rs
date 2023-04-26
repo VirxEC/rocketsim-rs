@@ -263,9 +263,9 @@ impl Arena {
     /// Full game state setter
     ///
     /// Note: Some things cannot be state set, such game tick count/tick rate - these will be ignored
-    pub fn set_game_state(mut self: Pin<&mut Self>, game_state: &GameState) {
+    pub fn set_game_state(mut self: Pin<&mut Self>, game_state: &GameState) -> Result<(), NoCarFound> {
         for car in &game_state.cars {
-            self.as_mut().set_car(car.id, car.state).unwrap();
+            self.as_mut().set_car(car.id, car.state)?;
         }
 
         for (i, pad) in game_state.pads.iter().enumerate() {
@@ -273,6 +273,8 @@ impl Arena {
         }
 
         self.set_ball(game_state.ball);
+
+        Ok(())
     }
 
     #[inline]

@@ -48,7 +48,7 @@ fn main() {
     // this is why our stats are stored in static Mutexes
     arena.pin_mut().set_goal_scored_callback(
         |mut arena, team, _| {
-            println!("Goal scored by {:?}", team);
+            println!("Goal scored by {team:?}");
 
             // Collect all valid ball touches
             let mut all_ball_touches = arena
@@ -135,7 +135,7 @@ fn main() {
         |_, bumper, victim, is_demo, _| {
             // If there was a demo (and not just a normal bump)
             if is_demo {
-                println!("Car {:?} DEMOED {:?}", bumper, victim);
+                println!("Car {bumper:?} DEMOED {victim:?}");
                 // +1 to the bumper's demolitions stat
                 STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
             }
@@ -231,6 +231,6 @@ fn main() {
     println!("Score: {} - {}", score[0], score[1]);
 
     for (id, stats) in stats.iter() {
-        println!("Car {} stats: {:?}", id, stats);
+        println!("Car {id} stats: {stats:?}");
     }
 }
