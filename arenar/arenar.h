@@ -97,7 +97,7 @@ struct Arenar {
 	}
 
 	std::array<float, 4> GetBallRotation() const {
-		btQuaternion rot = a->ball->_rigidBody->getOrientation();
+		btQuaternion rot = a->ball->_rigidBody.getOrientation();
 		return {
 			rot.getX(),
 			rot.getY(),
