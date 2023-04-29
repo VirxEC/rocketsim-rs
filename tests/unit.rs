@@ -5,7 +5,7 @@ use std::sync::{
 
 use rocketsim_rs::{
     init,
-    math::*,
+    math::Vec3,
     sim::{Arena, BallState, CarConfig, CarControls, CarState, Team},
 };
 
@@ -106,8 +106,8 @@ fn ball() {
 fn game_state() {
     INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
     arena.pin_mut().step(120);
 
     let game_state = arena.pin_mut().get_game_state();
@@ -134,8 +134,8 @@ fn game_state() {
 fn rlbot() {
     INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
     arena.pin_mut().step(120);
 
     let game_tick_packet = arena.pin_mut().get_game_tick_packet();

@@ -1,9 +1,9 @@
 pub use glam;
 
 #[cfg(target_arch = "x86")]
-use core::arch::x86::*;
+use core::arch::x86::__m128;
 #[cfg(target_arch = "x86_64")]
-use core::arch::x86_64::*;
+use core::arch::x86_64::__m128;
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 use core::simd::*;
 
@@ -64,7 +64,7 @@ impl From<Quat> for Angle {
     #[inline]
     fn from(value: Quat) -> Self {
         let (roll, pitch, yaw) = value.to_euler(EulerRot::XYZ);
-        Self { pitch, yaw, roll }
+        Self { yaw, pitch, roll }
     }
 }
 
@@ -84,11 +84,13 @@ impl From<Vec3A> for Vec3 {
 
 impl Vec3 {
     #[inline]
+    #[must_use]
     pub const fn to_glam(self) -> Vec4 {
         Vec4::new(self.x, self.y, self.z, self._w)
     }
 
     #[inline]
+    #[must_use]
     pub const fn from_glam(vec: Vec4) -> Self {
         let [x, y, z, w] = vec.to_array();
         Self { x, y, z, _w: w }
@@ -401,12 +403,13 @@ impl From<CarStateA> for CarState {
 
 impl CarStateA {
     #[inline]
+    #[must_use]
     /// Returns the other Car that this Car is currently contacting, if any
     pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
-        if self.other_car_id != 0 {
-            Some(arena.get_car(self.other_car_id).into())
-        } else {
+        if self.other_car_id == 0 {
             None
+        } else {
+            Some(arena.get_car(self.other_car_id).into())
         }
     }
 }
@@ -468,6 +471,7 @@ impl From<GameState> for GameStateA {
 }
 
 impl GameState {
+    #[must_use]
     pub fn to_glam(self) -> GameStateA {
         self.into()
     }

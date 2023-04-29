@@ -6,7 +6,7 @@ use std::{
 use rocketsim_rs::sim::Arena;
 
 fn main() {
-    const TICKS: i32 = 600000;
+    const TICKS: i32 = 600_000;
 
     rocketsim_rs::init(None);
 

@@ -28,14 +28,14 @@ fn main() {
     let mut arena = Arena::default_standard();
 
     // spawn the blue team is various hitboxes
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
 
     // spawn the orange team is various hitboxes
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
 
     // Add a new default stats entry for each car
     STATS.lock().unwrap().extend(arena.pin_mut().get_cars().iter().map(|&id| (id, Stats::default())));

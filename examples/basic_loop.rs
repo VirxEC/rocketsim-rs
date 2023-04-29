@@ -10,10 +10,10 @@ fn main() {
     let mut arena = Arena::default_standard();
 
     // spawn a orange team breakout hitbox car
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
 
     // spawn a blue team hybrid hibox car
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
 
     // set kickoff with random seed
     arena.pin_mut().reset_to_random_kickoff(None);

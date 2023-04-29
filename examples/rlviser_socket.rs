@@ -84,12 +84,12 @@ fn handle_state_set(min_state_set_buf: &[u8], socket: &UdpSocket, arena: &mut Un
 fn setup_arena() -> UniquePtr<Arena> {
     let mut arena = Arena::default_standard();
 
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::hybrid());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
 
     arena.pin_mut().set_ball(BallState {
         pos: Vec3::new(0., -2000., 1500.),

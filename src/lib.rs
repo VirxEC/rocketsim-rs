@@ -31,7 +31,7 @@ mod Init {
 }
 
 #[inline]
-/// Initializes the collision mesh system for RocketSim
+/// Initializes the collision mesh system for `RocketSim`
 pub fn init(collision_meshes_folder: Option<&str>) {
     Init::init(collision_meshes_folder.unwrap_or("collision_meshes"));
 }
@@ -154,38 +154,49 @@ pub mod sim {
             type Team = crate::sim::Team;
             type MutatorConfig = crate::sim::MutatorConfig;
 
+            #[must_use]
             #[doc(hidden)]
             #[rust_name = "rsc"]
             fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car: CarState) -> bool;
+            #[must_use]
             #[rust_name = "get_car"]
             fn GetCar(self: Pin<&mut Arenar>, car_id: u32) -> CarState;
+            #[must_use]
             #[rust_name = "add_car"]
             fn AddCar(self: Pin<&mut Arenar>, team: Team, car_config: &CarConfig) -> u32;
+            #[must_use]
             #[doc(hidden)]
             #[rust_name = "rscc"]
             fn SetCarControls(self: Pin<&mut Arenar>, car_id: u32, car_controls: CarControls) -> bool;
+            #[must_use]
             #[rust_name = "get_ball"]
             fn GetBall(self: Pin<&mut Arenar>) -> BallState;
             #[rust_name = "set_ball"]
             fn SetBall(self: Pin<&mut Arenar>, ball: BallState);
+            #[must_use]
             #[rust_name = "get_pad_pos"]
             fn GetPadPos(self: &Arenar, index: usize) -> Vec;
             #[rust_name = "set_pad_state"]
             fn SetPadState(self: Pin<&mut Arenar>, index: usize, pad: EBoostPadState);
+            #[must_use]
             #[rust_name = "get_pad_state"]
             fn GetPadState(self: &Arenar, index: usize) -> EBoostPadState;
+            #[must_use]
             #[rust_name = "get_car_config"]
             fn GetCarConfig(self: &Arenar, id: u32) -> CarConfig;
+            #[must_use]
             #[rust_name = "get_car_team"]
             fn GetCarTeam(self: &Arenar, id: u32) -> Team;
             #[rust_name = "set_goal_scored_callback"]
             fn SetGoalScoreCallback(self: Pin<&mut Arenar>, callback: fn(arena: Pin<&mut Arenar>, car_team: Team, user_data: usize), user_data: usize);
             #[rust_name = "set_car_bump_callback"]
             fn SetCarBumpCallback(self: Pin<&mut Arenar>, callback: fn(arena: Pin<&mut Arenar>, bumper: u32, victim: u32, is_demo: bool, user_data: usize), user_data: usize);
+            #[must_use]
             #[rust_name = "get_mutator_config"]
             fn GetMutatorConfig(self: &Arenar) -> MutatorConfig;
             #[rust_name = "set_mutator_config"]
             fn SetMutatorConfig(self: Pin<&mut Arenar>, config: MutatorConfig);
+            #[must_use]
             #[rust_name = "get_ball_rotation"]
             fn GetBallRotation(self: &Arenar) -> [f32; 4];
         }

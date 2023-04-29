@@ -56,6 +56,7 @@ impl PartialEq for BoostPadState {
 
 impl Arena {
     #[inline]
+    #[must_use]
     pub fn clone(self: Pin<&mut Self>, copy_callbacks: bool) -> UniquePtr<Self> {
         self.Clone(copy_callbacks).within_unique_ptr()
     }
@@ -132,6 +133,7 @@ pub struct GameState {
 
 impl Arena {
     #[inline]
+    #[must_use]
     /// Create a new standard arena running at the max TPS
     pub fn default_standard() -> cxx::UniquePtr<Self> {
         Self::new(GameMode::SOCCAR, 120.).within_unique_ptr()
@@ -197,12 +199,14 @@ impl Arena {
     }
 
     #[inline]
+    #[must_use]
     // Returns all of the car ids
     pub fn get_cars(&self) -> Vec<u32> {
         self.GetCars().iter().copied().collect()
     }
 
     #[inline]
+    #[must_use]
     /// Get all the avalible information on a car
     pub fn get_car_info(self: Pin<&mut Self>, car_id: u32) -> CarInfo {
         CarInfo {
@@ -214,6 +218,7 @@ impl Arena {
     }
 
     #[inline]
+    #[must_use]
     /// Returns all of the `CarInfo`s in the arena
     pub fn get_car_infos(mut self: Pin<&mut Self>) -> Vec<CarInfo> {
         self.GetCars().iter().map(|&car_id| self.as_mut().get_car_info(car_id)).collect()
@@ -232,7 +237,7 @@ impl Arena {
     }
 
     #[inline]
-    /// Returns an iterator over the all BoostPad information in the arena
+    /// Returns an iterator over the all `BoostPad` information in the arena
     pub fn iter_pads(&self) -> impl Iterator<Item = BoostPad> + '_ {
         (0..self.num_pads()).map(|i| BoostPad {
             is_big: self.get_pad_is_big(i),
@@ -248,6 +253,7 @@ impl Arena {
     }
 
     #[inline]
+    #[must_use]
     /// Get all game state information in one struct
     pub fn get_game_state(mut self: Pin<&mut Self>) -> GameState {
         GameState {
@@ -278,6 +284,7 @@ impl Arena {
     }
 
     #[inline]
+    #[must_use]
     /// Returns true if the ball is probably going in, does not account for wall or ceiling bounces
     /// NOTE: Purposefully overestimates, just like the real RL's shot prediction
     /// To check which goal it will score in, use the ball's velocity
@@ -340,12 +347,13 @@ impl Default for CarState {
 
 impl CarState {
     #[inline]
+    #[must_use]
     /// Returns the other Car that this Car is currently contacting, if any
     pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
-        if self.other_car_id != 0 {
-            Some(arena.get_car(self.other_car_id))
-        } else {
+        if self.other_car_id == 0 {
             None
+        } else {
+            Some(arena.get_car(self.other_car_id))
         }
     }
 }
@@ -359,6 +367,7 @@ impl fmt::Display for RotMat {
 
 impl RotMat {
     #[inline]
+    #[must_use]
     /// Returns the identity rotation matrix
     pub fn get_identity() -> Self {
         Self {
@@ -385,6 +394,7 @@ impl fmt::Display for Vec3 {
 
 impl Vec3 {
     #[inline]
+    #[must_use]
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z, _w: 0. }
     }

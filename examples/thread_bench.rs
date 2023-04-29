@@ -10,13 +10,13 @@ fn main() {
 
     let mut arena = Arena::default_standard();
 
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
 
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
 
     let start_time = Instant::now();
     arena.pin_mut().step(TICKS);
