@@ -72,10 +72,13 @@ fn handle_state_set(min_state_set_buf: &[u8], socket: &UdpSocket, arena: &mut Un
     let num_bytes = GameState::get_num_bytes(min_state_set_buf);
     let mut state_set_buf = vec![0; num_bytes];
     socket.recv_from(&mut state_set_buf)?;
+
     let game_state = GameState::from_bytes(&state_set_buf);
-    Ok(if let Err(e) = arena.pin_mut().set_game_state(&game_state) {
+    if let Err(e) = arena.pin_mut().set_game_state(&game_state) {
         println!("Error setting game state: {e}");
-    })
+    };
+
+    Ok(())
 }
 
 fn setup_arena() -> UniquePtr<Arena> {
