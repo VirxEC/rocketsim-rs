@@ -5,3 +5,4 @@ Cargo.lock
 build/
 collision_meshes/*/*.cmf
 cxx.h
+*.dump
