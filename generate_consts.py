@@ -23,12 +23,13 @@ for line in lines:
     if line.startswith("namespace"):
         current_section.append(line.split()[1])
         consts[" ".join(current_section)] = {}
-
-    if line.endswith("{"):
         open_braces += 1
         continue
 
-    if line.endswith("}"):
+    if "{" in line:
+        open_braces += 1
+
+    if "}" in line:
         open_braces -= 1
 
         if open_braces == 0:
@@ -44,9 +45,16 @@ for line in lines:
     if line.startswith("constexpr"):
         const_type = line.split(" ")[1]
         consts[namespace][const_type] = []
-    
+
     if line.startswith("const static"):
-        const_type = line.split(" ")[2]
+        parts = line.split(" ")
+        const_type = parts[2]
+
+        if len(parts) > 3 and "[" in parts[3]:
+            print(parts)
+            array_len = parts[3].split("[")[1].removesuffix("]")
+            const_type = f"[{const_type}; {array_len}]"
+
         consts[namespace][const_type] = []
 
     items = line.split(" = ")
@@ -117,12 +125,13 @@ for namespace, types in consts.items():
     else:
         consts_rs.append(f"pub mod {namespace} {{")
         indent = "    "
-    
+
     for raw_item_type, vars in types.items():
         item_type = type_convert.get(raw_item_type)
 
         if item_type is None:
             print(f"Couldn't find Rust type for {raw_item_type}")
+            continue
 
         for var in vars:
             name = var[0]
