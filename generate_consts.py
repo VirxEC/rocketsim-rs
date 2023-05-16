@@ -44,6 +44,10 @@ for line in lines:
     if line.startswith("constexpr"):
         const_type = line.split(" ")[1]
         consts[namespace][const_type] = []
+    
+    if line.startswith("const static"):
+        const_type = line.split(" ")[2]
+        consts[namespace][const_type] = []
 
     items = line.split(" = ")
     if len(items) == 1:
@@ -61,7 +65,7 @@ for line in lines:
 
     if const_type == "float":
         if items[1] == "M_SQRT1_2":
-            items[1] = "1. / 2f32.sqrt()"
+            items[1] = "FRAC_1_SQRT_2"
 
         if items[1].startswith("(") and items[1].endswith(")"):
             items[1] = items[1].removeprefix("(").removesuffix(")")
@@ -79,17 +83,33 @@ for line in lines:
 
         items[1] = " ".join(vals)
 
+    if const_type == "Vec":
+        vals = items[1].removeprefix("Vec(").removesuffix(")").split(", ")
+
+        for i, val in enumerate(vals):
+            if vals[i] == "/":
+                continue
+
+            try:
+                if str(int(val)) == val:
+                    vals[i] += "."
+            except ValueError:
+                pass
+
+        items[1] = f"Vec3::new({',  '.join(vals)})"
+
     consts[namespace][const_type].append(items)
 
-consts_rs = []
+consts_rs = ["use crate::math::Vec3;\nuse std::f32::consts::FRAC_1_SQRT_2;\n"]
 
 type_convert = {
     "float": "f32",
     "int": "i32",
+    "Vec": "Vec3",
 }
 
 for namespace, types in consts.items():
-    namespace = namespace.removeprefix("RLConst").strip()
+    namespace = namespace.removeprefix("RLConst").strip().lower()
 
     if namespace == "":
         namespace = None
@@ -98,8 +118,11 @@ for namespace, types in consts.items():
         consts_rs.append(f"pub mod {namespace} {{")
         indent = "    "
     
-    for item_type, vars in types.items():
-        item_type = type_convert[item_type]
+    for raw_item_type, vars in types.items():
+        item_type = type_convert.get(raw_item_type)
+
+        if item_type is None:
+            print(f"Couldn't find Rust type for {raw_item_type}")
 
         for var in vars:
             name = var[0]

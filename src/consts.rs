@@ -1,3 +1,6 @@
+use crate::math::Vec3;
+use std::f32::consts::FRAC_1_SQRT_2;
+
 pub const GRAVITY_Z: f32 = -650.;
 
 pub const ARENA_EXTENT_X: f32 = 4096.;
@@ -147,7 +150,7 @@ pub const CAR_AUTOFLIP_TORQUE: f32 = 50.;
 
 pub const CAR_AUTOFLIP_TIME: f32 = 0.4;
 
-pub const CAR_AUTOFLIP_NORMZ_THRESH: f32 = 1. / 2f32.sqrt();
+pub const CAR_AUTOFLIP_NORMZ_THRESH: f32 = FRAC_1_SQRT_2;
 
 pub const CAR_AUTOROLL_FORCE: f32 = 100.;
 
@@ -169,15 +172,15 @@ pub const BUMP_MIN_FORWARD_DIST: f32 = 64.5;
 
 pub const DEMO_RESPAWN_TIME: f32 = 3.;
 
-pub const CAR_AIR_CONTROL_TORQUE: f32 = Vec(130, 95, 400);
+pub const CAR_AIR_CONTROL_TORQUE: Vec3 = Vec3::new(130., 95., 400.);
 
-pub const CAR_AIR_CONTROL_DAMPING: f32 = Vec(30, 20, 50);
+pub const CAR_AIR_CONTROL_DAMPING: Vec3 = Vec3::new(30., 20., 50.);
 
 pub const CAR_SPAWN_LOCATION_AMOUNT: i32 = 5;
 
 pub const CAR_RESPAWN_LOCATION_AMOUNT: i32 = 4;
 
-pub mod BTVehicle {
+pub mod btvehicle {
     pub const SUSPENSION_FORCE_SCALE_FRONT: f32 = 36. - (1. / 4.);
 
     pub const SUSPENSION_FORCE_SCALE_BACK: f32 = 54. + (1. / 4.) + (1.5 / 100.);
@@ -192,7 +195,7 @@ pub mod BTVehicle {
     pub const MAX_SUSPENSION_TRAVEL: f32 = 12.;
 }
 
-pub mod BoostPads {
+pub mod boostpads {
     pub const CYL_HEIGHT: f32 = 95.;
 
     pub const CYL_RAD_BIG: f32 = 208.;
