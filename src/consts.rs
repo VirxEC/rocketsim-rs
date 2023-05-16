@@ -1,11 +1,11 @@
 pub const GRAVITY_Z: f32 = -650.;
 
-pub const ARENA_EXTENT_X: f32 = 4096;
+pub const ARENA_EXTENT_X: f32 = 4096.;
 
 /// Does not include inner-goal
-pub const ARENA_EXTENT_Y: f32 = 5120;
+pub const ARENA_EXTENT_Y: f32 = 5120.;
 
-pub const ARENA_HEIGHT: f32 = 2048;
+pub const ARENA_HEIGHT: f32 = 2048.;
 
 pub const CAR_MASS_BT: f32 = 180.;
 
@@ -48,14 +48,14 @@ pub const BALL_MAX_SPEED: f32 = 6000.;
 
 pub const BOOST_MAX: f32 = 100.;
 
-pub const BOOST_USED_PER_SECOND: f32 = BOOST_MAX / 3;
+pub const BOOST_USED_PER_SECOND: f32 = BOOST_MAX / 3.;
 
 /// Minimum time we can be boosting for
 pub const BOOST_MIN_TIME: f32 = 0.1;
 
 pub const BOOST_ACCEL: f32 = 21.2;
 
-pub const BOOST_SPAWN_AMOUNT: f32 = BOOST_MAX / 3;
+pub const BOOST_SPAWN_AMOUNT: f32 = BOOST_MAX / 3.;
 
 pub const BOOST_ACCEL_GROUND_DECAY_MIN_VEL: f32 = 600.;
 
@@ -70,9 +70,9 @@ pub const SUPERSONIC_MAINTAIN_MIN_SPEED: f32 = SUPERSONIC_START_SPEED - 100.;
 
 pub const SUPERSONIC_MAINTAIN_MAX_TIME: f32 = 1.;
 
-pub const POWERSLIDE_RISE_RATE: f32 = 5;
+pub const POWERSLIDE_RISE_RATE: f32 = 5.;
 
-pub const POWERSLIDE_FALL_RATE: f32 = 2;
+pub const POWERSLIDE_FALL_RATE: f32 = 2.;
 
 pub const THROTTLE_TORQUE_AMOUNT: f32 = CAR_MASS_BT * 400.;
 
@@ -87,7 +87,7 @@ pub const COASTING_BRAKE_FACTOR: f32 = 0.15;
 /// Throttle input of less than this is ignored
 pub const THROTTLE_DEADZONE: f32 = 0.001;
 
-pub const THROTTLE_AIR_FORCE: f32 = (1 / 0.75);
+pub const THROTTLE_AIR_FORCE: f32 = 1. / 0.75;
 
 pub const JUMP_ACCEL: f32 = 4375. / 3.;
 
@@ -95,7 +95,7 @@ pub const JUMP_IMMEDIATE_FORCE: f32 = 875. / 3.;
 
 pub const JUMP_MIN_TIME: f32 = 0.025;
 
-pub const JUMP_RESET_TIME_PAD: f32 = (1 / 40.);
+pub const JUMP_RESET_TIME_PAD: f32 = 1. / 40.;
 
 pub const JUMP_MAX_TIME: f32 = 0.2;
 
@@ -141,17 +141,17 @@ pub const SOCCAR_BALL_SCORE_THRESHOLD_Y: f32 = SOCCAR_GOAL_SCORE_BASE_THRESHOLD_
 
 pub const CAR_TORQUE_SCALE: f32 = 0.09587;
 
-pub const CAR_AUTOFLIP_IMPULSE: f32 = 200;
+pub const CAR_AUTOFLIP_IMPULSE: f32 = 200.;
 
-pub const CAR_AUTOFLIP_TORQUE: f32 = 50;
+pub const CAR_AUTOFLIP_TORQUE: f32 = 50.;
 
 pub const CAR_AUTOFLIP_TIME: f32 = 0.4;
 
-pub const CAR_AUTOFLIP_NORMZ_THRESH: f32 = M_SQRT1_2;
+pub const CAR_AUTOFLIP_NORMZ_THRESH: f32 = 1. / 2f32.sqrt();
 
-pub const CAR_AUTOROLL_FORCE: f32 = 100;
+pub const CAR_AUTOROLL_FORCE: f32 = 100.;
 
-pub const CAR_AUTOROLL_TORQUE: f32 = 80;
+pub const CAR_AUTOROLL_TORQUE: f32 = 80.;
 
 pub const BALL_CAR_EXTRA_IMPULSE_Z_SCALE: f32 = 0.35;
 
@@ -193,25 +193,25 @@ pub mod BTVehicle {
 }
 
 pub mod BoostPads {
-    pub const CYL_HEIGHT: f32 = 95;
+    pub const CYL_HEIGHT: f32 = 95.;
 
-    pub const CYL_RAD_BIG: f32 = 208;
+    pub const CYL_RAD_BIG: f32 = 208.;
 
-    pub const CYL_RAD_SMALL: f32 = 144;
+    pub const CYL_RAD_SMALL: f32 = 144.;
 
-    pub const BOX_HEIGHT: f32 = 64;
+    pub const BOX_HEIGHT: f32 = 64.;
 
-    pub const BOX_RAD_BIG: f32 = 160;
+    pub const BOX_RAD_BIG: f32 = 160.;
 
-    pub const BOX_RAD_SMALL: f32 = 120;
+    pub const BOX_RAD_SMALL: f32 = 120.;
 
-    pub const COOLDOWN_BIG: f32 = 10;
+    pub const COOLDOWN_BIG: f32 = 10.;
 
-    pub const COOLDOWN_SMALL: f32 = 4;
+    pub const COOLDOWN_SMALL: f32 = 4.;
 
-    pub const BOOST_AMOUNT_BIG: f32 = 100;
+    pub const BOOST_AMOUNT_BIG: f32 = 100.;
 
-    pub const BOOST_AMOUNT_SMALL: f32 = 12;
+    pub const BOOST_AMOUNT_SMALL: f32 = 12.;
 
     pub const LOCS_AMOUNT_SMALL: i32 = 28;
 

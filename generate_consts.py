@@ -1,5 +1,8 @@
 # read RocketSim/src/RLConst.h and generate src/consts.rs
 
+import subprocess
+
+
 lines = []
 
 with open("RocketSim/src/RLConst.h") as file:
@@ -56,6 +59,26 @@ for line in lines:
 
     items[1] = items[1].replace("f", "")
 
+    if const_type == "float":
+        if items[1] == "M_SQRT1_2":
+            items[1] = "1. / 2f32.sqrt()"
+
+        if items[1].startswith("(") and items[1].endswith(")"):
+            items[1] = items[1].removeprefix("(").removesuffix(")")
+
+        vals = items[1].split()
+        for i, val in enumerate(vals):
+            if vals[i] == "/":
+                continue
+
+            try:
+                if str(int(val)) == val:
+                    vals[i] += "."
+            except ValueError:
+                pass
+
+        items[1] = " ".join(vals)
+
     consts[namespace][const_type].append(items)
 
 consts_rs = []
@@ -80,12 +103,12 @@ for namespace, types in consts.items():
 
         for var in vars:
             name = var[0]
-            value = var[1]
+            val = var[1]
             comment = var[2] if len(var) == 3 else None
 
             if comment is not None:
                 consts_rs.append(f"{indent}/// {comment}")
-            consts_rs.append(f"{indent}pub const {name}: {item_type} = {value};")
+            consts_rs.append(f"{indent}pub const {name}: {item_type} = {val};")
             consts_rs.append("")
 
     if namespace is not None:
@@ -93,3 +116,5 @@ for namespace, types in consts.items():
 
 with open("src/consts.rs", "w") as file:
     file.write("\n".join(consts_rs))
+
+subprocess.run(["cargo", "fmt"])
