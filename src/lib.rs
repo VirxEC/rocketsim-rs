@@ -7,9 +7,11 @@ pub mod glam_ext;
 #[cfg(feature = "rlbot")]
 pub mod rlbot;
 
+mod consts;
 mod ext;
 
 pub use autocxx;
+pub use consts::*;
 pub use cxx;
 pub use ext::*;
 
