@@ -1,8 +1,5 @@
 # read RocketSim/src/RLConst.h and generate src/consts.rs
 
-import subprocess
-
-
 lines = []
 
 with open("RocketSim/src/RLConst.h") as file:
@@ -14,7 +11,7 @@ current_section = []
 open_braces = 0
 const_type = None
 
-for line in lines:
+for i, line in enumerate(lines):
     line = line.strip()
 
     if line == "" or line.startswith("#") or line.startswith("//"):
@@ -49,16 +46,31 @@ for line in lines:
     if line.startswith("const static"):
         parts = line.split(" ")
         const_type = parts[2]
+        name = None
 
-        if len(parts) > 3 and "[" in parts[3]:
-            print(parts)
-            array_len = parts[3].split("[")[1].removesuffix("]")
+        if len(parts) > 3:
+            name = parts[3]
+        else:
+            next_line = lines[i + 1]
+            pred_name = next_line.split(" = ")[0].split("[")
+
+            if len(pred_name) > 0:
+                name = pred_name[0].split()[-1]
+
+        if name is not None and "[" in name:
+            array_len = name.split("[")[1].removesuffix("]")
             const_type = f"[{const_type}; {array_len}]"
 
         consts[namespace][const_type] = []
+        
+        if name is not None:
+            consts[namespace][const_type].append([name.split("[")[0].split()[-1], []])
 
     items = line.split(" = ")
     if len(items) == 1:
+        continue
+
+    if "[" in items[0]:
         continue
 
     comment = items[1].split(" //")
@@ -90,8 +102,7 @@ for line in lines:
                 pass
 
         items[1] = " ".join(vals)
-
-    if const_type == "Vec":
+    elif const_type == "Vec":
         vals = items[1].removeprefix("Vec(").removesuffix(")").split(", ")
 
         for i, val in enumerate(vals):
@@ -104,7 +115,9 @@ for line in lines:
             except ValueError:
                 pass
 
-        items[1] = f"Vec3::new({',  '.join(vals)})"
+        items[1] = f"Vec3::new({', '.join(vals)})"
+    elif const_type.startswith("["):
+        items[1] = "[]"
 
     consts[namespace][const_type].append(items)
 
@@ -130,7 +143,7 @@ for namespace, types in consts.items():
         item_type = type_convert.get(raw_item_type)
 
         if item_type is None:
-            print(f"Couldn't find Rust type for {raw_item_type}")
+            print(f"Couldn't find Rust type for {raw_item_type} ({vars})")
             continue
 
         for var in vars:
@@ -149,4 +162,5 @@ for namespace, types in consts.items():
 with open("src/consts.rs", "w") as file:
     file.write("\n".join(consts_rs))
 
-subprocess.run(["cargo", "fmt"])
+# import subprocess
+# subprocess.run(["cargo", "fmt"])
