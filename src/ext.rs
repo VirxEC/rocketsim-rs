@@ -400,11 +400,11 @@ impl Vec3 {
     }
 }
 
-pub struct LienarPieceCurve<const N: usize> {
+pub struct LinearPieceCurve<const N: usize> {
     pub value_mappings: [(f32, f32); N],
 }
 
-impl<const N: usize> LienarPieceCurve<N> {
+impl<const N: usize> LinearPieceCurve<N> {
     /// Returns the output of the curve
     ///
     /// # Arguments
