@@ -406,9 +406,9 @@ pub struct LienarPieceCurve<const N: usize> {
 
 impl<const N: usize> LienarPieceCurve<N> {
     /// Returns the output of the curve
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `input` - The input to the curve
     /// * `default_output` - The default output if N is 0
     pub fn get_output(&self, input: f32, default_output: Option<f32>) -> f32 {
@@ -435,5 +435,18 @@ impl<const N: usize> LienarPieceCurve<N> {
         }
 
         self.value_mappings[N - 1].1
+    }
+}
+
+pub struct CarSpawnPos {
+    pub x: f32,
+    pub y: f32,
+    pub yaw_ang: f32,
+}
+
+impl CarSpawnPos {
+    #[inline]
+    pub const fn new(x: f32, y: f32, yaw_ang: f32) -> Self {
+        Self { x, y, yaw_ang }
     }
 }
