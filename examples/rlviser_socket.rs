@@ -1,6 +1,7 @@
 use std::{
     io,
     net::UdpSocket,
+    sync::mpsc::{channel, Receiver},
     thread::sleep,
     time::{Duration, Instant},
 };
@@ -12,6 +13,26 @@ use rocketsim_rs::{
     sim::{Arena, BallState, CarConfig, CarControls, Team},
     GameState,
 };
+
+#[repr(u8)]
+enum UdpPacketTypes {
+    Quit,
+    GameState,
+}
+
+fn ctrl_channel() -> Result<Receiver<()>, ctrlc::Error> {
+    let (sender, receiver) = channel();
+
+    // Setup Ctrl+C handler
+    ctrlc::set_handler(move || {
+        // Send a signal to the main thread to break the loop
+        // If we can't send the signal for some reason,
+        // then panic the process to shut down
+        sender.send(()).unwrap();
+    })?;
+
+    Ok(receiver)
+}
 
 fn main() -> io::Result<()> {
     let socket = UdpSocket::bind("0.0.0.0:34254")?;
@@ -39,6 +60,9 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
 
     let mut arena = setup_arena();
 
+    // listen for Ctrl+C signal
+    let break_signal = ctrl_channel().unwrap();
+
     // we only want to loop at 120hz
     let interval = Duration::from_secs_f32(1. / 120.);
     let mut next_time = Instant::now() + interval;
@@ -46,6 +70,14 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
 
     // we loop forever - can be broken by pressing Ctrl+C in terminal
     loop {
+        if break_signal.try_recv().is_ok() {
+            socket.send_to(&[UdpPacketTypes::Quit as u8], src)?;
+            println!("Sent quit signal to rlviser");
+
+            // Then break the loop
+            break Ok(());
+        }
+
         if socket.peek_from(&mut min_state_set_buf).is_ok() {
             // the socket sent data back
             // this is the other side telling us to update the game state
@@ -57,6 +89,10 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
 
         // send the new game state back
         let game_state = arena.pin_mut().get_game_state();
+
+        // Send the packet type
+        socket.send_to(&[UdpPacketTypes::GameState as u8], src)?;
+        // Then send the packet
         socket.send_to(&game_state.to_bytes(), src)?;
 
         // ensure we only calculate 120 steps per second
