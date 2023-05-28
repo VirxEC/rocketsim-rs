@@ -406,6 +406,7 @@ pub mod sim {
             ball_radius: f32,
             demo_mode: DemoMode,
             enable_team_demos: bool,
+            enable_physics_rounding: bool,
         }
     }
 

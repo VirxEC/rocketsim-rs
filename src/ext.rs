@@ -33,6 +33,7 @@ impl Default for MutatorConfig {
             ball_radius: 91.25,
             demo_mode: DemoMode::NORMAL,
             enable_team_demos: false,
+            enable_physics_rounding: true,
         }
     }
 }

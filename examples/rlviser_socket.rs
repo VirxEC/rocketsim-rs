@@ -78,11 +78,7 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
             break Ok(());
         }
 
-        if socket.peek_from(&mut min_state_set_buf).is_ok() {
-            // the socket sent data back
-            // this is the other side telling us to update the game state
-            handle_state_set(&min_state_set_buf, &socket, &mut arena)?;
-        }
+        handle_state_set(&mut min_state_set_buf, &socket, &mut arena)?;
 
         // advance the simulation by 1 tick
         arena.pin_mut().step(1);
@@ -104,11 +100,23 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
     }
 }
 
-fn handle_state_set(min_state_set_buf: &[u8], socket: &UdpSocket, arena: &mut UniquePtr<Arena>) -> io::Result<()> {
-    let num_bytes = GameState::get_num_bytes(min_state_set_buf);
-    let mut state_set_buf = vec![0; num_bytes];
-    socket.recv_from(&mut state_set_buf)?;
+fn handle_state_set(min_state_set_buf: &mut [u8; GameState::MIN_NUM_BYTES], socket: &UdpSocket, arena: &mut UniquePtr<Arena>) -> io::Result<()> {
+    let mut state_set_buf = Vec::new();
 
+    while socket.peek_from(min_state_set_buf).is_ok() {
+        // the socket sent data back
+        // this is the other side telling us to update the game state
+        let num_bytes = GameState::get_num_bytes(min_state_set_buf);
+        state_set_buf = vec![0; num_bytes];
+        socket.recv_from(&mut state_set_buf)?;
+    }
+
+    // the socket didn't send data back
+    if state_set_buf.is_empty() {
+        return Ok(());
+    }
+
+    // set the game state
     let game_state = GameState::from_bytes(&state_set_buf);
     if let Err(e) = arena.pin_mut().set_game_state(&game_state) {
         println!("Error setting game state: {e}");
