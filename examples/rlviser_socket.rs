@@ -157,6 +157,7 @@ fn setup_arena() -> UniquePtr<Arena> {
                         i,
                         CarControls {
                             throttle: 1.,
+                            pitch: -0.1,
                             boost: true,
                             ..Default::default()
                         },
