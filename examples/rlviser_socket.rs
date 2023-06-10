@@ -100,7 +100,11 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
     }
 }
 
-fn handle_state_set(min_state_set_buf: &mut [u8; GameState::MIN_NUM_BYTES], socket: &UdpSocket, arena: &mut UniquePtr<Arena>) -> io::Result<()> {
+fn handle_state_set(
+    min_state_set_buf: &mut [u8; GameState::MIN_NUM_BYTES],
+    socket: &UdpSocket,
+    arena: &mut UniquePtr<Arena>,
+) -> io::Result<()> {
     let mut state_set_buf = Vec::new();
 
     while socket.peek_from(min_state_set_buf).is_ok() {

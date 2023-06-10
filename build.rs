@@ -3,7 +3,9 @@ use glob::glob;
 use miette::{IntoDiagnostic, Result};
 
 fn main() -> Result<()> {
-    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "arenar/"]).extra_clang_args(&["-std=c++20"]).build()?;
+    let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "arenar/"])
+        .extra_clang_args(&["-std=c++20"])
+        .build()?;
 
     builder
         .use_plt(false)

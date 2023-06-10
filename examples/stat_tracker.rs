@@ -38,7 +38,10 @@ fn main() {
     let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
 
     // Add a new default stats entry for each car
-    STATS.lock().unwrap().extend(arena.pin_mut().get_cars().iter().map(|&id| (id, Stats::default())));
+    STATS
+        .lock()
+        .unwrap()
+        .extend(arena.pin_mut().get_cars().iter().map(|&id| (id, Stats::default())));
 
     // set kickoff with random seed
     arena.pin_mut().reset_to_random_kickoff(None);
@@ -68,7 +71,11 @@ fn main() {
 
             // Sort ball touches by team
             let ball_touches = [
-                all_ball_touches.iter().filter(|(_, team, _)| *team == Team::BLUE).map(|(id, _, _)| *id).collect::<Vec<_>>(),
+                all_ball_touches
+                    .iter()
+                    .filter(|(_, team, _)| *team == Team::BLUE)
+                    .map(|(id, _, _)| *id)
+                    .collect::<Vec<_>>(),
                 all_ball_touches
                     .iter()
                     .filter(|(_, team, _)| *team == Team::ORANGE)
@@ -137,7 +144,14 @@ fn main() {
             if is_demo {
                 println!("Car {bumper:?} DEMOED {victim:?}");
                 // +1 to the bumper's demolitions stat
-                STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
+                STATS
+                    .lock()
+                    .unwrap()
+                    .iter_mut()
+                    .find(|(id, _)| *id == bumper)
+                    .unwrap()
+                    .1
+                    .demolitions += 1;
             }
         },
         0,
@@ -181,12 +195,26 @@ fn main() {
                         println!("Car {car_id:?} SHOT ON GOAL");
 
                         // +1 to the car's shots stat
-                        STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == car_id).unwrap().1.shots += 1;
+                        STATS
+                            .lock()
+                            .unwrap()
+                            .iter_mut()
+                            .find(|(id, _)| *id == car_id)
+                            .unwrap()
+                            .1
+                            .shots += 1;
                     } else {
                         println!("Car {car_id:?} SAVED SHOT");
 
                         // +1 to the car's saves stat
-                        STATS.lock().unwrap().iter_mut().find(|(id, _)| *id == car_id).unwrap().1.saves += 1;
+                        STATS
+                            .lock()
+                            .unwrap()
+                            .iter_mut()
+                            .find(|(id, _)| *id == car_id)
+                            .unwrap()
+                            .1
+                            .saves += 1;
                     }
 
                     // ensure we don't process this ball touch again

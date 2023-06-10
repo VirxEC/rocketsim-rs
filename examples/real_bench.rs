@@ -39,7 +39,11 @@ fn main() {
     let elapsed = start_time.elapsed().as_secs_f32();
     let simulated_ticks = num_cpu as f32 * TICKS as f32;
 
-    println!("Simulated {:.2} hours in {:.3} seconds", simulated_ticks / 120. / 60. / 60., elapsed);
+    println!(
+        "Simulated {:.2} hours in {:.3} seconds",
+        simulated_ticks / 120. / 60. / 60.,
+        elapsed
+    );
 
     println!("FPS: {}", simulated_ticks / elapsed);
 }

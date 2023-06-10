@@ -1,4 +1,7 @@
-#![cfg_attr(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"), feature(portable_simd))]
+#![cfg_attr(
+    all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"),
+    feature(portable_simd)
+)]
 
 #[cfg(feature = "bin")]
 pub mod bytes;
@@ -190,9 +193,17 @@ pub mod sim {
             #[rust_name = "get_car_team"]
             fn GetCarTeam(self: &Arenar, id: u32) -> Team;
             #[rust_name = "set_goal_scored_callback"]
-            fn SetGoalScoreCallback(self: Pin<&mut Arenar>, callback: fn(arena: Pin<&mut Arenar>, car_team: Team, user_data: usize), user_data: usize);
+            fn SetGoalScoreCallback(
+                self: Pin<&mut Arenar>,
+                callback: fn(arena: Pin<&mut Arenar>, car_team: Team, user_data: usize),
+                user_data: usize,
+            );
             #[rust_name = "set_car_bump_callback"]
-            fn SetCarBumpCallback(self: Pin<&mut Arenar>, callback: fn(arena: Pin<&mut Arenar>, bumper: u32, victim: u32, is_demo: bool, user_data: usize), user_data: usize);
+            fn SetCarBumpCallback(
+                self: Pin<&mut Arenar>,
+                callback: fn(arena: Pin<&mut Arenar>, bumper: u32, victim: u32, is_demo: bool, user_data: usize),
+                user_data: usize,
+            );
             #[must_use]
             #[rust_name = "get_mutator_config"]
             fn GetMutatorConfig(self: &Arenar) -> MutatorConfig;
@@ -283,6 +294,7 @@ pub mod sim {
             last_rel_dodge_torque: Vec3,
             jump_time: f32,
             flip_time: f32,
+            is_flipping: bool,
             is_jumping: bool,
             air_time_since_jump: f32,
             boost: f32,

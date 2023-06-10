@@ -114,7 +114,14 @@ pub const CAR_RESPAWN_LOCATIONS: [CarSpawnPos; CAR_RESPAWN_LOCATION_AMOUNT as us
     CarSpawnPos::new(-4608., -4608., FRAC_PI_2),
 ];
 pub const STEER_ANGLE_FROM_SPEED_CURVE: LinearPieceCurve<6> = LinearPieceCurve {
-    value_mappings: [(0., 0.53356), (500., 0.31930), (1000., 0.18203), (1500., 0.10570), (1750., 0.08507), (3000., 0.03454)],
+    value_mappings: [
+        (0., 0.53356),
+        (500., 0.31930),
+        (1000., 0.18203),
+        (1500., 0.10570),
+        (1750., 0.08507),
+        (3000., 0.03454),
+    ],
 };
 pub const POWERSLIDE_STEER_ANGLE_FROM_SPEED_CURVE: LinearPieceCurve<2> = LinearPieceCurve {
     value_mappings: [(0., 0.39235), (2500., 0.12610)],
@@ -129,7 +136,9 @@ pub const LAT_FRICTION_CURVE: LinearPieceCurve<2> = LinearPieceCurve {
     value_mappings: [(0., 1.0), (1., 0.2)],
 };
 pub const LONG_FRICTION_CURVE: LinearPieceCurve<0> = LinearPieceCurve { value_mappings: [] };
-pub const HANDBRAKE_LAT_FRICTION_FACTOR_CURVE: LinearPieceCurve<1> = LinearPieceCurve { value_mappings: [(0., 0.1)] };
+pub const HANDBRAKE_LAT_FRICTION_FACTOR_CURVE: LinearPieceCurve<1> = LinearPieceCurve {
+    value_mappings: [(0., 0.1)],
+};
 pub const HANDBRAKE_LONG_FRICTION_FACTOR_CURVE: LinearPieceCurve<2> = LinearPieceCurve {
     value_mappings: [(0., 0.5), (1., 0.9)],
 };

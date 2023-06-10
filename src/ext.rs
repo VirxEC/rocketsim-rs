@@ -1,6 +1,9 @@
 use crate::{
     math::{Angle, RotMat, Vec3},
-    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, MutatorConfig, Team},
+    sim::{
+        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, MutatorConfig,
+        Team,
+    },
 };
 use autocxx::WithinUniquePtr;
 use core::pin::Pin;
@@ -191,7 +194,12 @@ impl Arena {
     ///
     /// - If the seed is None, the seed will be random
     /// - If the boost amount is None, the boost amount will be 33.333
-    pub fn respawn_car(self: Pin<&mut Self>, car_id: u32, seed: Option<i32>, boost_amount: Option<f32>) -> Result<(), NoCarFound> {
+    pub fn respawn_car(
+        self: Pin<&mut Self>,
+        car_id: u32,
+        seed: Option<i32>,
+        boost_amount: Option<f32>,
+    ) -> Result<(), NoCarFound> {
         if self.RespawnCar(car_id, seed.unwrap_or(-1), boost_amount.unwrap_or(100. / 3.)) {
             Ok(())
         } else {
@@ -222,7 +230,10 @@ impl Arena {
     #[must_use]
     /// Returns all of the `CarInfo`s in the arena
     pub fn get_car_infos(mut self: Pin<&mut Self>) -> Vec<CarInfo> {
-        self.GetCars().iter().map(|&car_id| self.as_mut().get_car_info(car_id)).collect()
+        self.GetCars()
+            .iter()
+            .map(|&car_id| self.as_mut().get_car_info(car_id))
+            .collect()
     }
 
     #[inline]
@@ -250,7 +261,9 @@ impl Arena {
     #[inline]
     /// Set the all of the car id <-> car control pairs in the arena
     pub fn set_all_controls(mut self: Pin<&mut Self>, controls: &[(u32, CarControls)]) -> Result<(), NoCarFound> {
-        controls.iter().try_for_each(|&(car_id, car_controls)| self.as_mut().set_car_controls(car_id, car_controls))
+        controls
+            .iter()
+            .try_for_each(|&(car_id, car_controls)| self.as_mut().set_car_controls(car_id, car_controls))
     }
 
     #[inline]
@@ -324,6 +337,7 @@ impl Default for CarState {
             last_rel_dodge_torque: Vec3::default(),
             jump_time: 0.,
             flip_time: 0.,
+            is_flipping: false,
             is_jumping: false,
             air_time_since_jump: 0.,
             boost: 100. / 3.,

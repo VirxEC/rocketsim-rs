@@ -24,7 +24,11 @@ fn main() {
 
     let simulated_ticks = TICKS as f32;
 
-    println!("Simulated {:.2} hours in {:.3} seconds", simulated_ticks / 120. / 60. / 60., elapsed);
+    println!(
+        "Simulated {:.2} hours in {:.3} seconds",
+        simulated_ticks / 120. / 60. / 60.,
+        elapsed
+    );
 
     println!("FPS: {}", simulated_ticks / elapsed);
 }
