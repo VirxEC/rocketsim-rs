@@ -416,6 +416,8 @@ pub mod sim {
             ball_hit_extra_force_scale: f32,
             bump_force_scale: f32,
             ball_radius: f32,
+            unlimited_flips: bool,
+            unlimited_double_jumps: bool,
             demo_mode: DemoMode,
             enable_team_demos: bool,
             enable_physics_rounding: bool,

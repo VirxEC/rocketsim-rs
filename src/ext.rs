@@ -34,6 +34,8 @@ impl Default for MutatorConfig {
             ball_hit_extra_force_scale: 1.,
             bump_force_scale: 1.,
             ball_radius: 91.25,
+            unlimited_flips: false,
+            unlimited_double_jumps: false,
             demo_mode: DemoMode::NORMAL,
             enable_team_demos: false,
             enable_physics_rounding: true,
