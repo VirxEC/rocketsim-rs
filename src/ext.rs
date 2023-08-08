@@ -154,9 +154,9 @@ impl Arena {
 
     #[inline]
     /// Remove the car at the given ID from the arena
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// If there is no car with the given ID, this will return an error
     pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
         if self.RemoveCar(car_id) {
@@ -168,9 +168,9 @@ impl Arena {
 
     #[inline]
     /// Sets the state of the car at the given ID
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// If there is no car with the given ID, this will return an error
     pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: CarState) -> Result<(), NoCarFound> {
         if self.rsc(car_id, car_state) {
@@ -182,9 +182,9 @@ impl Arena {
 
     #[inline]
     /// Sets the controls of the car at the given ID
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// If there is no car with the given ID, this will return an error
     pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: CarControls) -> Result<(), NoCarFound> {
         if self.rscc(car_id, car_controls) {
@@ -196,9 +196,9 @@ impl Arena {
 
     #[inline]
     /// Demolishes the car with the given ID
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// If there is no car with the given ID, this will return an error
     pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
         if self.DemolishCar(car_id) {
@@ -213,9 +213,9 @@ impl Arena {
     ///
     /// - If the seed is None, the seed will be random
     /// - If the boost amount is None, the boost amount will be 33.333
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// If there is no car with the given ID, this will return an error
     pub fn respawn_car(
         self: Pin<&mut Self>,
@@ -276,9 +276,9 @@ impl Arena {
 
     #[inline]
     /// Set the all of the car id <-> car control pairs in the arena
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// Returns `NoCarFound` upon the first car that cannot be found from a given ID
     pub fn set_all_controls(mut self: Pin<&mut Self>, controls: &[(u32, CarControls)]) -> Result<(), NoCarFound> {
         controls
@@ -303,9 +303,9 @@ impl Arena {
     /// Full game state setter
     ///
     /// Note: Some things cannot be state set, such game tick count/tick rate - these will be ignored
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// Returns `NoCarFound` upon the first car that cannot be found from a given ID
     pub fn set_game_state(mut self: Pin<&mut Self>, game_state: &GameState) -> Result<(), NoCarFound> {
         for car in &game_state.cars {
