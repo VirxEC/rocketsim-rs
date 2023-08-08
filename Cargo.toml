@@ -1,7 +1,7 @@
 [package]
 name = "rocketsim_rs"
 description = "Rust bindings for the RocketSim project"
-version = "0.17.2"
+version = "0.17.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
