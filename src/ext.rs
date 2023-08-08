@@ -4,6 +4,7 @@ use crate::{
         Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, MutatorConfig,
         Team,
     },
+    Init::AngleFromRotMat,
 };
 use autocxx::WithinUniquePtr;
 use core::pin::Pin;
@@ -153,6 +154,10 @@ impl Arena {
 
     #[inline]
     /// Remove the car at the given ID from the arena
+    /// 
+    /// # Errors
+    /// 
+    /// If there is no car with the given ID, this will return an error
     pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
         if self.RemoveCar(car_id) {
             Ok(())
@@ -163,6 +168,10 @@ impl Arena {
 
     #[inline]
     /// Sets the state of the car at the given ID
+    /// 
+    /// # Errors
+    /// 
+    /// If there is no car with the given ID, this will return an error
     pub fn set_car(self: Pin<&mut Self>, car_id: u32, car_state: CarState) -> Result<(), NoCarFound> {
         if self.rsc(car_id, car_state) {
             Ok(())
@@ -173,6 +182,10 @@ impl Arena {
 
     #[inline]
     /// Sets the controls of the car at the given ID
+    /// 
+    /// # Errors
+    /// 
+    /// If there is no car with the given ID, this will return an error
     pub fn set_car_controls(self: Pin<&mut Self>, car_id: u32, car_controls: CarControls) -> Result<(), NoCarFound> {
         if self.rscc(car_id, car_controls) {
             Ok(())
@@ -183,6 +196,10 @@ impl Arena {
 
     #[inline]
     /// Demolishes the car with the given ID
+    /// 
+    /// # Errors
+    /// 
+    /// If there is no car with the given ID, this will return an error
     pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
         if self.DemolishCar(car_id) {
             Ok(())
@@ -196,6 +213,10 @@ impl Arena {
     ///
     /// - If the seed is None, the seed will be random
     /// - If the boost amount is None, the boost amount will be 33.333
+    /// 
+    /// # Errors
+    /// 
+    /// If there is no car with the given ID, this will return an error
     pub fn respawn_car(
         self: Pin<&mut Self>,
         car_id: u32,
@@ -207,13 +228,6 @@ impl Arena {
         } else {
             Err(NoCarFound(car_id))
         }
-    }
-
-    #[inline]
-    #[must_use]
-    // Returns all of the car ids
-    pub fn get_cars(&self) -> Vec<u32> {
-        self.GetCars().iter().copied().collect()
     }
 
     #[inline]
@@ -232,9 +246,9 @@ impl Arena {
     #[must_use]
     /// Returns all of the `CarInfo`s in the arena
     pub fn get_car_infos(mut self: Pin<&mut Self>) -> Vec<CarInfo> {
-        self.GetCars()
-            .iter()
-            .map(|&car_id| self.as_mut().get_car_info(car_id))
+        self.get_cars()
+            .into_iter()
+            .map(|car_id| self.as_mut().get_car_info(car_id))
             .collect()
     }
 
@@ -262,6 +276,10 @@ impl Arena {
 
     #[inline]
     /// Set the all of the car id <-> car control pairs in the arena
+    /// 
+    /// # Errors
+    /// 
+    /// Returns `NoCarFound` upon the first car that cannot be found from a given ID
     pub fn set_all_controls(mut self: Pin<&mut Self>, controls: &[(u32, CarControls)]) -> Result<(), NoCarFound> {
         controls
             .iter()
@@ -285,6 +303,10 @@ impl Arena {
     /// Full game state setter
     ///
     /// Note: Some things cannot be state set, such game tick count/tick rate - these will be ignored
+    /// 
+    /// # Errors
+    /// 
+    /// Returns `NoCarFound` upon the first car that cannot be found from a given ID
     pub fn set_game_state(mut self: Pin<&mut Self>, game_state: &GameState) -> Result<(), NoCarFound> {
         for car in &game_state.cars {
             self.as_mut().set_car(car.id, car.state)?;
@@ -318,8 +340,8 @@ impl Default for BallState {
     fn default() -> Self {
         Self {
             pos: Vec3::new(0., 0., 93.15),
-            vel: Vec3::default(),
-            ang_vel: Vec3::default(),
+            vel: Vec3::ZERO,
+            ang_vel: Vec3::ZERO,
         }
     }
 }
@@ -329,14 +351,14 @@ impl Default for CarState {
     fn default() -> Self {
         Self {
             pos: Vec3::new(0., 0., 17.),
-            rot_mat: RotMat::get_identity(),
-            vel: Vec3::default(),
-            ang_vel: Vec3::default(),
+            rot_mat: RotMat::IDENTITY,
+            vel: Vec3::ZERO,
+            ang_vel: Vec3::ZERO,
             is_on_ground: true,
             has_jumped: false,
             has_double_jumped: false,
             has_flipped: false,
-            last_rel_dodge_torque: Vec3::default(),
+            last_rel_dodge_torque: Vec3::ZERO,
             jump_time: 0.,
             flip_time: 0.,
             is_flipping: false,
@@ -351,7 +373,7 @@ impl Default for CarState {
             auto_flip_timer: 0.,
             auto_flip_torque_scale: 0.,
             has_contact: false,
-            contact_normal: Vec3::default(),
+            contact_normal: Vec3::ZERO,
             other_car_id: 0,
             cooldown_timer: 0.,
             is_demoed: false,
@@ -383,15 +405,24 @@ impl fmt::Display for RotMat {
 }
 
 impl RotMat {
+    pub const IDENTITY: RotMat = RotMat {
+        forward: Vec3::X,
+        right: Vec3::Y,
+        up: Vec3::Z,
+    };
+
     #[inline]
     #[must_use]
-    /// Returns the identity rotation matrix
-    pub fn get_identity() -> Self {
-        Self {
-            forward: Vec3::new(1., 0., 0.),
-            right: Vec3::new(0., 1., 0.),
-            up: Vec3::new(0., 0., 1.),
-        }
+    pub const fn new(forward: Vec3, right: Vec3, up: Vec3) -> Self {
+        Self { forward, right, up }
+    }
+}
+
+impl Angle {
+    #[inline]
+    #[must_use]
+    pub fn from_rotmat(rot_mat: RotMat) -> Self {
+        AngleFromRotMat(rot_mat)
     }
 }
 
@@ -410,6 +441,11 @@ impl fmt::Display for Vec3 {
 }
 
 impl Vec3 {
+    pub const ZERO: Vec3 = Vec3::new(0., 0., 0.);
+    pub const X: Vec3 = Vec3::new(1., 0., 0.);
+    pub const Y: Vec3 = Vec3::new(0., 1., 0.);
+    pub const Z: Vec3 = Vec3::new(0., 0., 1.);
+
     #[inline]
     #[must_use]
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
@@ -428,6 +464,7 @@ impl<const N: usize> LinearPieceCurve<N> {
     ///
     /// * `input` - The input to the curve
     /// * `default_output` - The default output if N is 0
+    #[must_use]
     pub fn get_output(&self, input: f32, default_output: Option<f32>) -> f32 {
         if N == 0 {
             return default_output.unwrap_or(1.);
@@ -463,6 +500,7 @@ pub struct CarSpawnPos {
 
 impl CarSpawnPos {
     #[inline]
+    #[must_use]
     pub const fn new(x: f32, y: f32, yaw_ang: f32) -> Self {
         Self { x, y, yaw_ang }
     }

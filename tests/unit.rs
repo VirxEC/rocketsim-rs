@@ -1,11 +1,14 @@
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Once,
+use std::{
+    f32::consts::PI,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Once,
+    },
 };
 
 use rocketsim_rs::{
     init,
-    math::Vec3,
+    math::{Angle, Vec3},
     sim::{Arena, BallState, CarConfig, CarControls, CarState, Team},
 };
 
@@ -127,6 +130,42 @@ fn game_state() {
     }
 
     arena.pin_mut().reset_tick_count();
+}
+
+#[test]
+fn angles() {
+    INIT.call_once(|| init(None));
+    let mut arena = Arena::default_standard();
+    let ids = [
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::merc()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::merc()),
+        arena.pin_mut().add_car(Team::ORANGE, CarConfig::merc()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::plank()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::plank()),
+        arena.pin_mut().add_car(Team::BLUE, CarConfig::plank()),
+    ];
+    arena.pin_mut().reset_to_random_kickoff(None);
+
+    for id in ids {
+        let car = arena.pin_mut().get_car(id);
+        let angles = Angle::from_rotmat(car.rot_mat);
+        dbg!(car.pos, angles);
+        assert!(angles.yaw.abs() < PI);
+        assert!(angles.pitch.abs() < 0.01);
+        assert!(angles.roll.abs() < 0.01);
+    }
 }
 
 #[cfg(feature = "rlbot")]

@@ -32,6 +32,13 @@ mod Init {
         include!("arenar.h");
 
         fn init(folder: &str);
+
+        type RotMat = crate::math::RotMat;
+        type Angle = crate::math::Angle;
+
+        #[must_use]
+        #[doc(hidden)]
+        fn AngleFromRotMat(mat: RotMat) -> Angle;
     }
 }
 
@@ -163,6 +170,10 @@ pub mod sim {
             #[doc(hidden)]
             #[rust_name = "rsc"]
             fn SetCar(self: Pin<&mut Arenar>, car_id: u32, car: CarState) -> bool;
+            #[must_use]
+            #[rust_name = "get_cars"]
+            #[doc = "Returns all of the car ids"]
+            fn GetCars(self: &Arenar) -> Vec<u32>;
             #[must_use]
             #[rust_name = "get_car"]
             fn GetCar(self: Pin<&mut Arenar>, car_id: u32) -> CarState;
@@ -462,9 +473,14 @@ pub mod math {
     #[cxx::bridge]
     mod inner_math {
         unsafe extern "C++" {
-            include!("arenar.h");
+            include!("Math/MathTypes/MathTypes.h");
 
             type Angle;
+            type RotMat = crate::math::RotMat;
+
+            #[must_use]
+            #[rust_name = "to_rotmat"]
+            fn ToRotMat(self: &Angle) -> RotMat;
         }
 
         #[derive(Clone, Copy, Debug, Default)]

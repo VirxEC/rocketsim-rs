@@ -11,6 +11,7 @@ const CarConfig& getHybrid();
 const CarConfig& getMerc();
 
 void init(rust::Str collision_meshes_folder);
+Angle AngleFromRotMat(RotMat mat);
 
 struct EBoostPadState {
 	bool isActive;
@@ -50,7 +51,7 @@ struct Arenar {
 		return a->_cars.size();
 	}
 
-	std::unique_ptr<std::vector<uint32_t>> GetCars() const;
+	rust::Vec<uint32_t> GetCars() const;
 
 	CarConfig GetCarConfig(uint32_t car_id) const {
 		return a->GetCar(car_id)->config;

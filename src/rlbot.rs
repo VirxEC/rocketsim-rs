@@ -1,5 +1,5 @@
 use core::pin::Pin;
-use glam::{Mat3A, Quat, Vec3A};
+use glam::Vec3A;
 
 use crate::{
     math::Angle,
@@ -112,7 +112,7 @@ impl LastTouch {
             time_seconds: last_touch.tick_count_when_hit as f32 / arena.get_tick_rate(),
             hit_location: last_touch.ball_pos.into(),
             team: arena.get_car_team(car_id) as u8,
-            player_index: arena.GetCars().iter().position(|&id| id == car_id).unwrap(),
+            player_index: arena.get_cars().into_iter().position(|id| id == car_id).unwrap_or_default(),
         }
     }
 }
@@ -164,15 +164,15 @@ impl Arena {
         GameTickPacket {
             game_cars: self
                 .as_mut()
-                .GetCars()
-                .iter()
-                .map(|&car_id| {
+                .get_cars()
+                .into_iter()
+                .map(|car_id| {
                     let car = self.as_mut().get_car(car_id);
                     let car_config = self.get_car_config(car_id);
                     Car {
                         physics: Physics {
                             location: car.pos.into(),
-                            rotation: Angle::from(Quat::from_mat3a(&Mat3A::from(car.rot_mat))),
+                            rotation: Angle::from_rotmat(car.rot_mat),
                             velocity: car.vel.into(),
                             angular_velocity: car.ang_vel.into(),
                         },

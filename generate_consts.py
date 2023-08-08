@@ -16,10 +16,14 @@ def to_car_spawn_pos_str(vals):
     return f"CarSpawnPos::new({', '.join(vals)})"
 
 def to_linear_piece_curve_str(vals, indent):
-    short_hand = len(vals) < 2
-    indents = [" ", " "] if short_hand else [f"\n    {indent}", f",\n{indent}"]
-    join_val = f", {indent}".join([f"({ensure_rust_float(val[0])}, {ensure_rust_float(val[1])})" for val in vals])
-    return f"LinearPieceCurve {{{indents[0]}value_mappings: [{join_val}]{indents[1]}}}"
+    if len(vals) < 1:
+        indents = [" ", " ", f" {indent}", "", ""]
+    elif len(vals) > 4:
+        indents = [f"\n    {indent}", f",\n{indent}", f"\n        {indent}", f"\n        {indent}", f",\n    {indent}"]
+    else:
+        indents = [f"\n    {indent}", f",\n{indent}", f" {indent}", "", ""]
+    join_val = f",{indents[2]}".join([f"({ensure_rust_float(val[0])}, {ensure_rust_float(val[1])})" for val in vals])
+    return f"LinearPieceCurve {{{indents[0]}value_mappings: [{indents[3]}{join_val}{indents[4]}]{indents[1]}}}"
 
 lines = []
 
@@ -60,8 +64,29 @@ for i, line in enumerate(lines):
     namespace = " ".join(current_section)
 
     if line.startswith("constexpr"):
-        const_type = line.split(" ")[1]
-        consts[namespace][const_type] = []
+        parts = line.split(" ")
+        const_type = parts[1]
+
+        name = None
+
+        if len(parts) > 2 and parts[2] != "//":
+            name = parts[2]
+        else:
+            next_line = lines[i + 1]
+            pred_name = next_line.split(" = ")[0].strip()
+
+            if "[" in pred_name:
+                name = pred_name
+
+        if name is not None and "[" in name:
+            array_len = name.split("[")[1].removesuffix("]")
+            const_type = f"[{const_type}; {array_len} as usize]"
+
+        if consts[namespace].get(const_type) is None:
+            consts[namespace][const_type] = []
+
+        if name is not None:
+            consts[namespace][const_type].append([name.split("[")[0].split()[-1], []])
 
     if line.startswith("const static"):
         parts = line.split(" ")

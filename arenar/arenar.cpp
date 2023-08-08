@@ -30,6 +30,10 @@ void init(rust::Str collision_meshes_folder) {
     RocketSim::Init(std::filesystem::path(std::string(collision_meshes_folder)));
 }
 
+Angle AngleFromRotMat(RotMat mat) {
+    return Angle::FromRotMat(mat);
+}
+
 void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team, size_t)> callback, size_t user_info) {
     a->SetGoalScoreCallback([callback](class Arena* arena, Team team, void* userInfo) {
         std::pair<Arenar*, size_t>* userInfoPair = (std::pair<Arenar*, size_t>*) userInfo;
@@ -44,10 +48,10 @@ void Arenar::SetCarBumpCallback(rust::Fn<void(Arenar&, uint32_t, uint32_t, bool,
     }, new std::pair(this, user_info));
 }
 
-std::unique_ptr<std::vector<uint32_t>> Arenar::GetCars() const {
-    std::unique_ptr<std::vector<uint32_t>> cars(new std::vector<uint32_t>());
+rust::Vec<uint32_t> Arenar::GetCars() const {
+    rust::Vec<uint32_t> cars = rust::Vec<uint32_t>();
     for (Car* car : a->_cars) {
-        cars->push_back(car->id);
+        cars.push_back(car->id);
     }
     return cars;
 }

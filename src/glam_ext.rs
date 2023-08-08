@@ -13,15 +13,22 @@ type F32x4 = __m128;
 type F32x4 = f32x4;
 
 use core::pin::Pin;
-use glam::{EulerRot, Mat3A, Quat, Vec3A, Vec4};
+use glam::{EulerRot, Mat3, Mat3A, Quat, Vec3, Vec3A, Vec4};
 
 use crate::{
-    math::{Angle, RotMat, Vec3},
+    math::{Angle, RotMat, Vec3 as Vec3R},
     sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, Team, WheelPairConfig},
     BoostPad, CarInfo, GameState,
 };
 
 impl From<RotMat> for Mat3A {
+    #[inline]
+    fn from(value: RotMat) -> Self {
+        Self::from_cols(value.forward.into(), value.right.into(), value.up.into())
+    }
+}
+
+impl From<RotMat> for Mat3 {
     #[inline]
     fn from(value: RotMat) -> Self {
         Self::from_cols(value.forward.into(), value.right.into(), value.up.into())
@@ -39,7 +46,25 @@ impl From<Mat3A> for RotMat {
     }
 }
 
+impl From<Mat3> for RotMat {
+    #[inline]
+    fn from(value: Mat3) -> Self {
+        Self {
+            forward: value.x_axis.into(),
+            right: value.y_axis.into(),
+            up: value.z_axis.into(),
+        }
+    }
+}
+
 impl From<Angle> for Mat3A {
+    #[inline]
+    fn from(value: Angle) -> Self {
+        Self::from_quat(Quat::from(value))
+    }
+}
+
+impl From<Angle> for Mat3 {
     #[inline]
     fn from(value: Angle) -> Self {
         Self::from_quat(Quat::from(value))
@@ -49,7 +74,7 @@ impl From<Angle> for Mat3A {
 impl From<Angle> for RotMat {
     #[inline]
     fn from(value: Angle) -> Self {
-        Self::from(Mat3A::from(value))
+        Self::from(Mat3::from(value))
     }
 }
 
@@ -57,6 +82,20 @@ impl From<Angle> for Quat {
     #[inline]
     fn from(value: Angle) -> Self {
         Self::from_euler(EulerRot::XYZ, value.roll, value.pitch, value.yaw)
+    }
+}
+
+impl From<&Mat3A> for Angle {
+    #[inline]
+    fn from(value: &Mat3A) -> Self {
+        Angle::from(Quat::from_mat3a(value))
+    }
+}
+
+impl From<&Mat3> for Angle {
+    #[inline]
+    fn from(value: &Mat3) -> Self {
+        Angle::from(Quat::from_mat3(value))
     }
 }
 
@@ -68,21 +107,46 @@ impl From<Quat> for Angle {
     }
 }
 
-impl From<Vec3> for Vec3A {
+impl From<Vec3R> for Vec3A {
     #[inline]
-    fn from(value: Vec3) -> Self {
+    fn from(value: Vec3R) -> Self {
         Vec3A::from(F32x4::from(value.to_glam()))
     }
 }
 
-impl From<Vec3A> for Vec3 {
+impl From<Vec3A> for Vec3R {
     #[inline]
     fn from(value: Vec3A) -> Self {
         Self::from_glam(Vec4::from(F32x4::from(value)))
     }
 }
 
-impl Vec3 {
+impl From<Vec3R> for Vec3 {
+    #[inline]
+    fn from(value: Vec3R) -> Self {
+        Vec3::new(value.x, value.y, value.z)
+    }
+}
+
+impl From<Vec3> for Vec3R {
+    #[inline]
+    fn from(value: Vec3) -> Self {
+        Self::new(value.x, value.y, value.z)
+    }
+}
+
+pub trait FromRotMat {
+    fn from_rotmat(rot_mat: RotMat) -> Self;
+}
+
+impl FromRotMat for Quat {
+    #[inline]
+    fn from_rotmat(rot_mat: RotMat) -> Self {
+        Quat::from_mat3(&Mat3::from(rot_mat))
+    }
+}
+
+impl Vec3R {
     #[inline]
     #[must_use]
     pub const fn to_glam(self) -> Vec4 {
@@ -94,6 +158,14 @@ impl Vec3 {
     pub const fn from_glam(vec: Vec4) -> Self {
         let [x, y, z, w] = vec.to_array();
         Self { x, y, z, _w: w }
+    }
+}
+
+impl RotMat {
+    #[inline]
+    #[must_use]
+    pub fn from_quat(quat: Quat) -> Self {
+        Self::from(Mat3::from_quat(quat))
     }
 }
 
