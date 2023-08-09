@@ -26,12 +26,20 @@ autocxx::include_cpp! {
     generate!("RocketSim::GetStage")
 }
 
+pub use base::{RocketSim::GetStage as get_stage, RocketSimStage as Stages};
+
 #[cxx::bridge]
 mod Init {
     unsafe extern "C++" {
         include!("arenar.h");
 
         fn init(folder: &str);
+
+        type SuspensionCollisionGrid = crate::sim::SuspensionCollisionGrid;
+
+        #[namespace = "RocketSim"]
+        #[rust_name = "get_default_susp_col_grid"]
+        fn GetDefaultSuspColGrid() -> &'static SuspensionCollisionGrid;
 
         type RotMat = crate::math::RotMat;
         type Angle = crate::math::Angle;
@@ -42,13 +50,13 @@ mod Init {
     }
 }
 
+pub use Init::get_default_susp_col_grid;
+
 #[inline]
 /// Initializes the collision mesh system for `RocketSim`
 pub fn init(collision_meshes_folder: Option<&str>) {
     Init::init(collision_meshes_folder.unwrap_or("collision_meshes"));
 }
-
-pub use base::{RocketSim::GetStage as get_stage, RocketSimStage as Stages};
 
 #[cxx::bridge]
 mod extra {
@@ -436,6 +444,60 @@ pub mod sim {
     }
 
     pub use mutators::MutatorConfig;
+
+    #[derive(Clone, Copy, Debug, Default)]
+    pub struct Cell {
+        pub world_collision: bool,
+        pub dynamic_objects: i32,
+    }
+
+    unsafe impl cxx::ExternType for Cell {
+        #[allow(unused_attributes)]
+        #[doc(hidden)]
+        type Id = cxx::type_id!("SuspensionCollisionGrid::Cell");
+        type Kind = cxx::kind::Trivial;
+    }
+
+    #[cxx::bridge]
+    mod scg {
+        unsafe extern "C++" {
+            include!("Sim/SuspensionCollisionGrid/SuspensionCollisionGrid.h");
+
+            type SuspensionCollisionGrid;
+            #[namespace = "SuspensionCollisionGrid"]
+            type Cell = crate::sim::Cell;
+            #[rust_name = "Vec3"]
+            type Vec = crate::math::Vec3;
+
+            #[must_use]
+            #[rust_name = "get"]
+            fn Get(self: &SuspensionCollisionGrid, x: i32, y: i32, z: i32) -> Cell;
+            #[must_use]
+            #[rust_name = "get_mut"]
+            fn Get(self: Pin<&mut SuspensionCollisionGrid>, x: i32, y: i32, z: i32) -> Pin<&mut Cell>;
+            #[must_use]
+            #[rust_name = "get_cell_min"]
+            fn GetCellMin(self: Pin<&mut SuspensionCollisionGrid>, x_index: i32, y_index: i32, z_index: i32) -> Vec3;
+            #[must_use]
+            #[rust_name = "get_cell_size"]
+            fn GetCellSize(self: Pin<&mut SuspensionCollisionGrid>) -> Vec3;
+            #[must_use]
+            #[rust_name = "get_cell_from_pos"]
+            fn GetCellFromPos(self: Pin<&mut SuspensionCollisionGrid>, pos: Vec3) -> Pin<&mut Cell>;
+            #[rust_name = "get_cell_indices_from_pos"]
+            fn GetCellIndicesFromPos(
+                self: Pin<&mut SuspensionCollisionGrid>,
+                pos: Vec3,
+                i: &mut i32,
+                j: &mut i32,
+                k: &mut i32,
+            );
+            #[rust_name = "update_dynamic_collisions"]
+            fn UpdateDynamicCollisions(self: Pin<&mut SuspensionCollisionGrid>, min_bt: Vec3, max_bt: Vec3, remove: bool);
+        }
+    }
+
+    pub use scg::SuspensionCollisionGrid;
 }
 
 pub mod math {
@@ -451,7 +513,7 @@ pub mod math {
     unsafe impl cxx::ExternType for Vec3 {
         #[allow(unused_attributes)]
         #[doc(hidden)]
-        type Id = (cxx::V, cxx::e, cxx::c);
+        type Id = cxx::type_id!("Vec");
         type Kind = cxx::kind::Trivial;
     }
 
@@ -466,7 +528,7 @@ pub mod math {
     unsafe impl cxx::ExternType for RotMat {
         #[allow(unused_attributes)]
         #[doc(hidden)]
-        type Id = (cxx::R, cxx::o, cxx::t, cxx::M, cxx::a, cxx::t);
+        type Id = cxx::type_id!("RotMat");
         type Kind = cxx::kind::Trivial;
     }
 
