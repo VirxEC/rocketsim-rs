@@ -167,6 +167,23 @@ fn angles() {
     }
 }
 
+#[test]
+fn susp_coll_grid() {
+    INIT.call_once(|| init(None));
+    let grid = rocketsim_rs::get_default_susp_col_grid();
+
+    let mut num_dynamic_objects = 0;
+    for x in 0..128 {
+        for y in 0..224 {
+            for z in 0..32 {
+                num_dynamic_objects += grid.get(x, y, z).dynamic_objects;
+            }
+        }
+    }
+
+    assert_eq!(num_dynamic_objects, 67688);
+}
+
 #[cfg(feature = "rlbot")]
 #[test]
 fn rlbot() {
