@@ -161,7 +161,6 @@ fn angles() {
     for id in ids {
         let car = arena.pin_mut().get_car(id);
         let angles = Angle::from_rotmat(car.rot_mat);
-        dbg!(car.pos, angles);
         assert!(angles.yaw.abs() < PI);
         assert!(angles.pitch.abs() < 0.01);
         assert!(angles.roll.abs() < 0.01);
