@@ -171,15 +171,9 @@ fn angles() {
 fn susp_coll_grid() {
     INIT.call_once(|| init(None));
     let grid = rocketsim_rs::get_default_susp_col_grid();
+    assert_eq!(grid.cell_data.len(), 128 * 224 * 32);
 
-    let mut num_dynamic_objects = 0;
-    for x in 0..128 {
-        for y in 0..224 {
-            for z in 0..32 {
-                num_dynamic_objects += grid.get(x, y, z).dynamic_objects;
-            }
-        }
-    }
+    let num_dynamic_objects = grid.cell_data.iter().map(|c| c.dynamic_objects).sum::<i32>();
 
     assert_eq!(num_dynamic_objects, 67688);
 }

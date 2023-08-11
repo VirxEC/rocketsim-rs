@@ -398,6 +398,7 @@ pub mod sim {
         generate_pod!("DemoMode")
     }
 
+    use cxx::CxxVector;
     pub use demo::DemoMode;
 
     #[cxx::bridge]
@@ -458,17 +459,31 @@ pub mod sim {
         type Kind = cxx::kind::Trivial;
     }
 
+    #[repr(C)]
+    pub struct SuspensionCollisionGrid {
+        pub cell_data: CxxVector<Cell>,
+    }
+
+    unsafe impl cxx::ExternType for SuspensionCollisionGrid {
+        #[allow(unused_attributes)]
+        #[doc(hidden)]
+        type Id = cxx::type_id!("SuspensionCollisionGrid");
+        type Kind = cxx::kind::Trivial;
+    }
+
     #[cxx::bridge]
     mod scg {
         unsafe extern "C++" {
             include!("Sim/SuspensionCollisionGrid/SuspensionCollisionGrid.h");
 
-            type SuspensionCollisionGrid;
+            type SuspensionCollisionGrid = crate::sim::SuspensionCollisionGrid;
             #[namespace = "SuspensionCollisionGrid"]
             type Cell = crate::sim::Cell;
             #[rust_name = "Vec3"]
             type Vec = crate::math::Vec3;
 
+            #[rust_name = "allocate"]
+            fn Allocate(self: Pin<&mut SuspensionCollisionGrid>);
             #[must_use]
             #[rust_name = "get"]
             fn Get(self: &SuspensionCollisionGrid, x: i32, y: i32, z: i32) -> Cell;
@@ -495,9 +510,9 @@ pub mod sim {
             #[rust_name = "update_dynamic_collisions"]
             fn UpdateDynamicCollisions(self: Pin<&mut SuspensionCollisionGrid>, min_bt: Vec3, max_bt: Vec3, remove: bool);
         }
-    }
 
-    pub use scg::SuspensionCollisionGrid;
+        impl CxxVector<Cell> {}
+    }
 }
 
 pub mod math {
