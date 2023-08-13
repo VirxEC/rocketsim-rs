@@ -18,7 +18,7 @@ fn main() -> Result<()> {
         .warnings(false)
         .compile("rocketsim");
 
-    println!("cargo:rerun-if-changed=src/lib.rs");
+    // println!("cargo:rerun-if-changed=src/lib.rs");
 
     Ok(())
 }

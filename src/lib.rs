@@ -492,21 +492,15 @@ pub mod sim {
             fn Get(self: Pin<&mut SuspensionCollisionGrid>, x: i32, y: i32, z: i32) -> Pin<&mut Cell>;
             #[must_use]
             #[rust_name = "get_cell_min"]
-            fn GetCellMin(self: Pin<&mut SuspensionCollisionGrid>, x_index: i32, y_index: i32, z_index: i32) -> Vec3;
+            fn GetCellMin(self: &SuspensionCollisionGrid, x_index: i32, y_index: i32, z_index: i32) -> Vec3;
             #[must_use]
             #[rust_name = "get_cell_size"]
-            fn GetCellSize(self: Pin<&mut SuspensionCollisionGrid>) -> Vec3;
+            fn GetCellSize(self: &SuspensionCollisionGrid) -> Vec3;
             #[must_use]
             #[rust_name = "get_cell_from_pos"]
             fn GetCellFromPos(self: Pin<&mut SuspensionCollisionGrid>, pos: Vec3) -> Pin<&mut Cell>;
             #[rust_name = "get_cell_indices_from_pos"]
-            fn GetCellIndicesFromPos(
-                self: Pin<&mut SuspensionCollisionGrid>,
-                pos: Vec3,
-                i: &mut i32,
-                j: &mut i32,
-                k: &mut i32,
-            );
+            fn GetCellIndicesFromPos(self: &SuspensionCollisionGrid, pos: Vec3, i: &mut i32, j: &mut i32, k: &mut i32);
             #[rust_name = "update_dynamic_collisions"]
             fn UpdateDynamicCollisions(self: Pin<&mut SuspensionCollisionGrid>, min_bt: Vec3, max_bt: Vec3, remove: bool);
         }
