@@ -24,7 +24,7 @@ struct Arenar {
     Arena* a;
 
     Arenar(GameMode game_mode, float tick_rate = 120) {
-        a = Arena::Create(game_mode, tick_rate);
+        a = Arena::Create(game_mode, ArenaMemWeightMode::HEAVY, tick_rate);
     }
 
     ~Arenar() {

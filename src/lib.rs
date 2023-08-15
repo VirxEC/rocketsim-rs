@@ -35,11 +35,11 @@ mod Init {
 
         fn init(folder: &str);
 
-        type SuspensionCollisionGrid = crate::sim::SuspensionCollisionGrid;
+        // type SuspensionCollisionGrid = crate::sim::SuspensionCollisionGrid;
 
-        #[namespace = "RocketSim"]
-        #[rust_name = "get_default_susp_col_grid"]
-        fn GetDefaultSuspColGrid() -> &'static SuspensionCollisionGrid;
+        // #[namespace = "RocketSim"]
+        // #[rust_name = "get_default_susp_col_grid"]
+        // fn GetDefaultSuspColGrid(is_light: bool) -> &'static SuspensionCollisionGrid;
 
         type RotMat = crate::math::RotMat;
         type Angle = crate::math::Angle;
@@ -50,7 +50,7 @@ mod Init {
     }
 }
 
-pub use Init::get_default_susp_col_grid;
+// pub use Init::get_default_susp_col_grid;
 
 #[inline]
 /// Initializes the collision mesh system for `RocketSim`
@@ -398,7 +398,6 @@ pub mod sim {
         generate_pod!("DemoMode")
     }
 
-    use cxx::CxxVector;
     pub use demo::DemoMode;
 
     #[cxx::bridge]
@@ -446,67 +445,78 @@ pub mod sim {
 
     pub use mutators::MutatorConfig;
 
-    #[derive(Clone, Copy, Debug, Default)]
-    pub struct Cell {
-        pub world_collision: bool,
-        pub dynamic_objects: i32,
-    }
+    // use cxx::CxxVector;
 
-    unsafe impl cxx::ExternType for Cell {
-        #[allow(unused_attributes)]
-        #[doc(hidden)]
-        type Id = cxx::type_id!("SuspensionCollisionGrid::Cell");
-        type Kind = cxx::kind::Trivial;
-    }
+    // #[derive(Clone, Copy, Debug, Default)]
+    // pub struct Cell {
+    //     pub world_collision: bool,
+    //     pub dynamic_objects: i32,
+    // }
 
-    #[repr(C)]
-    pub struct SuspensionCollisionGrid {
-        pub cell_data: CxxVector<Cell>,
-    }
+    // unsafe impl cxx::ExternType for Cell {
+    //     #[allow(unused_attributes)]
+    //     #[doc(hidden)]
+    //     type Id = cxx::type_id!("SuspensionCollisionGrid::Cell");
+    //     type Kind = cxx::kind::Trivial;
+    // }
 
-    unsafe impl cxx::ExternType for SuspensionCollisionGrid {
-        #[allow(unused_attributes)]
-        #[doc(hidden)]
-        type Id = cxx::type_id!("SuspensionCollisionGrid");
-        type Kind = cxx::kind::Trivial;
-    }
+    // #[repr(C)]
+    // pub struct SuspensionCollisionGrid {
+    //     pub cell_data: CxxVector<Cell>,
+    // }
 
-    #[cxx::bridge]
-    mod scg {
-        unsafe extern "C++" {
-            include!("Sim/SuspensionCollisionGrid/SuspensionCollisionGrid.h");
+    // unsafe impl cxx::ExternType for SuspensionCollisionGrid {
+    //     #[allow(unused_attributes)]
+    //     #[doc(hidden)]
+    //     type Id = cxx::type_id!("SuspensionCollisionGrid");
+    //     type Kind = cxx::kind::Trivial;
+    // }
 
-            type SuspensionCollisionGrid = crate::sim::SuspensionCollisionGrid;
-            #[namespace = "SuspensionCollisionGrid"]
-            type Cell = crate::sim::Cell;
-            #[rust_name = "Vec3"]
-            type Vec = crate::math::Vec3;
+    // #[cxx::bridge]
+    // mod scg {
+    //     unsafe extern "C++" {
+    //         include!("Sim/SuspensionCollisionGrid/SuspensionCollisionGrid.h");
 
-            #[rust_name = "allocate"]
-            fn Allocate(self: Pin<&mut SuspensionCollisionGrid>);
-            #[must_use]
-            #[rust_name = "get"]
-            fn Get(self: &SuspensionCollisionGrid, x: i32, y: i32, z: i32) -> Cell;
-            #[must_use]
-            #[rust_name = "get_mut"]
-            fn Get(self: Pin<&mut SuspensionCollisionGrid>, x: i32, y: i32, z: i32) -> Pin<&mut Cell>;
-            #[must_use]
-            #[rust_name = "get_cell_min"]
-            fn GetCellMin(self: &SuspensionCollisionGrid, x_index: i32, y_index: i32, z_index: i32) -> Vec3;
-            #[must_use]
-            #[rust_name = "get_cell_size"]
-            fn GetCellSize(self: &SuspensionCollisionGrid) -> Vec3;
-            #[must_use]
-            #[rust_name = "get_cell_from_pos"]
-            fn GetCellFromPos(self: Pin<&mut SuspensionCollisionGrid>, pos: Vec3) -> Pin<&mut Cell>;
-            #[rust_name = "get_cell_indices_from_pos"]
-            fn GetCellIndicesFromPos(self: &SuspensionCollisionGrid, pos: Vec3, i: &mut i32, j: &mut i32, k: &mut i32);
-            #[rust_name = "update_dynamic_collisions"]
-            fn UpdateDynamicCollisions(self: Pin<&mut SuspensionCollisionGrid>, min_bt: Vec3, max_bt: Vec3, remove: bool);
-        }
+    //         type SuspensionCollisionGrid = crate::sim::SuspensionCollisionGrid;
+    //         #[namespace = "SuspensionCollisionGrid"]
+    //         type Cell = crate::sim::Cell;
+    //         #[rust_name = "Vec3"]
+    //         type Vec = crate::math::Vec3;
 
-        impl CxxVector<Cell> {}
-    }
+    //         #[rust_name = "allocate"]
+    //         fn Allocate(self: Pin<&mut SuspensionCollisionGrid>);
+    //         #[must_use]
+    //         #[rust_name = "get"]
+    //         fn Get<LIGHT: bool>(self: &SuspensionCollisionGrid, x: i32, y: i32, z: i32) -> Cell;
+    //         #[must_use]
+    //         #[rust_name = "get_mut"]
+    //         fn Get(self: Pin<&mut SuspensionCollisionGrid>, x: i32, y: i32, z: i32) -> Pin<&mut Cell>;
+    //         #[must_use]
+    //         #[rust_name = "get_cell_min"]
+    //         fn GetCellMin(self: &SuspensionCollisionGrid, x_index: i32, y_index: i32, z_index: i32) -> Vec3;
+    //         #[must_use]
+    //         #[rust_name = "get_cell_size"]
+    //         fn GetCellSize(self: &SuspensionCollisionGrid) -> Vec3;
+    //         #[must_use]
+    //         #[rust_name = "get_cell_from_pos"]
+    //         fn GetCellFromPos(self: Pin<&mut SuspensionCollisionGrid>, pos: Vec3) -> Pin<&mut Cell>;
+    //         #[rust_name = "get_cell_indices_from_pos"]
+    //         fn GetCellIndicesFromPos(self: &SuspensionCollisionGrid, pos: Vec3, i: &mut i32, j: &mut i32, k: &mut i32);
+    //         #[rust_name = "update_dynamic_collisions"]
+    //         fn UpdateDynamicCollisions(self: Pin<&mut SuspensionCollisionGrid>, min_bt: Vec3, max_bt: Vec3, remove: bool);
+    //     }
+
+    //     impl CxxVector<Cell> {}
+    // }
+
+    // autocxx::include_cpp!(
+    //     #include "Sim/SuspensionCollisionGrid/SuspensionCollisionGrid.h"
+    //     name!(scg)
+    //     safety!(unsafe)
+    //     generate!("SuspensionCollisionGrid")
+    // );
+
+    // pub use scg::SuspensionCollisionGrid;
 }
 
 pub mod math {
