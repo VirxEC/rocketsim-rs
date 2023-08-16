@@ -425,7 +425,7 @@ pub mod sim {
             ball_world_restitution: f32,
             jump_accel: f32,
             jump_immediate_force: f32,
-            boost_force: f32,
+            boost_accel: f32,
             boost_used_per_second: f32,
             respawn_delay: f32,
             bump_cooldown_time: f32,
