@@ -4,7 +4,7 @@ use crate::{
     BoostPad, CarInfo, GameState,
 };
 
-trait ToBytesExact<const N: usize>: FromBytesExact {
+pub trait ToBytesExact<const N: usize>: FromBytesExact {
     fn to_bytes(&self) -> [u8; N];
 }
 
