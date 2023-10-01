@@ -8,6 +8,9 @@ pub const ARENA_EXTENT_X: f32 = 4096.;
 /// Does not include inner-goal
 pub const ARENA_EXTENT_Y: f32 = 5120.;
 pub const ARENA_HEIGHT: f32 = 2048.;
+pub const ARENA_EXTENT_X_HOOPS: f32 = 8900. / 3.;
+pub const ARENA_EXTENT_Y_HOOPS: f32 = 3581.;
+pub const ARENA_HEIGHT_HOOPS: f32 = 1820.;
 pub const CAR_MASS_BT: f32 = 180.;
 /// Ref: https://www.reddit.com/r/RocketLeague/comments/bmje9l/comment/emxkwrl/?context=3
 pub const BALL_MASS_BT: f32 = CAR_MASS_BT / 6.;
@@ -76,11 +79,11 @@ pub const FLIP_FORWARD_IMPULSE_MAX_SPEED_SCALE: f32 = 1.;
 pub const FLIP_SIDE_IMPULSE_MAX_SPEED_SCALE: f32 = 1.9;
 pub const FLIP_BACKWARD_IMPULSE_MAX_SPEED_SCALE: f32 = 2.5;
 pub const FLIP_BACKWARD_IMPULSE_SCALE_X: f32 = 16. / 15.;
-/// Soccar, Hoops, etc.
-pub const BALL_COLLISION_RADIUS_NORMAL: f32 = 91.25;
-pub const BALL_COLLISION_RADIUS_DROPSHOT: f32 = 103.6;
-pub const SOCCAR_GOAL_SCORE_BASE_THRESHOLD_Y: f32 = 5121.75;
-pub const SOCCAR_BALL_SCORE_THRESHOLD_Y: f32 = SOCCAR_GOAL_SCORE_BASE_THRESHOLD_Y + BALL_COLLISION_RADIUS_NORMAL;
+pub const BALL_COLLISION_RADIUS_SOCCAR: f32 = 91.25;
+pub const BALL_COLLISION_RADIUS_HOOPS: f32 = 96.38307;
+pub const BALL_COLLISION_RADIUS_DROPSHOT: f32 = 100.2565;
+pub const SOCCAR_GOAL_SCORE_BASE_THRESHOLD_Y: f32 = 5124.25;
+pub const HOOPS_GOAL_SCORE_THRESHOLD_Z: f32 = 270.;
 pub const CAR_TORQUE_SCALE: f32 = 0.09587;
 pub const CAR_AUTOFLIP_IMPULSE: f32 = 200.;
 pub const CAR_AUTOFLIP_TORQUE: f32 = 50.;
@@ -89,6 +92,7 @@ pub const CAR_AUTOFLIP_NORMZ_THRESH: f32 = FRAC_1_SQRT_2;
 pub const CAR_AUTOROLL_FORCE: f32 = 100.;
 pub const CAR_AUTOROLL_TORQUE: f32 = 80.;
 pub const BALL_CAR_EXTRA_IMPULSE_Z_SCALE: f32 = 0.35;
+pub const BALL_CAR_EXTRA_IMPULSE_Z_SCALE_HOOPS_GROUND: f32 = BALL_CAR_EXTRA_IMPULSE_Z_SCALE * 1.55;
 pub const BALL_CAR_EXTRA_IMPULSE_FORWARD_SCALE: f32 = 0.65;
 pub const BALL_CAR_EXTRA_IMPULSE_MAXDELTAVEL_UU: f32 = 4600.;
 pub const CAR_SPAWN_REST_Z: f32 = 17.;
@@ -100,18 +104,31 @@ pub const CAR_AIR_CONTROL_TORQUE: Vec3 = Vec3::new(130., 95., 400.);
 pub const CAR_AIR_CONTROL_DAMPING: Vec3 = Vec3::new(30., 20., 50.);
 pub const CAR_SPAWN_LOCATION_AMOUNT: i32 = 5;
 pub const CAR_RESPAWN_LOCATION_AMOUNT: i32 = 4;
-pub const CAR_SPAWN_LOCATIONS: [CarSpawnPos; CAR_SPAWN_LOCATION_AMOUNT as usize] = [
+pub const CAR_SPAWN_LOCATIONS_SOCCAR: [CarSpawnPos; CAR_SPAWN_LOCATION_AMOUNT as usize] = [
     CarSpawnPos::new(-2560., -2560., FRAC_PI_4 * 1.),
     CarSpawnPos::new(-2560., -2560., FRAC_PI_4 * 3.),
     CarSpawnPos::new(-3840., -3840., FRAC_PI_4 * 2.),
     CarSpawnPos::new(-3840., -3840., FRAC_PI_4 * 2.),
     CarSpawnPos::new(-4608., -4608., FRAC_PI_4 * 2.),
 ];
-pub const CAR_RESPAWN_LOCATIONS: [CarSpawnPos; CAR_RESPAWN_LOCATION_AMOUNT as usize] = [
+pub const CAR_SPAWN_LOCATIONS_HOOPS: [CarSpawnPos; CAR_SPAWN_LOCATION_AMOUNT as usize] = [
+    CarSpawnPos::new(-3072., -3072., FRAC_PI_4 * 2.),
+    CarSpawnPos::new(-3072., -3072., FRAC_PI_4 * 2.),
+    CarSpawnPos::new(-2816., -2816., FRAC_PI_4 * 2.),
+    CarSpawnPos::new(-2816., -2816., FRAC_PI_4 * 2.),
+    CarSpawnPos::new(-3200., -3200., FRAC_PI_4 * 2.),
+];
+pub const CAR_RESPAWN_LOCATIONS_SOCCAR: [CarSpawnPos; CAR_RESPAWN_LOCATION_AMOUNT as usize] = [
     CarSpawnPos::new(-4608., -4608., FRAC_PI_2),
     CarSpawnPos::new(-4608., -4608., FRAC_PI_2),
     CarSpawnPos::new(-4608., -4608., FRAC_PI_2),
     CarSpawnPos::new(-4608., -4608., FRAC_PI_2),
+];
+pub const CAR_RESPAWN_LOCATIONS_HOOPS: [CarSpawnPos; CAR_RESPAWN_LOCATION_AMOUNT as usize] = [
+    CarSpawnPos::new(-3072., -3072., FRAC_PI_2),
+    CarSpawnPos::new(-3072., -3072., FRAC_PI_2),
+    CarSpawnPos::new(-3072., -3072., FRAC_PI_2),
+    CarSpawnPos::new(-3072., -3072., FRAC_PI_2),
 ];
 pub const STEER_ANGLE_FROM_SPEED_CURVE: LinearPieceCurve<6> = LinearPieceCurve {
     value_mappings: [
@@ -165,6 +182,34 @@ pub mod btvehicle {
     pub const MAX_SUSPENSION_TRAVEL: f32 = 12.;
 }
 
+pub mod heatseeker {
+    use crate::math::Vec3;
+
+    /// TODO: Verify
+    pub const INITIAL_TARGET_SPEED: f32 = 2900.;
+    /// Increase of target speed each touch
+    pub const TARGET_SPEED_INCREMENT: f32 = 85.;
+    /// Minimum time between touches to speed up
+    pub const MIN_SPEEDUP_INTERVAL: f32 = 1.;
+    /// Y of target point in goal
+    pub const TARGET_Y: f32 = 5120.;
+    /// Height of target point in goal
+    pub const TARGET_Z: f32 = 320.;
+    /// Interpolation of horizontal (X+Y) turning
+    pub const HORIZONTAL_BLEND: f32 = 1.45;
+    /// Interpolation of vertical (Z) turning
+    pub const VERTICAL_BLEND: f32 = 0.78;
+    /// Interpolation of acceleration towards target speed
+    pub const SPEED_BLEND: f32 = 0.3;
+    pub const MAX_TURN_PITCH: f32 = 0.671;
+    /// Different from BALL_MAX_SPEED
+    pub const MAX_SPEED: f32 = 4600.;
+    /// Threshold of wall collision normal Y to change goal targets
+    pub const WALL_BOUNCE_CHANGE_NORMAL_Y: f32 = 0.75;
+    pub const BALL_START_POS: Vec3 = Vec3::new(-1000., -2220., 92.75);
+    pub const BALL_START_VEL: Vec3 = Vec3::new(0., -65., 650.);
+}
+
 pub mod boostpads {
     use crate::math::Vec3;
 
@@ -178,9 +223,10 @@ pub mod boostpads {
     pub const COOLDOWN_SMALL: f32 = 4.;
     pub const BOOST_AMOUNT_BIG: f32 = 100.;
     pub const BOOST_AMOUNT_SMALL: f32 = 12.;
-    pub const LOCS_AMOUNT_SMALL: i32 = 28;
+    pub const LOCS_AMOUNT_SMALL_SOCCAR: i32 = 28;
+    pub const LOCS_AMOUNT_SMALL_HOOPS: i32 = 14;
     pub const LOCS_AMOUNT_BIG: i32 = 6;
-    pub const LOCS_SMALL: [Vec3; LOCS_AMOUNT_SMALL as usize] = [
+    pub const LOCS_SMALL_SOCCAR: [Vec3; LOCS_AMOUNT_SMALL_SOCCAR as usize] = [
         Vec3::new(0., -4240., 70.),
         Vec3::new(-1792., -4184., 70.),
         Vec3::new(1792., -4184., 70.),
@@ -210,12 +256,36 @@ pub mod boostpads {
         Vec3::new(1792., 4184., 70.),
         Vec3::new(0., 4240., 70.),
     ];
-    pub const LOCS_BIG: [Vec3; LOCS_AMOUNT_BIG as usize] = [
+    pub const LOCS_BIG_SOCCAR: [Vec3; LOCS_AMOUNT_BIG as usize] = [
         Vec3::new(-3584., 0., 73.),
         Vec3::new(3584., 0., 73.),
         Vec3::new(-3072., 4096., 73.),
         Vec3::new(3072., 4096., 73.),
         Vec3::new(-3072., -4096., 73.),
         Vec3::new(3072., -4096., 73.),
+    ];
+    pub const LOCS_BIG_HOOPS: [Vec3; LOCS_AMOUNT_BIG as usize] = [
+        Vec3::new(-2176., 2944., 72.),
+        Vec3::new(2176., -2944., 72.),
+        Vec3::new(-2176., -2944., 72.),
+        Vec3::new(-2432., 0., 72.),
+        Vec3::new(2432., 0., 72.),
+        Vec3::new(2175.99, 2944., 72.),
+    ];
+    pub const LOCS_SMALL_HOOPS: [Vec3; LOCS_AMOUNT_SMALL_HOOPS as usize] = [
+        Vec3::new(1536., -1024., 64.),
+        Vec3::new(-1280., -2304., 64.),
+        Vec3::new(0., -2816., 64.),
+        Vec3::new(-1536., -1024., 64.),
+        Vec3::new(1280., -2304., 64.),
+        Vec3::new(-512., 512., 64.),
+        Vec3::new(-1536., 1024., 64.),
+        Vec3::new(1536., 1024., 64.),
+        Vec3::new(1280., 2304., 64.),
+        Vec3::new(0., 2816., 64.),
+        Vec3::new(512., 512., 64.),
+        Vec3::new(512., -512., 64.),
+        Vec3::new(-512., -512., 64.),
+        Vec3::new(-1280., 2304., 64.),
     ];
 }

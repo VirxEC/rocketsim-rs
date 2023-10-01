@@ -198,7 +198,7 @@ for namespace, types in consts.items():
         consts_rs.append(f"\npub mod {namespace} {{")
         indent = "    "
 
-        if namespace == "boostpads":
+        if namespace in {"boostpads", "heatseeker"}:
             consts_rs.append(f"{indent}use crate::math::Vec3;")
             consts_rs.append("")
 

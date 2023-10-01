@@ -109,7 +109,7 @@ bool Arenar::RespawnCar(uint32_t carID, int32_t seed, float boostAmount) {
         return false;
     }
 
-    car->Respawn(seed, boostAmount);
+    car->Respawn(this->a->gameMode, seed, boostAmount);
     return true;
 }
 

@@ -1,7 +1,7 @@
 [package]
 name = "rocketsim_rs"
 description = "Rust bindings for the RocketSim project"
-version = "0.18.0"
+version = "0.19.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
@@ -25,7 +25,6 @@ lto = true
 [features]
 default = ["glam"]
 glam = ["dep:glam"]
-rlbot = ["glam"]
 bin = []
 
 [target.'cfg(not(any(target_arch = "x86", target_arch = "x86_64")))'.dependencies]

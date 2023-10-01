@@ -2,8 +2,8 @@ use crate::{
     consts,
     math::{Angle, RotMat, Vec3},
     sim::{
-        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode, GameMode, MutatorConfig,
-        Team,
+        Arena, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode,
+        GameMode, MutatorConfig, Team,
     },
     Init::AngleFromRotMat,
 };
@@ -35,7 +35,7 @@ impl Default for MutatorConfig {
             car_spawn_boost_amount: consts::BOOST_SPAWN_AMOUNT,
             ball_hit_extra_force_scale: 1.,
             bump_force_scale: 1.,
-            ball_radius: consts::BALL_COLLISION_RADIUS_NORMAL,
+            ball_radius: consts::BALL_COLLISION_RADIUS_SOCCAR,
             unlimited_flips: false,
             unlimited_double_jumps: false,
             demo_mode: DemoMode::NORMAL,
@@ -59,14 +59,6 @@ impl PartialEq for BoostPadState {
             && self.cooldown == other.cooldown
             && self.cur_locked_car_id == other.cur_locked_car_id
             && self.prev_locked_car_id == other.prev_locked_car_id
-    }
-}
-
-impl Arena {
-    #[inline]
-    #[must_use]
-    pub fn clone(self: Pin<&mut Self>, copy_callbacks: bool) -> UniquePtr<Self> {
-        self.Clone(copy_callbacks).within_unique_ptr()
     }
 }
 
@@ -142,9 +134,29 @@ pub struct GameState {
 impl Arena {
     #[inline]
     #[must_use]
+    pub fn clone(self: Pin<&mut Self>, copy_callbacks: bool) -> UniquePtr<Self> {
+        self.Clone(copy_callbacks).within_unique_ptr()
+    }
+
+    #[inline]
+    #[must_use]
     /// Create a new standard arena running at the max TPS
     pub fn default_standard() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::SOCCAR, 120.).within_unique_ptr()
+        Self::new(GameMode::SOCCAR, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+    }
+
+    #[inline]
+    #[must_use]
+    /// Create a new hoops arena running at the max TPS
+    pub fn default_hoops() -> cxx::UniquePtr<Self> {
+        Self::new(GameMode::HOOPS, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+    }
+
+    #[inline]
+    #[must_use]
+    /// Create a new heatseeker arena running at the max TPS
+    pub fn default_heatseeker() -> cxx::UniquePtr<Self> {
+        Self::new(GameMode::HEATSEEKER, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
     }
 
     #[inline]
