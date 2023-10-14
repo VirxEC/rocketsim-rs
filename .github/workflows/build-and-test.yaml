@@ -10,6 +10,7 @@ concurrency:
 jobs:
   build-and-test:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         features: [ all, no, default ]
