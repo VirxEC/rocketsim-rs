@@ -16,6 +16,7 @@ fn main() -> Result<()> {
         .flag_if_supported("-std=c++20")
         .flag_if_supported("/std:c++20")
         .flag_if_supported("-w")
+        .flag_if_supported("-march=native")
         .files(glob("RocketSim/libsrc/bullet3-3.24/**/*.cpp").into_diagnostic()?.flatten())
         .files(glob("RocketSim/src/**/*.cpp").into_diagnostic()?.flatten())
         .file("arenar/arenar.cpp")
