@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        toolchain: [stable] # can be stable, beta, and/or nightly
         features: [ all, no, default ]
         include:
           - features: all
@@ -29,15 +28,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.toolchain }}
+      - uses: dtolnay/rust-toolchain@stable
       - name: Check formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --check
+        run: cargo fmt --check
       - name: Decrypt meshes
         shell: bash
         env:
@@ -49,12 +42,6 @@ jobs:
       - name: Get cached dependencies
         uses: Swatinem/rust-cache@v2
       - name: Build project
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: ${{ matrix.features_arg }}
+        run: cargo build ${{ matrix.features_arg }}
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: ${{ matrix.features_arg }}
+        run: cargo test ${{ matrix.features_arg }}
