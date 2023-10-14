@@ -7,6 +7,10 @@ fn main() -> Result<()> {
         .extra_clang_args(&["-std=c++20"])
         .build()?;
 
+    if !cfg!(debug_assertions) {
+        builder.define("RS_DONT_LOG", "1").define("RS_MAX_SPEED", "1");
+    }
+
     builder
         .use_plt(false)
         .flag_if_supported("-std=c++20")
