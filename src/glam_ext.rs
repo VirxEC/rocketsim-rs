@@ -17,7 +17,10 @@ use glam::{EulerRot, Mat3, Mat3A, Quat, Vec3, Vec3A, Vec4};
 
 use crate::{
     math::{Angle, RotMat, Vec3 as Vec3R},
-    sim::{Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, Team, WheelPairConfig},
+    sim::{
+        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, HeatseekerInfo, Team,
+        WheelPairConfig,
+    },
     BoostPad, CarInfo, GameState,
 };
 
@@ -74,7 +77,7 @@ impl From<Angle> for Mat3 {
 impl From<Angle> for RotMat {
     #[inline]
     fn from(value: Angle) -> Self {
-        Self::from(Mat3::from(value))
+        value.to_rotmat()
     }
 }
 
@@ -228,8 +231,10 @@ impl From<BallHitInfoA> for BallHitInfo {
 #[derive(Clone, Copy, Debug)]
 pub struct BallA {
     pub pos: Vec3A,
+    pub rot_mat: Mat3A,
     pub vel: Vec3A,
     pub ang_vel: Vec3A,
+    pub hs_info: HeatseekerInfo,
 }
 
 impl Default for BallA {
@@ -237,8 +242,10 @@ impl Default for BallA {
     fn default() -> Self {
         Self {
             pos: Vec3A::new(0., 0., 93.15),
+            rot_mat: Mat3A::IDENTITY,
             vel: Vec3A::default(),
             ang_vel: Vec3A::default(),
+            hs_info: HeatseekerInfo::default(),
         }
     }
 }
@@ -248,8 +255,10 @@ impl From<BallState> for BallA {
     fn from(value: BallState) -> Self {
         Self {
             pos: value.pos.into(),
+            rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
+            hs_info: value.hs_info,
         }
     }
 }
@@ -259,8 +268,10 @@ impl From<BallA> for BallState {
     fn from(value: BallA) -> Self {
         Self {
             pos: value.pos.into(),
+            rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
+            hs_info: value.hs_info,
         }
     }
 }
@@ -528,7 +539,6 @@ pub struct GameStateA {
     pub tick_count: u64,
     pub cars: Vec<CarInfoA>,
     pub ball: BallA,
-    pub ball_rot: Quat,
     pub pads: Vec<BoostPadA>,
 }
 
@@ -540,7 +550,6 @@ impl From<GameState> for GameStateA {
             tick_count: value.tick_count,
             cars: value.cars.into_iter().map(CarInfoA::from).collect(),
             ball: value.ball.into(),
-            ball_rot: Quat::from_xyzw(value.ball_rot[0], value.ball_rot[1], value.ball_rot[2], value.ball_rot[3]),
             pads: value.pads.into_iter().map(BoostPadA::from).collect(),
         }
     }

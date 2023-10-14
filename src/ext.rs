@@ -3,7 +3,7 @@ use crate::{
     math::{Angle, RotMat, Vec3},
     sim::{
         Arena, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode,
-        GameMode, MutatorConfig, Team,
+        GameMode, HeatseekerInfo, MutatorConfig, Team,
     },
     Init::AngleFromRotMat,
 };
@@ -12,18 +12,30 @@ use core::pin::Pin;
 use cxx::UniquePtr;
 use std::{error::Error, fmt};
 
-impl Default for MutatorConfig {
-    fn default() -> Self {
+impl MutatorConfig {
+    pub fn default(game_mode: GameMode) -> Self {
         Self {
             gravity: Vec3::new(0., 0., 650.),
             car_mass: consts::CAR_MASS_BT,
             car_world_friction: consts::CARWORLD_COLLISION_FRICTION,
             car_world_restitution: consts::CARWORLD_COLLISION_RESTITUTION,
-            ball_mass: consts::BALL_MASS_BT,
+            ball_mass: if game_mode == GameMode::SNOWDAY {
+                consts::snowday::PUCK_MASS_BT
+            } else {
+                consts::BALL_MASS_BT
+            },
             ball_max_speed: consts::BALL_MAX_SPEED,
             ball_drag: consts::BALL_DRAG,
-            ball_world_friction: consts::BALL_FRICTION,
-            ball_world_restitution: consts::BALL_RESTITUTION,
+            ball_world_friction: if game_mode == GameMode::SNOWDAY {
+                consts::snowday::PUCK_FRICTION
+            } else {
+                consts::BALL_FRICTION
+            },
+            ball_world_restitution: if game_mode == GameMode::SNOWDAY {
+                consts::snowday::PUCK_RESTITUTION
+            } else {
+                consts::BALL_RESTITUTION
+            },
             jump_accel: consts::JUMP_ACCEL,
             jump_immediate_force: consts::JUMP_IMMEDIATE_FORCE,
             boost_accel: consts::BOOST_ACCEL,
@@ -35,7 +47,11 @@ impl Default for MutatorConfig {
             car_spawn_boost_amount: consts::BOOST_SPAWN_AMOUNT,
             ball_hit_extra_force_scale: 1.,
             bump_force_scale: 1.,
-            ball_radius: consts::BALL_COLLISION_RADIUS_SOCCAR,
+            ball_radius: match game_mode {
+                GameMode::HOOPS => consts::BALL_COLLISION_RADIUS_HOOPS,
+                GameMode::SNOWDAY => consts::snowday::PUCK_RADIUS,
+                _ => consts::BALL_COLLISION_RADIUS_SOCCAR,
+            },
             unlimited_flips: false,
             unlimited_double_jumps: false,
             demo_mode: DemoMode::NORMAL,
@@ -127,7 +143,6 @@ pub struct GameState {
     pub tick_count: u64,
     pub cars: Vec<CarInfo>,
     pub ball: BallState,
-    pub ball_rot: [f32; 4],
     pub pads: Vec<BoostPad>,
 }
 
@@ -308,7 +323,6 @@ impl Arena {
             tick_count: self.get_tick_count(),
             pads: self.iter_pads().collect(),
             ball: self.as_mut().get_ball(),
-            ball_rot: self.get_ball_rotation(),
             cars: self.get_car_infos(),
         }
     }
@@ -348,13 +362,26 @@ impl Arena {
     }
 }
 
+impl Default for HeatseekerInfo {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            y_target_dir: 0.,
+            cur_target_speed: consts::heatseeker::INITIAL_TARGET_SPEED,
+            time_since_hit: 0.,
+        }
+    }
+}
+
 impl Default for BallState {
     #[inline]
     fn default() -> Self {
         Self {
             pos: Vec3::new(0., 0., 93.15),
+            rot_mat: RotMat::IDENTITY,
             vel: Vec3::ZERO,
             ang_vel: Vec3::ZERO,
+            hs_info: HeatseekerInfo::default(),
         }
     }
 }

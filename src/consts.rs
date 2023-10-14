@@ -70,6 +70,7 @@ pub const FLIP_Z_DAMP_END: f32 = 0.21;
 pub const FLIP_TORQUE_TIME: f32 = 0.65;
 pub const FLIP_TORQUE_MIN_TIME: f32 = 0.41;
 pub const FLIP_PITCHLOCK_TIME: f32 = 1.;
+pub const FLIP_PITCHLOCK_EXTRA_TIME: f32 = 0.3;
 pub const FLIP_INITIAL_VEL_SCALE: f32 = 500.;
 /// Left/Right
 pub const FLIP_TORQUE_X: f32 = 260.;
@@ -180,6 +181,7 @@ pub mod btvehicle {
     pub const WHEELS_DAMPING_RELAXATION: f32 = 40.;
     /// TODO: Are we sure this is the same for all cars?
     pub const MAX_SUSPENSION_TRAVEL: f32 = 12.;
+    pub const SUSPENSION_SUBTRACTION: f32 = 0.05;
 }
 
 pub mod heatseeker {
@@ -208,6 +210,18 @@ pub mod heatseeker {
     pub const WALL_BOUNCE_CHANGE_NORMAL_Y: f32 = 0.75;
     pub const BALL_START_POS: Vec3 = Vec3::new(-1000., -2220., 92.75);
     pub const BALL_START_VEL: Vec3 = Vec3::new(0., -65., 650.);
+}
+
+pub mod snowday {
+    /// Real puck radius varies a bit from point to point but it shouldn't matter
+    pub const PUCK_RADIUS: f32 = 114.25;
+    pub const PUCK_HEIGHT: f32 = 62.5;
+    /// Number of points on each circle of the cylinder
+    pub const PUCK_CIRCLE_POINT_AMOUNT: f32 = 20.;
+    pub const PUCK_MASS_BT: f32 = 50.;
+    pub const PUCK_GROUND_STICK_FORCE: f32 = 70.;
+    pub const PUCK_FRICTION: f32 = 0.1;
+    pub const PUCK_RESTITUTION: f32 = 0.3;
 }
 
 pub mod boostpads {

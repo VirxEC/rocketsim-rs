@@ -250,6 +250,22 @@ pub mod sim {
 
     pub use ballhitinfo::BallHitInfo;
 
+    #[derive(Clone, Copy, Debug)]
+    pub struct HeatseekerInfo {
+        /// Which net the ball should seek towards;
+        /// When 0, no net
+        pub y_target_dir: f32,
+        pub cur_target_speed: f32,
+        pub time_since_hit: f32,
+    }
+
+    unsafe impl cxx::ExternType for HeatseekerInfo {
+        #[allow(unused_attributes)]
+        #[doc(hidden)]
+        type Id = cxx::type_id!("BallState::HeatseekerInfo");
+        type Kind = cxx::kind::Trivial;
+    }
+
     #[cxx::bridge]
     mod ballstate {
         unsafe extern "C++" {
@@ -257,14 +273,19 @@ pub mod sim {
 
             #[rust_name = "Vec3"]
             type Vec = crate::math::Vec3;
+            type RotMat = crate::math::RotMat;
             type BallState;
+            #[namespace = "BallState"]
+            type HeatseekerInfo = crate::sim::HeatseekerInfo;
         }
 
         #[derive(Clone, Copy, Debug)]
         struct BallState {
             pos: Vec3,
+            rot_mat: RotMat,
             vel: Vec3,
             ang_vel: Vec3,
+            hs_info: HeatseekerInfo,
         }
     }
 
