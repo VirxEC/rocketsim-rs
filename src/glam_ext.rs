@@ -230,6 +230,7 @@ impl From<BallHitInfoA> for BallHitInfo {
 
 #[derive(Clone, Copy, Debug)]
 pub struct BallA {
+    pub update_counter: u64,
     pub pos: Vec3A,
     pub rot_mat: Mat3A,
     pub vel: Vec3A,
@@ -241,6 +242,7 @@ impl Default for BallA {
     #[inline]
     fn default() -> Self {
         Self {
+            update_counter: 0,
             pos: Vec3A::new(0., 0., 93.15),
             rot_mat: Mat3A::IDENTITY,
             vel: Vec3A::default(),
@@ -254,6 +256,7 @@ impl From<BallState> for BallA {
     #[inline]
     fn from(value: BallState) -> Self {
         Self {
+            update_counter: value.update_counter,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -267,6 +270,7 @@ impl From<BallA> for BallState {
     #[inline]
     fn from(value: BallA) -> Self {
         Self {
+            update_counter: value.update_counter,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -342,6 +346,7 @@ impl From<CarConfigA> for CarConfig {
 
 #[derive(Clone, Copy, Debug)]
 pub struct CarStateA {
+    pub update_counter: u64,
     pub pos: Vec3A,
     pub rot_mat: Mat3A,
     pub vel: Vec3A,
@@ -378,6 +383,7 @@ impl Default for CarStateA {
     #[inline]
     fn default() -> Self {
         Self {
+            update_counter: 0,
             pos: Vec3A::new(0., 0., 17.),
             rot_mat: Mat3A::IDENTITY,
             vel: Vec3A::default(),
@@ -416,6 +422,7 @@ impl From<CarState> for CarStateA {
     #[inline]
     fn from(value: CarState) -> Self {
         Self {
+            update_counter: value.update_counter,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -454,6 +461,7 @@ impl From<CarStateA> for CarState {
     #[inline]
     fn from(value: CarStateA) -> Self {
         Self {
+            update_counter: value.update_counter,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),

@@ -378,6 +378,7 @@ impl Default for BallState {
     #[inline]
     fn default() -> Self {
         Self {
+            update_counter: 0,
             pos: Vec3::new(0., 0., 93.15),
             rot_mat: RotMat::IDENTITY,
             vel: Vec3::ZERO,
@@ -391,6 +392,7 @@ impl Default for CarState {
     #[inline]
     fn default() -> Self {
         Self {
+            update_counter: 0,
             pos: Vec3::new(0., 0., 17.),
             rot_mat: RotMat::IDENTITY,
             vel: Vec3::ZERO,

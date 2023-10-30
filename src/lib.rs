@@ -281,6 +281,7 @@ pub mod sim {
 
         #[derive(Clone, Copy, Debug)]
         struct BallState {
+            update_counter: u64,
             pos: Vec3,
             rot_mat: RotMat,
             vel: Vec3,
@@ -314,6 +315,7 @@ pub mod sim {
 
         #[derive(Clone, Copy, Debug)]
         struct CarState {
+            update_counter: u64,
             pos: Vec3,
             rot_mat: RotMat,
             vel: Vec3,
