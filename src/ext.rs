@@ -357,8 +357,9 @@ impl Arena {
     /// # Arguments
     ///
     /// * `max_time` - The maximum time to check for, if None, will default to 0.2s
-    pub fn is_ball_probably_going_in(&self, max_time: Option<f32>) -> bool {
-        self.IsBallProbablyGoingIn(max_time.unwrap_or(0.2))
+    /// * `extra_margin` - Aadjust the score margin (negative to prevent overestimating), will default to 0 if None
+    pub fn is_ball_probably_going_in(&self, max_time: Option<f32>, extra_margin: Option<f32>) -> bool {
+        self.IsBallProbablyGoingIn(max_time.unwrap_or(0.2), extra_margin.unwrap_or_default())
     }
 }
 

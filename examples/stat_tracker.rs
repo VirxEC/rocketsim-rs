@@ -186,7 +186,7 @@ fn main() {
         {
             // ensure we haven't already processed this ball touch
             if tick_count_when_hit != prev_ball_touch_time {
-                let ball_going_in = arena.is_ball_probably_going_in(None);
+                let ball_going_in = arena.is_ball_probably_going_in(None, None);
 
                 // if the ball is suddenly going in
                 // OR if the ball suddenly isn't going in

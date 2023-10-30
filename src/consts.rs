@@ -31,6 +31,8 @@ pub const BALL_DRAG: f32 = 0.03;
 pub const BALL_FRICTION: f32 = 0.35;
 /// Bounce factor
 pub const BALL_RESTITUTION: f32 = 0.6;
+/// Z impulse applied to hoops ball on kickoff
+pub const BALL_HOOPS_Z_VEL: f32 = 1000.;
 pub const CAR_MAX_SPEED: f32 = 2300.;
 pub const BALL_MAX_SPEED: f32 = 6000.;
 pub const BOOST_MAX: f32 = 100.;
@@ -90,6 +92,7 @@ pub const CAR_AUTOFLIP_IMPULSE: f32 = 200.;
 pub const CAR_AUTOFLIP_TORQUE: f32 = 50.;
 pub const CAR_AUTOFLIP_TIME: f32 = 0.4;
 pub const CAR_AUTOFLIP_NORMZ_THRESH: f32 = FRAC_1_SQRT_2;
+pub const CAR_AUTOFLIP_ROLL_THRESH: f32 = 2.8;
 pub const CAR_AUTOROLL_FORCE: f32 = 100.;
 pub const CAR_AUTOROLL_TORQUE: f32 = 80.;
 pub const BALL_CAR_EXTRA_IMPULSE_Z_SCALE: f32 = 0.35;
@@ -264,7 +267,7 @@ pub mod boostpads {
         Vec3::new(-3584., 2484., 70.),
         Vec3::new(3584., 2484., 70.),
         Vec3::new(0., 2816., 70.),
-        Vec3::new(-940., 3310., 70.),
+        Vec3::new(-940., 3308., 70.),
         Vec3::new(940., 3308., 70.),
         Vec3::new(-1792., 4184., 70.),
         Vec3::new(1792., 4184., 70.),

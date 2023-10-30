@@ -140,8 +140,8 @@ struct Arenar {
 		a->Step(ticks);
 	}
 
-	bool IsBallProbablyGoingIn(float maxTime = 2.f) const {
-		return a->IsBallProbablyGoingIn(maxTime);
+	bool IsBallProbablyGoingIn(float maxTime = 2.f, float extraMargin = 0) const {
+		return a->IsBallProbablyGoingIn(maxTime, extraMargin);
 	}
 
 	MutatorConfig GetMutatorConfig() const {
