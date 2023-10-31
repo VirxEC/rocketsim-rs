@@ -198,6 +198,13 @@ impl Arena {
     }
 
     #[inline]
+    #[must_use]
+    /// Create a new snowday arena running at the max TPS
+    pub fn default_snowday() -> cxx::UniquePtr<Self> {
+        Self::new(GameMode::SNOWDAY, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+    }
+
+    #[inline]
     /// Start ball and cars from random valid kickoff positions
     pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
         self.ResetToRandomKickoff(seed.unwrap_or(-1));
