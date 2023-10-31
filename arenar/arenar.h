@@ -132,6 +132,10 @@ struct Arenar {
 		return 1 / a->tickTime;
 	}
 
+	GameMode get_game_mode() const {
+		return a->gameMode;
+	}
+
 	void ResetToRandomKickoff(int32_t seed = -1) {
 		a->ResetToRandomKickoff(seed);
 	}
@@ -142,6 +146,10 @@ struct Arenar {
 
 	bool IsBallProbablyGoingIn(float maxTime = 2.f, float extraMargin = 0) const {
 		return a->IsBallProbablyGoingIn(maxTime, extraMargin);
+	}
+
+	bool is_ball_scored() const {
+		return a->IsBallScored();
 	}
 
 	MutatorConfig GetMutatorConfig() const {

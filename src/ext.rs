@@ -12,6 +12,28 @@ use core::pin::Pin;
 use cxx::UniquePtr;
 use std::{error::Error, fmt};
 
+impl fmt::Debug for GameMode {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::SOCCAR => write!(f, "SOCCAR"),
+            Self::HOOPS => write!(f, "HOOPS"),
+            Self::HEATSEEKER => write!(f, "HEATSEEKER"),
+            Self::SNOWDAY => write!(f, "SNOWDAY"),
+            Self::THE_VOID => write!(f, "THE_VOID"),
+        }
+    }
+}
+
+impl Default for GameMode {
+    #[inline]
+    fn default() -> Self {
+        Self::THE_VOID
+    }
+}
+
+impl Copy for GameMode {}
+
 impl MutatorConfig {
     pub fn default(game_mode: GameMode) -> Self {
         Self {
@@ -141,6 +163,7 @@ pub struct CarInfo {
 pub struct GameState {
     pub tick_rate: f32,
     pub tick_count: u64,
+    pub game_mode: GameMode,
     pub cars: Vec<CarInfo>,
     pub ball: BallState,
     pub pads: Vec<BoostPad>,
@@ -321,6 +344,7 @@ impl Arena {
         GameState {
             tick_rate: self.get_tick_rate(),
             tick_count: self.get_tick_count(),
+            game_mode: self.get_game_mode(),
             pads: self.iter_pads().collect(),
             ball: self.as_mut().get_ball(),
             cars: self.get_car_infos(),

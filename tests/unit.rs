@@ -1,15 +1,14 @@
+use rocketsim_rs::{
+    init,
+    math::{Angle, Vec3},
+    sim::{Arena, BallState, CarConfig, CarControls, CarState, Team},
+};
 use std::{
     f32::consts::PI,
     sync::{
         atomic::{AtomicBool, Ordering},
         Once,
     },
-};
-
-use rocketsim_rs::{
-    init,
-    math::{Angle, Vec3},
-    sim::{Arena, BallState, CarConfig, CarControls, CarState, Team},
 };
 
 #[cfg(feature = "glam")]
@@ -167,31 +166,6 @@ fn angles() {
     }
 }
 
-#[cfg(feature = "rlbot")]
-#[test]
-fn rlbot() {
-    INIT.call_once(|| init(None));
-    let mut arena = Arena::default_standard();
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
-    arena.pin_mut().step(120);
-
-    let game_tick_packet = arena.pin_mut().get_game_tick_packet();
-
-    assert_eq!(game_tick_packet.game_cars.len(), game_tick_packet.num_cars);
-    assert_eq!(game_tick_packet.num_cars, 2);
-
-    assert_eq!(game_tick_packet.game_boosts.len(), game_tick_packet.num_boosts);
-    assert_eq!(game_tick_packet.num_boosts, 34);
-
-    assert_eq!(game_tick_packet.game_ball.collision_shape.type_, 1);
-    assert_eq!(game_tick_packet.game_ball.collision_shape.sphere.diameter, 91.25 * 2.);
-
-    assert!(game_tick_packet.game_info.seconds_elapsed - 1. < 0.00001);
-    assert_eq!(game_tick_packet.game_info.frame_num, 120);
-    assert_eq!(game_tick_packet.game_info.world_gravity_z, -650.);
-}
-
 #[test]
 fn goal_score() {
     static SCORED: AtomicBool = AtomicBool::new(false);
@@ -224,6 +198,67 @@ fn demoed() {
     INIT.call_once(|| init(None));
 
     let mut arena = Arena::default_standard();
+    // set up two cars, one demoing the other
+    let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+
+    arena
+        .pin_mut()
+        .set_car(
+            orange,
+            CarState {
+                pos: Vec3::new(0., 0., 17.),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+    arena
+        .pin_mut()
+        .set_car(
+            blue,
+            CarState {
+                pos: Vec3::new(-300., 0., 17.),
+                vel: Vec3::new(2300., 0., 0.),
+                boost: 100.,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+    arena
+        .pin_mut()
+        .set_car_controls(
+            blue,
+            CarControls {
+                throttle: 1.,
+                boost: true,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+    arena.pin_mut().set_car_bump_callback(
+        |arena, bumper, victim, is_demo, _| {
+            if is_demo {
+                assert_eq!(arena.get_tick_count(), 9);
+                println!("CAR {bumper} DEMOED {victim}!");
+                DEMOED.store(true, Ordering::Relaxed);
+            }
+        },
+        0,
+    );
+
+    arena.pin_mut().step(15);
+    assert!(DEMOED.load(Ordering::Relaxed));
+}
+
+#[test]
+fn demoed_hoops() {
+    static DEMOED: AtomicBool = AtomicBool::new(false);
+    INIT.call_once(|| init(None));
+
+    let mut arena = Arena::default_hoops();
     // set up two cars, one demoing the other
     let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
     let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());

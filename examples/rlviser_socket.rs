@@ -130,7 +130,7 @@ fn handle_state_set(
 }
 
 fn setup_arena() -> UniquePtr<Arena> {
-    let mut arena = Arena::default_standard();
+    let mut arena = Arena::default_hoops();
 
     let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
     let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());

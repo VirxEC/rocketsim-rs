@@ -18,7 +18,7 @@ use glam::{EulerRot, Mat3, Mat3A, Quat, Vec3, Vec3A, Vec4};
 use crate::{
     math::{Angle, RotMat, Vec3 as Vec3R},
     sim::{
-        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, HeatseekerInfo, Team,
+        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, GameMode, HeatseekerInfo, Team,
         WheelPairConfig,
     },
     BoostPad, CarInfo, GameState,
@@ -545,6 +545,7 @@ impl From<CarInfoA> for CarInfo {
 pub struct GameStateA {
     pub tick_rate: f32,
     pub tick_count: u64,
+    pub game_mode: GameMode,
     pub cars: Vec<CarInfoA>,
     pub ball: BallA,
     pub pads: Vec<BoostPadA>,
@@ -556,6 +557,7 @@ impl From<GameState> for GameStateA {
         Self {
             tick_rate: value.tick_rate,
             tick_count: value.tick_count,
+            game_mode: value.game_mode,
             cars: value.cars.into_iter().map(CarInfoA::from).collect(),
             ball: value.ball.into(),
             pads: value.pads.into_iter().map(BoostPadA::from).collect(),
