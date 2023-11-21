@@ -16,11 +16,11 @@ jobs:
         features: [ all, no, default ]
         include:
           - os: windows-latest
-            compiler: cl.exe
+            compiler: g++
           - os: macos-latest
             compiler: clang++
           - os: ubuntu-latest
-            compiler: g++
+            compiler: clang++
           - features: all
             features_arg: --all-features
           - features: no
@@ -51,7 +51,7 @@ jobs:
       - name: Update clang (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: sudo apt install clang-15 -y
+        run: sudo apt install libclang-dev -y
       - name: Build project
         run: cargo build ${{ matrix.features_arg }}
         env:
