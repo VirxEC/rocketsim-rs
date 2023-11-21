@@ -51,7 +51,7 @@ jobs:
       - name: Update clang (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: sudo apt install libclang-dev -y
+        run: sudo apt install libclang-15-dev -y
       - name: Build project
         run: cargo build ${{ matrix.features_arg }}
         env:
