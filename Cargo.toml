@@ -18,6 +18,7 @@ glam = { version = "0.24.0", optional = true }
 glob = "0.3.0"
 autocxx-build = "0.26.0"
 miette = { version = "5", features = ["fancy"] }
+cc = { version = "1.0.83", features = ["parallel"] }
 
 [profile.release]
 lto = true
