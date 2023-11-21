@@ -44,5 +44,9 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Build project
         run: cargo build ${{ matrix.features_arg }}
+        env:
+          CXX: clang++-15
       - name: Run tests
         run: cargo test ${{ matrix.features_arg }}
+        env:
+          CXX: clang++-15
