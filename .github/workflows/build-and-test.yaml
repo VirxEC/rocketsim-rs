@@ -16,9 +16,9 @@ jobs:
         features: [ all, no, default ]
         include:
           - os: windows-latest
-            compiler: clang++-17
+            compiler: clang++
           - os: macos-latest
-            compiler: $(brew --prefix llvm@15)/bin/clang
+            compiler: clang++
           - os: ubuntu-latest
             compiler: clang++-15
           - features: all
@@ -55,4 +55,4 @@ jobs:
       - name: Run tests
         run: cargo test ${{ matrix.features_arg }}
         env:
-          CXX: clang++-15
+          CXX: ${{ matrix.compiler }}
