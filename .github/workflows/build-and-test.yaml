@@ -16,11 +16,11 @@ jobs:
         features: [ all, no, default ]
         include:
           - os: windows-latest
-            compiler: clang++
+            compiler: cl.exe
           - os: macos-latest
             compiler: clang++
           - os: ubuntu-latest
-            compiler: clang++-15
+            compiler: g++
           - features: all
             features_arg: --all-features
           - features: no
@@ -48,6 +48,10 @@ jobs:
           done
       - name: Get cached dependencies
         uses: Swatinem/rust-cache@v2
+      - name: Update clang (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: sudo apt install clang-15 -y
       - name: Build project
         run: cargo build ${{ matrix.features_arg }}
         env:
