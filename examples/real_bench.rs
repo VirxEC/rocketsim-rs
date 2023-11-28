@@ -1,9 +1,8 @@
+use rocketsim_rs::sim::{Arena, CarConfig, Team};
 use std::{
     thread::{available_parallelism, spawn},
     time::Instant,
 };
-
-use rocketsim_rs::sim::{Arena, CarConfig, Team};
 
 fn main() {
     const TICKS: i32 = 50000;

@@ -1,8 +1,6 @@
-use std::{sync::Mutex, time::Instant};
-
 use rand::Rng;
-
 use rocketsim_rs::sim::{Arena, CarConfig, CarControls, Team};
+use std::{sync::Mutex, time::Instant};
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Stats {

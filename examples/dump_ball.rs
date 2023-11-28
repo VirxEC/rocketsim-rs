@@ -1,9 +1,11 @@
+use byteorder::{LittleEndian, WriteBytesExt};
+use rocketsim_rs::{
+    math::Vec3,
+    sim::{Arena, BallState},
+};
 use std::{fs, io};
 
-use byteorder::{LittleEndian, WriteBytesExt};
-use rocketsim_rs::sim::{Arena, BallState};
-
-const NUM_TICKS: u16 = 120 * 12;
+const NUM_TICKS: u16 = 60;
 
 fn write_ball(file: &mut fs::File, ball: BallState, time: f32) -> io::Result<()> {
     file.write_f32::<LittleEndian>(time)?;
@@ -24,10 +26,9 @@ fn main() -> io::Result<()> {
 
     let mut arena = Arena::default_standard();
     let mut ball = arena.pin_mut().get_ball();
-    ball.pos.z = 1800.;
-    ball.vel.x = 1000.;
-    ball.vel.y = 1000.;
-    ball.vel.z = 650.;
+    ball.pos = Vec3::new(3714.5198, 4011.6897, 761.2);
+    ball.vel = Vec3::new(1863.6699, 1473.95, -484.27);
+    ball.ang_vel = Vec3::new(0.10657, 0.41026, 0.01652);
 
     arena.pin_mut().set_ball(ball);
 

@@ -6,11 +6,12 @@ use std::{
     time::{Duration, Instant},
 };
 
+use autocxx::WithinUniquePtr;
 use rocketsim_rs::{
     bytes::{FromBytes, ToBytes},
     cxx::UniquePtr,
     math::Vec3,
-    sim::{Arena, BallState, CarConfig, CarControls, Team},
+    sim::{Arena, ArenaMemWeightMode, BallState, CarConfig, CarControls, GameMode, Team},
     GameState,
 };
 
@@ -42,10 +43,17 @@ fn main() -> io::Result<()> {
     // Load rocketsim
     rocketsim_rs::init(None);
 
-    run_socket(socket)
+    let mut args = std::env::args();
+    let _ = args.next();
+    let arena_type = match args.next().as_deref() {
+        Some("hoops") => GameMode::HOOPS,
+        _ => GameMode::SOCCAR,
+    };
+
+    run_socket(socket, arena_type)
 }
 
-fn run_socket(socket: UdpSocket) -> io::Result<()> {
+fn run_socket(socket: UdpSocket, arena_type: GameMode) -> io::Result<()> {
     println!("\nLaunch visualizer now, waiting for connection...");
 
     let mut buf = [0; 1];
@@ -58,7 +66,7 @@ fn run_socket(socket: UdpSocket) -> io::Result<()> {
     // We now don't want to wait for anything UDP so set to non-blocking
     socket.set_nonblocking(true)?;
 
-    let mut arena = setup_arena();
+    let mut arena = setup_arena(arena_type);
 
     // listen for Ctrl+C signal
     let break_signal = ctrl_channel().unwrap();
@@ -129,8 +137,8 @@ fn handle_state_set(
     Ok(())
 }
 
-fn setup_arena() -> UniquePtr<Arena> {
-    let mut arena = Arena::default_hoops();
+fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
+    let mut arena = Arena::new(arena_type, ArenaMemWeightMode::LIGHT, 120.).within_unique_ptr();
 
     let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
     let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());

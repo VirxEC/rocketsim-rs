@@ -1,6 +1,5 @@
-use std::time::Instant;
-
 use rocketsim_rs::sim::{Arena, CarConfig, Team};
+use std::time::Instant;
 
 fn main() {
     const TICKS: i32 = 50000;
