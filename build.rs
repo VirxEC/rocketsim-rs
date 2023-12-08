@@ -1,15 +1,13 @@
 use autocxx_build::Builder;
 use glob::glob;
 use miette::{IntoDiagnostic, Result};
-use std::env;
 
 fn main() -> Result<()> {
-    println!("cargo:rerun-if-env-changed=RSIM_SILENT_DEBUG");
     let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "arenar/"])
         .extra_clang_args(&["-std=c++20"])
         .build()?;
 
-    if !cfg!(debug_assertions) || env::var("RSIM_SILENT_DEBUG").is_ok_and(|x| x != "0") {
+    if !cfg!(debug_assertions) || !cfg!(feature = "debug_logging") {
         builder.define("RS_DONT_LOG", "1");
     }
 

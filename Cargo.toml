@@ -1,7 +1,7 @@
 [package]
 name = "rocketsim_rs"
 description = "Rust bindings for the RocketSim project"
-version = "0.22.4"
+version = "0.22.5"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
@@ -24,7 +24,8 @@ cc = { version = "1.0.83", features = ["parallel"] }
 lto = true
 
 [features]
-default = []
+default = ["debug_logging", "bin"]
+debug_logging = []
 glam = ["dep:glam"]
 bin = []
 
