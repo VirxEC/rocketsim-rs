@@ -78,7 +78,6 @@ impl MutatorConfig {
             unlimited_double_jumps: false,
             demo_mode: DemoMode::NORMAL,
             enable_team_demos: false,
-            enable_physics_rounding: true,
         }
     }
 }

@@ -453,7 +453,6 @@ pub mod sim {
             unlimited_double_jumps: bool,
             demo_mode: DemoMode,
             enable_team_demos: bool,
-            enable_physics_rounding: bool,
         }
     }
 
