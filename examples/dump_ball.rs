@@ -26,9 +26,9 @@ fn main() -> io::Result<()> {
 
     let mut arena = Arena::default_standard();
     let mut ball = arena.pin_mut().get_ball();
-    ball.pos = Vec3::new(-3723.2097, 5348.04, 142.46);
-    ball.vel = Vec3::new(326.18, 194.70999, 845.23);
-    ball.ang_vel = Vec3::new(-2.11579, 3.5441399, 2.10888);
+    ball.pos = Vec3::new(3714.5198, 4011.6897, 761.2);
+    ball.vel = Vec3::new(1863.6699, 1473.95, -484.27);
+    ball.ang_vel = Vec3::new(0.10657, 0.41026, 0.01652);
 
     arena.pin_mut().set_ball(ball);
 

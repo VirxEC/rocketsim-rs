@@ -50,10 +50,12 @@ fn main() -> io::Result<()> {
         _ => GameMode::SOCCAR,
     };
 
-    run_socket(socket, arena_type)
+    let speed = args.next().and_then(|f| f.parse().ok()).unwrap_or(1.);
+
+    run_socket(socket, arena_type, speed)
 }
 
-fn run_socket(socket: UdpSocket, arena_type: GameMode) -> io::Result<()> {
+fn run_socket(socket: UdpSocket, arena_type: GameMode, speed: f32) -> io::Result<()> {
     println!("\nLaunch visualizer now, waiting for connection...");
 
     let mut buf = [0; 1];
@@ -72,7 +74,9 @@ fn run_socket(socket: UdpSocket, arena_type: GameMode) -> io::Result<()> {
     let break_signal = ctrl_channel().unwrap();
 
     // we only want to loop at 120hz
-    let interval = Duration::from_secs_f32(1. / 120.);
+    // speed 0.5 = half speed
+    // speed 2 = double speed
+    let interval = Duration::from_secs_f32(1. / (120. * speed));
     let mut next_time = Instant::now() + interval;
     let mut min_state_set_buf = [0; GameState::MIN_NUM_BYTES];
 
@@ -86,7 +90,7 @@ fn run_socket(socket: UdpSocket, arena_type: GameMode) -> io::Result<()> {
             break Ok(());
         }
 
-        handle_state_set(&mut min_state_set_buf, &socket, &mut arena)?;
+        handle_return_message(&mut min_state_set_buf, &socket, &mut arena)?;
 
         // advance the simulation by 1 tick
         arena.pin_mut().step(1);
@@ -108,14 +112,27 @@ fn run_socket(socket: UdpSocket, arena_type: GameMode) -> io::Result<()> {
     }
 }
 
-fn handle_state_set(
+fn handle_return_message(
     min_state_set_buf: &mut [u8; GameState::MIN_NUM_BYTES],
     socket: &UdpSocket,
     arena: &mut UniquePtr<Arena>,
 ) -> io::Result<()> {
     let mut state_set_buf = Vec::new();
 
-    while socket.peek_from(min_state_set_buf).is_ok() {
+    while let Ok((num_bytes, src)) = socket.peek_from(min_state_set_buf) {
+        if num_bytes == 1 {
+            // We got a connection and not a game state
+            // So clear the byte from the socket buffer and return
+            let mut buf = [0];
+            socket.recv_from(&mut buf)?;
+
+            if buf[0] == 1 {
+                println!("Connection established to {src}");
+            }
+
+            return Ok(());
+        }
+
         // the socket sent data back
         // this is the other side telling us to update the game state
         let num_bytes = GameState::get_num_bytes(min_state_set_buf);
