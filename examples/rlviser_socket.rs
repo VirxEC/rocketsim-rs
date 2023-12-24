@@ -130,7 +130,7 @@ fn handle_return_message(
                 println!("Connection established to {src}");
             }
 
-            return Ok(());
+            continue;
         }
 
         // the socket sent data back
