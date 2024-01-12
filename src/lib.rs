@@ -8,7 +8,7 @@ pub mod bytes;
 #[cfg(feature = "glam")]
 pub mod glam_ext;
 #[cfg(feature = "serde_utils")]
-pub mod serde_utils;
+mod serde_utils;
 
 pub mod consts;
 
