@@ -40,6 +40,7 @@ glam = { version = "0.25.0", optional = true, features = ["core-simd"] }
 byteorder = "1.4.3"
 ctrlc = "3.3.1"
 rand = "0.8.5"
+serde_json = "1.0.111"
 
 [[example]]
 name = "rlviser_socket"

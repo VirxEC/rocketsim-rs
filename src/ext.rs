@@ -12,6 +12,13 @@ use core::pin::Pin;
 use cxx::UniquePtr;
 use std::{error::Error, fmt};
 
+#[cfg(feature = "serde_utils")]
+pub use serde;
+#[cfg(feature = "serde_utils")]
+use serde::{Serialize, Deserialize};
+#[cfg(feature = "serde_utils")]
+use crate::serde_utils;
+
 impl fmt::Debug for GameMode {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -142,11 +149,6 @@ impl fmt::Debug for DemoMode {
         }
     }
 }
-
-#[cfg(feature = "serde_utils")]
-use serde::{Serialize, Deserialize};
-#[cfg(feature = "serde_utils")]
-use crate::serde_utils;
 
 #[derive(Clone, Copy, Debug, Default)]
 #[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
