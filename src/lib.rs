@@ -7,6 +7,8 @@
 pub mod bytes;
 #[cfg(feature = "glam")]
 pub mod glam_ext;
+#[cfg(feature = "serde_utils")]
+pub mod serde_utils;
 
 pub mod consts;
 
@@ -460,8 +462,12 @@ pub mod sim {
 }
 
 pub mod math {
+    #[cfg(feature = "serde_utils")]
+    use serde::{Serialize, Deserialize};
+
     #[repr(C, align(16))]
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    #[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
     pub struct Vec3 {
         pub x: f32,
         pub y: f32,
@@ -478,6 +484,7 @@ pub mod math {
 
     #[repr(C, align(16))]
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    #[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
     pub struct RotMat {
         pub forward: Vec3,
         pub right: Vec3,
