@@ -143,27 +143,41 @@ impl fmt::Debug for DemoMode {
     }
 }
 
+#[cfg(feature = "serde_utils")]
+use serde::{Serialize, Deserialize};
+#[cfg(feature = "serde_utils")]
+use crate::serde_utils;
+
 #[derive(Clone, Copy, Debug, Default)]
+#[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
 pub struct BoostPad {
     pub is_big: bool,
     pub position: Vec3,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::BoostPadStateDerive"))]
     pub state: BoostPadState,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
+#[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
 pub struct CarInfo {
     pub id: u32,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::TeamDerive"))]
     pub team: Team,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::CarStateDerive"))]
     pub state: CarState,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::CarConfigDerive"))]
     pub config: CarConfig,
 }
 
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
 pub struct GameState {
     pub tick_rate: f32,
     pub tick_count: u64,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::GameModeDerive"))]
     pub game_mode: GameMode,
     pub cars: Vec<CarInfo>,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::BallStateDerive"))]
     pub ball: BallState,
     pub pads: Vec<BoostPad>,
 }
@@ -565,6 +579,7 @@ impl<const N: usize> LinearPieceCurve<N> {
     }
 }
 
+#[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
 pub struct CarSpawnPos {
     pub x: f32,
     pub y: f32,
