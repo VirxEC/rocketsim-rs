@@ -465,7 +465,7 @@ pub mod sim {
 
 pub mod math {
     #[cfg(feature = "serde_utils")]
-    use serde::{Serialize, Deserialize};
+    use serde::{Deserialize, Serialize};
 
     #[repr(C, align(16))]
     #[derive(Clone, Copy, Debug, Default, PartialEq)]

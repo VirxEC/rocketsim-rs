@@ -13,9 +13,9 @@ use cxx::UniquePtr;
 use std::{error::Error, fmt};
 
 #[cfg(feature = "serde_utils")]
-use serde::{Serialize, Deserialize};
-#[cfg(feature = "serde_utils")]
 use crate::serde_utils;
+#[cfg(feature = "serde_utils")]
+use serde::{Deserialize, Serialize};
 
 impl fmt::Debug for GameMode {
     #[inline]

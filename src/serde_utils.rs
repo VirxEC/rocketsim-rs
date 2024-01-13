@@ -1,8 +1,14 @@
 pub use serde;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{math::{Vec3, RotMat}, sim::{BallHitInfo, BoostPadState, Team, CarState, CarControls, CarConfig, WheelPairConfig, GameMode, BallState, HeatseekerInfo}};
+use crate::{
+    math::{RotMat, Vec3},
+    sim::{
+        BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, GameMode, HeatseekerInfo, Team,
+        WheelPairConfig,
+    },
+};
 
 // impl Serialize for Vec3 {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
