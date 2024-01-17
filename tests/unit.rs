@@ -313,3 +313,38 @@ fn demoed() {
 //     arena.pin_mut().step(15);
 //     assert!(DEMOED.load(Ordering::Relaxed));
 // }
+
+#[cfg(feature = "serde_utils")]
+#[test]
+fn game_state_serialize() {
+    use serde_json;
+
+    INIT.call_once(|| init(None));
+    let mut arena = Arena::default_standard();
+    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    arena.pin_mut().step(120);
+
+    let game_state = arena.pin_mut().get_game_state();
+    let json_state = serde_json::to_string(&game_state);
+    match json_state {
+        Ok(val) => println!("GOT JSON GAMESTATE:\n {val}"),
+        Err(e) => panic!("GOT ERROR IN GAMESTATE SERIALIZE: {e}"),
+    };
+
+    let car_info = game_state.cars[0];
+    let json_car_info = serde_json::to_string(&car_info);
+    match json_car_info {
+        Ok(val) => println!("GOT JSON CARINFO:\n {val}"),
+        Err(e) => panic!("GOT ERROR IN CARINFO SERIALIZE: {e}"),
+    };
+
+    let pad_state = game_state.pads[0];
+    let json_pad_state = serde_json::to_string(&pad_state);
+    match json_pad_state {
+        Ok(val) => println!("GOT JSON BOOSTPAD:\n {val}"),
+        Err(e) => panic!("GOT ERROR IN BOOSTPAD SERIALIZE: {e}"),
+    };
+
+    arena.pin_mut().reset_tick_count();
+}
