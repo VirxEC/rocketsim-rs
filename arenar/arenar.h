@@ -3,6 +3,8 @@
 #include "RocketSim.h"
 #include "cxx.h"
 
+using namespace RocketSim;
+
 const CarConfig& getOctane();
 const CarConfig& getDominus();
 const CarConfig& getPlank();
@@ -95,16 +97,6 @@ struct Arenar {
 
 	float get_ball_radius() const {
 		return a->ball->GetRadius();
-	}
-
-	std::array<float, 4> GetBallRotation() const {
-		btQuaternion rot = a->ball->_rigidBody.getOrientation();
-		return {
-			rot.getX(),
-			rot.getY(),
-			rot.getZ(),
-			rot.getW()
-		};
 	}
 
 	// boost pad stuff

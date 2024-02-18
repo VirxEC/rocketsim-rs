@@ -88,7 +88,7 @@ pub struct CarStateDerive {
     has_jumped: bool,
     has_double_jumped: bool,
     has_flipped: bool,
-    last_rel_dodge_torque: Vec3,
+    flip_rel_torque: Vec3,
     jump_time: f32,
     flip_time: f32,
     is_flipping: bool,

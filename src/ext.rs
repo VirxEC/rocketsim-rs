@@ -445,7 +445,7 @@ impl Default for CarState {
             has_jumped: false,
             has_double_jumped: false,
             has_flipped: false,
-            last_rel_dodge_torque: Vec3::ZERO,
+            flip_rel_torque: Vec3::ZERO,
             jump_time: 0.,
             flip_time: 0.,
             is_flipping: false,

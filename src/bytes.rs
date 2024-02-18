@@ -303,7 +303,7 @@ impl_bytes_exact!(
     has_jumped,
     has_double_jumped,
     has_flipped,
-    last_rel_dodge_torque,
+    flip_rel_torque,
     jump_time,
     flip_time,
     is_flipping,

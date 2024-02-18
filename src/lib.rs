@@ -24,11 +24,11 @@ autocxx::include_cpp! {
     #include "arenar.h"
     name!(base)
     safety!(unsafe)
-    generate_pod!("RocketSimStage")
+    generate_pod!("RocketSim::RocketSimStage")
     generate!("RocketSim::GetStage")
 }
 
-pub use base::{RocketSim::GetStage as get_stage, RocketSimStage as Stages};
+pub use base::RocketSim::{GetStage as get_stage, RocketSimStage as Stages};
 
 #[cxx::bridge]
 mod Init {
@@ -37,7 +37,9 @@ mod Init {
 
         fn init(folder: &str);
 
+        #[namespace = "RocketSim"]
         type RotMat = crate::math::RotMat;
+        #[namespace = "RocketSim"]
         type Angle = crate::math::Angle;
 
         #[must_use]
@@ -57,6 +59,7 @@ mod extra {
     unsafe extern "C++" {
         include!("arenar.h");
 
+        #[namespace = "RocketSim"]
         type CarConfig = crate::sim::CarConfig;
 
         #[rust_name = "get_octane"]
@@ -113,7 +116,7 @@ impl sim::CarConfig {
 }
 
 pub mod sim {
-    #[cxx::bridge]
+    #[cxx::bridge(namespace = "RocketSim")]
     mod carcontrols {
         unsafe extern "C++" {
             include!("Sim/CarControls.h");
@@ -140,19 +143,21 @@ pub mod sim {
         #include "arenar.h"
         name!(arena)
         safety!(unsafe)
-        block!("CarState")
-        block!("BallState")
+        block!("RocketSim::CarState")
+        block!("RocketSim::BallState")
         block!("EBoostPadState")
-        block!("CarConfig")
-        block!("CarControls")
-        block!("Vec")
-        block!("Team")
-        block!("Arena")
-        block!("MutatorConfig")
-        generate_pod!("GameMode")
-        generate_pod!("ArenaMemWeightMode")
+        block!("RocketSim::CarConfig")
+        block!("RocketSim::CarControls")
+        block!("RocketSim::Vec")
+        block!("RocketSim::Team")
+        block!("RocketSim::Arena")
+        block!("RocketSim::MutatorConfig")
+        generate_pod!("RocketSim::GameMode")
+        generate_pod!("RocketSim::ArenaMemWeightMode")
         generate!("Arenar")
     }
+
+    pub use arena::RocketSim::GameMode;
 
     #[cxx::bridge]
     mod arena_extra {
@@ -160,13 +165,20 @@ pub mod sim {
             include!("arenar.h");
 
             type Arenar = super::Arena;
+            #[namespace = "RocketSim"]
             type CarState = crate::sim::CarState;
+            #[namespace = "RocketSim"]
             type BallState = crate::sim::BallState;
             type EBoostPadState = crate::sim::BoostPadState;
+            #[namespace = "RocketSim"]
             type CarConfig = crate::sim::CarConfig;
+            #[namespace = "RocketSim"]
             type CarControls = crate::sim::CarControls;
+            #[namespace = "RocketSim"]
             type Vec = crate::math::Vec3;
+            #[namespace = "RocketSim"]
             type Team = crate::sim::Team;
+            #[namespace = "RocketSim"]
             type MutatorConfig = crate::sim::MutatorConfig;
 
             #[must_use]
@@ -223,15 +235,12 @@ pub mod sim {
             fn GetMutatorConfig(self: &Arenar) -> MutatorConfig;
             #[rust_name = "set_mutator_config"]
             fn SetMutatorConfig(self: Pin<&mut Arenar>, config: MutatorConfig);
-            #[must_use]
-            #[rust_name = "get_ball_rotation"]
-            fn GetBallRotation(self: &Arenar) -> [f32; 4];
         }
     }
 
-    pub use arena::{ArenaMemWeightMode, Arenar as Arena, GameMode};
+    pub use arena::{Arenar as Arena, RocketSim::ArenaMemWeightMode};
 
-    #[cxx::bridge]
+    #[cxx::bridge(namespace = "RocketSim")]
     mod ballhitinfo {
         unsafe extern "C++" {
             include!("Sim/BallHitInfo/BallHitInfo.h");
@@ -266,11 +275,11 @@ pub mod sim {
     unsafe impl cxx::ExternType for HeatseekerInfo {
         #[allow(unused_attributes)]
         #[doc(hidden)]
-        type Id = cxx::type_id!("BallState::HeatseekerInfo");
+        type Id = cxx::type_id!("RocketSim::BallState::HeatseekerInfo");
         type Kind = cxx::kind::Trivial;
     }
 
-    #[cxx::bridge]
+    #[cxx::bridge(namespace = "RocketSim")]
     mod ballstate {
         unsafe extern "C++" {
             include!("Sim/Ball/Ball.h");
@@ -279,7 +288,7 @@ pub mod sim {
             type Vec = crate::math::Vec3;
             type RotMat = crate::math::RotMat;
             type BallState;
-            #[namespace = "BallState"]
+            #[namespace = "RocketSim::BallState"]
             type HeatseekerInfo = crate::sim::HeatseekerInfo;
         }
 
@@ -300,10 +309,12 @@ pub mod sim {
         #include "Sim/Car/Car.h"
         name!(car)
         safety!(unsafe)
-        generate_pod!("Team")
+        generate_pod!("RocketSim::Team")
     }
 
-    #[cxx::bridge]
+    pub use car::RocketSim::Team;
+
+    #[cxx::bridge(namespace = "RocketSim")]
     mod carstate {
         unsafe extern "C++" {
             include!("Sim/Car/Car.h");
@@ -328,7 +339,7 @@ pub mod sim {
             has_jumped: bool,
             has_double_jumped: bool,
             has_flipped: bool,
-            last_rel_dodge_torque: Vec3,
+            flip_rel_torque: Vec3,
             jump_time: f32,
             flip_time: f32,
             is_flipping: bool,
@@ -356,10 +367,9 @@ pub mod sim {
         impl CxxVector<CarState> {}
     }
 
-    pub use car::Team;
     pub use carstate::CarState;
 
-    #[cxx::bridge]
+    #[cxx::bridge(namespace = "RocketSim")]
     mod carconfig {
         unsafe extern "C++" {
             include!("Sim/Car/CarConfig/CarConfig.h");
@@ -413,12 +423,12 @@ pub mod sim {
         #include "Sim/MutatorConfig/MutatorConfig.h"
         name!(demo)
         safety!(unsafe)
-        generate_pod!("DemoMode")
+        generate_pod!("RocketSim::DemoMode")
     }
 
-    pub use demo::DemoMode;
+    pub use demo::RocketSim::DemoMode;
 
-    #[cxx::bridge]
+    #[cxx::bridge(namespace = "RocketSim")]
     mod mutators {
         unsafe extern "C++" {
             include!("Sim/MutatorConfig/MutatorConfig.h");
@@ -480,7 +490,7 @@ pub mod math {
     unsafe impl cxx::ExternType for Vec3 {
         #[allow(unused_attributes)]
         #[doc(hidden)]
-        type Id = cxx::type_id!("Vec");
+        type Id = cxx::type_id!("RocketSim::Vec");
         type Kind = cxx::kind::Trivial;
     }
 
@@ -496,11 +506,11 @@ pub mod math {
     unsafe impl cxx::ExternType for RotMat {
         #[allow(unused_attributes)]
         #[doc(hidden)]
-        type Id = cxx::type_id!("RotMat");
+        type Id = cxx::type_id!("RocketSim::RotMat");
         type Kind = cxx::kind::Trivial;
     }
 
-    #[cxx::bridge]
+    #[cxx::bridge(namespace = "RocketSim")]
     mod inner_math {
         unsafe extern "C++" {
             include!("Math/MathTypes/MathTypes.h");

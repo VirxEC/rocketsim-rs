@@ -1,6 +1,6 @@
 use rocketsim_rs::{
     init,
-    math::{Angle, Vec3},
+    math::{Angle, RotMat, Vec3},
     sim::{Arena, BallState, CarConfig, CarControls, CarState, Team},
 };
 use std::{
@@ -101,7 +101,7 @@ fn ball() {
     assert_eq!(ball.vel.y, 0.);
     assert!(ball.vel.z < 0.);
 
-    assert_eq!(arena.get_ball_rotation(), [0., 0., 0., 1.]);
+    assert_eq!(ball.rot_mat, RotMat::IDENTITY);
 }
 
 #[test]
@@ -253,66 +253,66 @@ fn demoed() {
     assert!(DEMOED.load(Ordering::Relaxed));
 }
 
-// #[test]
-// fn demoed_hoops() {
-//     static DEMOED: AtomicBool = AtomicBool::new(false);
-//     INIT.call_once(|| init(None));
+#[test]
+fn demoed_hoops() {
+    static DEMOED: AtomicBool = AtomicBool::new(false);
+    INIT.call_once(|| init(None));
 
-//     let mut arena = Arena::default_hoops();
-//     // set up two cars, one demoing the other
-//     let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-//     let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let mut arena = Arena::default_hoops();
+    // set up two cars, one demoing the other
+    let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
 
-//     arena
-//         .pin_mut()
-//         .set_car(
-//             orange,
-//             CarState {
-//                 pos: Vec3::new(0., 0., 17.),
-//                 ..Default::default()
-//             },
-//         )
-//         .unwrap();
+    arena
+        .pin_mut()
+        .set_car(
+            orange,
+            CarState {
+                pos: Vec3::new(0., 0., 17.),
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
-//     arena
-//         .pin_mut()
-//         .set_car(
-//             blue,
-//             CarState {
-//                 pos: Vec3::new(-300., 0., 17.),
-//                 vel: Vec3::new(2300., 0., 0.),
-//                 boost: 100.,
-//                 ..Default::default()
-//             },
-//         )
-//         .unwrap();
+    arena
+        .pin_mut()
+        .set_car(
+            blue,
+            CarState {
+                pos: Vec3::new(-300., 0., 17.),
+                vel: Vec3::new(2300., 0., 0.),
+                boost: 100.,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
-//     arena
-//         .pin_mut()
-//         .set_car_controls(
-//             blue,
-//             CarControls {
-//                 throttle: 1.,
-//                 boost: true,
-//                 ..Default::default()
-//             },
-//         )
-//         .unwrap();
+    arena
+        .pin_mut()
+        .set_car_controls(
+            blue,
+            CarControls {
+                throttle: 1.,
+                boost: true,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
-//     arena.pin_mut().set_car_bump_callback(
-//         |arena, bumper, victim, is_demo, _| {
-//             if is_demo {
-//                 assert_eq!(arena.get_tick_count(), 9);
-//                 println!("CAR {bumper} DEMOED {victim}!");
-//                 DEMOED.store(true, Ordering::Relaxed);
-//             }
-//         },
-//         0,
-//     );
+    arena.pin_mut().set_car_bump_callback(
+        |arena, bumper, victim, is_demo, _| {
+            if is_demo {
+                assert_eq!(arena.get_tick_count(), 9);
+                println!("CAR {bumper} DEMOED {victim}!");
+                DEMOED.store(true, Ordering::Relaxed);
+            }
+        },
+        0,
+    );
 
-//     arena.pin_mut().step(15);
-//     assert!(DEMOED.load(Ordering::Relaxed));
-// }
+    arena.pin_mut().step(15);
+    assert!(DEMOED.load(Ordering::Relaxed));
+}
 
 #[cfg(feature = "serde_utils")]
 #[test]
