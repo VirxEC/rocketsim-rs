@@ -1,6 +1,6 @@
+/// Re-export of `serde` crate for dependents.
+#[allow(unused_imports)]
 pub use serde;
-
-use serde::{Deserialize, Serialize};
 
 use crate::{
     math::{RotMat, Vec3},
@@ -9,6 +9,7 @@ use crate::{
         WheelPairConfig,
     },
 };
+use serde::{Deserialize, Serialize};
 
 // impl Serialize for Vec3 {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
