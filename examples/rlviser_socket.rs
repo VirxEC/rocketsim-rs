@@ -1,11 +1,3 @@
-use std::{
-    io,
-    net::UdpSocket,
-    sync::mpsc::{channel, Receiver},
-    thread::sleep,
-    time::{Duration, Instant},
-};
-
 use autocxx::WithinUniquePtr;
 use rocketsim_rs::{
     bytes::{FromBytes, ToBytes},
@@ -14,6 +6,22 @@ use rocketsim_rs::{
     sim::{Arena, ArenaMemWeightMode, BallState, CarConfig, CarControls, GameMode, Team},
     GameState,
 };
+use std::{
+    io,
+    net::{IpAddr, SocketAddr, UdpSocket},
+    str::FromStr,
+    sync::mpsc::{channel, Receiver},
+    thread::sleep,
+    time::{Duration, Instant},
+};
+
+// Pass this into rlviser as the first argument
+// default: 45243
+const RLVISER_PORT: u16 = 45243;
+
+// Pass this into rlviser as the second argument
+// default: 34254
+const ROCKETSIM_PORT: u16 = 34254;
 
 #[repr(u8)]
 enum UdpPacketTypes {
@@ -36,7 +44,7 @@ fn ctrl_channel() -> Result<Receiver<()>, ctrlc::Error> {
 }
 
 fn main() -> io::Result<()> {
-    let socket = UdpSocket::bind("0.0.0.0:34254")?;
+    let socket = UdpSocket::bind(("0.0.0.0", ROCKETSIM_PORT))?;
     // print the socket address
     println!("Listening on {}", socket.local_addr()?);
 
@@ -56,14 +64,10 @@ fn main() -> io::Result<()> {
 }
 
 fn run_socket(socket: UdpSocket, arena_type: GameMode, speed: f32) -> io::Result<()> {
-    println!("\nLaunch visualizer now, waiting for connection...");
+    let rlviser_addr = SocketAddr::new(IpAddr::from_str("0.0.0.0").unwrap(), RLVISER_PORT);
 
-    let mut buf = [0; 1];
-    let (_, src) = socket.recv_from(&mut buf)?;
-
-    if buf[0] == 1 {
-        println!("Connection established to {src}");
-    }
+    println!("\nPress enter to start...");
+    io::stdin().read_line(&mut String::new())?;
 
     // We now don't want to wait for anything UDP so set to non-blocking
     socket.set_nonblocking(true)?;
@@ -83,7 +87,7 @@ fn run_socket(socket: UdpSocket, arena_type: GameMode, speed: f32) -> io::Result
     // we loop forever - can be broken by pressing Ctrl+C in terminal
     loop {
         if break_signal.try_recv().is_ok() {
-            socket.send_to(&[UdpPacketTypes::Quit as u8], src)?;
+            socket.send_to(&[UdpPacketTypes::Quit as u8], rlviser_addr)?;
             println!("Sent quit signal to rlviser");
 
             // Then break the loop
@@ -99,9 +103,9 @@ fn run_socket(socket: UdpSocket, arena_type: GameMode, speed: f32) -> io::Result
         let game_state = arena.pin_mut().get_game_state();
 
         // Send the packet type
-        socket.send_to(&[UdpPacketTypes::GameState as u8], src)?;
+        socket.send_to(&[UdpPacketTypes::GameState as u8], rlviser_addr)?;
         // Then send the packet
-        socket.send_to(&game_state.to_bytes(), src)?;
+        socket.send_to(&game_state.to_bytes(), rlviser_addr)?;
 
         // ensure we only calculate 120 steps per second
         let wait_time = next_time - Instant::now();
