@@ -67,6 +67,8 @@ fn cars() {
     assert_eq!(car_info.config.hitbox_size.x, dominus.hitbox_size.x);
     assert_eq!(car_info.config.hitbox_size.y, dominus.hitbox_size.y);
     assert_eq!(car_info.config.hitbox_size.z, dominus.hitbox_size.z);
+
+    assert!(car_info.state.has_flip_or_jump());
 }
 
 #[test]

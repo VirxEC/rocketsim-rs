@@ -294,11 +294,11 @@ pub mod sim {
 
         #[derive(Clone, Copy, Debug)]
         struct BallState {
-            update_counter: u64,
             pos: Vec3,
             rot_mat: RotMat,
             vel: Vec3,
             ang_vel: Vec3,
+            update_counter: u64,
             hs_info: HeatseekerInfo,
         }
     }
@@ -326,15 +326,19 @@ pub mod sim {
             type BallHitInfo = crate::sim::BallHitInfo;
 
             type CarState;
+
+            #[must_use]
+            #[rust_name = "has_flip_or_jump"]
+            fn HasFlipOrJump(self: &CarState) -> bool;
         }
 
         #[derive(Clone, Copy, Debug)]
         struct CarState {
-            update_counter: u64,
             pos: Vec3,
             rot_mat: RotMat,
             vel: Vec3,
             ang_vel: Vec3,
+            update_counter: u64,
             is_on_ground: bool,
             has_jumped: bool,
             has_double_jumped: bool,
