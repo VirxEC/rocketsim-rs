@@ -242,6 +242,8 @@ pub mod sim {
 
     pub use arena::{Arenar as Arena, RocketSim::ArenaMemWeightMode};
 
+    unsafe impl Send for Arena {}
+
     #[cxx::bridge(namespace = "RocketSim")]
     mod ballhitinfo {
         unsafe extern "C++" {

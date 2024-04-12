@@ -485,7 +485,11 @@ impl RenderMessage {
     fn count_bytes(&self) -> usize {
         match self {
             Self::AddRender(_, renders) => {
-                Self::MIN_NUM_BYTES + i32::NUM_BYTES + 1 + u16::NUM_BYTES + renders.iter().map(Render::count_bytes).sum::<usize>()
+                Self::MIN_NUM_BYTES
+                    + i32::NUM_BYTES
+                    + 1
+                    + u16::NUM_BYTES
+                    + renders.iter().map(Render::count_bytes).sum::<usize>()
             }
             Self::RemoveRender(_) => Self::MIN_NUM_BYTES + i32::NUM_BYTES,
         }

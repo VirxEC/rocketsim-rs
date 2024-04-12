@@ -42,7 +42,7 @@ impl Copy for GameMode {}
 impl MutatorConfig {
     pub fn default(game_mode: GameMode) -> Self {
         Self {
-            gravity: Vec3::new(0., 0., 650.),
+            gravity: Vec3::new(0., 0., consts::GRAVITY_Z),
             car_mass: consts::CAR_MASS_BT,
             car_world_friction: consts::CARWORLD_COLLISION_FRICTION,
             car_world_restitution: consts::CARWORLD_COLLISION_RESTITUTION,
