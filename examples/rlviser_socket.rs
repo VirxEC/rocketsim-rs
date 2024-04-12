@@ -92,7 +92,7 @@ impl RLViserSocketHandler {
         // print the socket address
         println!("Listening on {}", socket.local_addr()?);
 
-        let rlviser_addr = SocketAddr::new(IpAddr::from_str("0.0.0.0").unwrap(), RLVISER_PORT);
+        let rlviser_addr = SocketAddr::new(IpAddr::from_str("127.0.0.1").unwrap(), RLVISER_PORT);
 
         println!("\nPress enter to start...");
         io::stdin().read_line(&mut String::new())?;
