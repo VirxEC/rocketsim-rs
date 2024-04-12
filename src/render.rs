@@ -47,14 +47,15 @@ impl Color {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Render {
     Line2D { start: Vec2, end: Vec2, color: Color },
-    Line3D { start: Vec3, end: Vec3, color: Color },
+    Line { start: Vec3, end: Vec3, color: Color },
+    LineStrip { positions: Vec<Vec3>, color: Color },
 }
 
 #[derive(Clone, Debug)]
 pub enum RenderMessage {
-    AddRender(u32, Vec<Render>),
-    RemoveRender(u32),
+    AddRender(i32, Vec<Render>),
+    RemoveRender(i32),
 }

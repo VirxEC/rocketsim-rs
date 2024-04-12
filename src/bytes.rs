@@ -23,7 +23,7 @@ struct ByteReader<'a> {
 
 impl<'a> ByteReader<'a> {
     #[inline]
-    pub fn new(bytes: &'a [u8]) -> Self {
+    pub const fn new(bytes: &'a [u8]) -> Self {
         Self { idx: 0, bytes }
     }
 
@@ -57,7 +57,7 @@ impl FromBytesExact for f32 {
 impl FromBytes for f32 {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
-        f32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]])
+        Self::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]])
     }
 }
 
@@ -90,7 +90,7 @@ impl FromBytesExact for u32 {
 impl FromBytes for u32 {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
-        u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]])
+        Self::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]])
     }
 }
 
@@ -101,7 +101,18 @@ impl FromBytesExact for u64 {
 impl FromBytes for u64 {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
-        u64::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]])
+        Self::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]])
+    }
+}
+
+impl FromBytesExact for i32 {
+    const NUM_BYTES: usize = 4;
+}
+
+impl FromBytes for i32 {
+    #[inline]
+    fn from_bytes(bytes: &[u8]) -> Self {
+        Self::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]])
     }
 }
 
@@ -113,8 +124,8 @@ impl FromBytes for Team {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
-            0 => Team::BLUE,
-            1 => Team::ORANGE,
+            0 => Self::BLUE,
+            1 => Self::ORANGE,
             _ => unreachable!(),
         }
     }
@@ -128,11 +139,11 @@ impl FromBytes for GameMode {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
-            0 => GameMode::SOCCAR,
-            1 => GameMode::HOOPS,
-            2 => GameMode::HEATSEEKER,
-            3 => GameMode::SNOWDAY,
-            4 => GameMode::THE_VOID,
+            0 => Self::SOCCAR,
+            1 => Self::HOOPS,
+            2 => Self::HEATSEEKER,
+            3 => Self::SNOWDAY,
+            4 => Self::THE_VOID,
             _ => unreachable!(),
         }
     }
@@ -145,7 +156,7 @@ impl FromBytesExact for Vec3 {
 impl FromBytes for Vec3 {
     fn from_bytes(bytes: &[u8]) -> Self {
         let mut reader = ByteReader::new(bytes);
-        Vec3::new(reader.read(), reader.read(), reader.read())
+        Self::new(reader.read(), reader.read(), reader.read())
     }
 }
 
@@ -168,59 +179,6 @@ impl FromBytes for Color {
     fn from_bytes(bytes: &[u8]) -> Self {
         let mut reader = ByteReader::new(bytes);
         Self::rgba(reader.read(), reader.read(), reader.read(), reader.read())
-    }
-}
-
-impl Render {
-    fn from_reader(reader: &mut ByteReader) -> Self {
-        match reader.read::<u8>() {
-            0 => Self::Line2D {
-                start: reader.read(),
-                end: reader.read(),
-                color: reader.read(),
-            },
-            1 => Self::Line3D {
-                start: reader.read(),
-                end: reader.read(),
-                color: reader.read(),
-            },
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl ToBytes for Render {
-    fn to_bytes(&self) -> Vec<u8> {
-        match *self {
-            Render::Line2D { start, end, color } => {
-                let mut bytes = Vec::new();
-                bytes.extend_from_slice(&start.to_bytes());
-                bytes.extend_from_slice(&end.to_bytes());
-                bytes.extend_from_slice(&color.to_bytes());
-                bytes
-            }
-            Render::Line3D { start, end, color } => {
-                let mut bytes = Vec::new();
-                bytes.extend_from_slice(&start.to_bytes());
-                bytes.extend_from_slice(&end.to_bytes());
-                bytes.extend_from_slice(&color.to_bytes());
-                bytes
-            }
-        }
-    }
-}
-
-impl FromBytes for RenderMessage {
-    fn from_bytes(bytes: &[u8]) -> Self {
-        let mut reader = ByteReader::new(bytes);
-        match reader.read::<u8>() {
-            0 => Self::AddRender(
-                reader.read(),
-                (0..reader.read::<u16>()).map(|_| Render::from_reader(&mut reader)).collect(),
-            ),
-            1 => Self::RemoveRender(reader.read()),
-            _ => unreachable!(),
-        }
     }
 }
 
@@ -254,7 +212,7 @@ struct ByteWriter<const N: usize> {
 
 impl<const N: usize> ByteWriter<N> {
     #[inline]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { idx: 0, bytes: [0; N] }
     }
 
@@ -270,41 +228,29 @@ impl<const N: usize> ByteWriter<N> {
     }
 }
 
-impl ToBytesExact<{ Self::NUM_BYTES }> for bool {
-    fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
-        [*self as u8]
-    }
+macro_rules! impl_to_bytes_exact_via_std {
+    ($($t:ty),+) => {
+        $(impl ToBytesExact<{ Self::NUM_BYTES }> for $t {
+            fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
+                self.to_le_bytes()
+            }
+        })+
+    };
 }
 
-impl ToBytesExact<{ Self::NUM_BYTES }> for u32 {
-    fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
-        self.to_le_bytes()
-    }
+impl_to_bytes_exact_via_std!(u8, u16, u32, u64, i32, f32);
+
+macro_rules! impl_to_bytes_exact_as_u8 {
+    ($($t:ty),+) => {
+        $(impl ToBytesExact<{ Self::NUM_BYTES }> for $t {
+            fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
+                [*self as u8]
+            }
+        })+
+    };
 }
 
-impl ToBytesExact<{ Self::NUM_BYTES }> for u64 {
-    fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
-        self.to_le_bytes()
-    }
-}
-
-impl ToBytesExact<{ Self::NUM_BYTES }> for f32 {
-    fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
-        self.to_le_bytes()
-    }
-}
-
-impl ToBytesExact<{ Self::NUM_BYTES }> for Team {
-    fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
-        [*self as u8]
-    }
-}
-
-impl ToBytesExact<{ Self::NUM_BYTES }> for GameMode {
-    fn to_bytes(&self) -> [u8; Self::NUM_BYTES] {
-        [*self as u8]
-    }
-}
+impl_to_bytes_exact_as_u8!(bool, Team, GameMode);
 
 macro_rules! impl_to_bytes_exact {
     ($t:ty, $($p:ident),+) => {
@@ -451,6 +397,130 @@ impl_bytes_exact!(
     config
 );
 
+impl Render {
+    fn count_bytes(&self) -> usize {
+        match self {
+            Self::Line2D { .. } => 1 + Vec2::NUM_BYTES * 2 + Color::NUM_BYTES,
+            Self::Line { .. } => 1 + Vec3::NUM_BYTES * 2 + Color::NUM_BYTES,
+            Self::LineStrip { positions, .. } => 1 + u16::NUM_BYTES + positions.len() * Vec3::NUM_BYTES + Color::NUM_BYTES,
+        }
+    }
+
+    fn from_reader(reader: &mut ByteReader) -> Self {
+        match reader.read::<u8>() {
+            0 => Self::Line2D {
+                start: reader.read(),
+                end: reader.read(),
+                color: reader.read(),
+            },
+            1 => Self::Line {
+                start: reader.read(),
+                end: reader.read(),
+                color: reader.read(),
+            },
+            2 => Self::LineStrip {
+                positions: (0..reader.read::<u16>()).map(|_| reader.read()).collect(),
+                color: reader.read(),
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl ToBytes for Render {
+    fn to_bytes(&self) -> Vec<u8> {
+        let num_bytes = self.count_bytes();
+        let mut bytes = Vec::with_capacity(num_bytes);
+
+        match self {
+            Render::Line2D { start, end, color } => {
+                bytes.push(0);
+                bytes.extend_from_slice(&start.to_bytes());
+                bytes.extend_from_slice(&end.to_bytes());
+                bytes.extend_from_slice(&color.to_bytes());
+            }
+            Render::Line { start, end, color } => {
+                bytes.push(1);
+                bytes.extend_from_slice(&start.to_bytes());
+                bytes.extend_from_slice(&end.to_bytes());
+                bytes.extend_from_slice(&color.to_bytes());
+            }
+            Render::LineStrip { positions, color } => {
+                bytes.push(2);
+                bytes.extend_from_slice(&(positions.len() as u16).to_bytes());
+
+                for pos in positions {
+                    bytes.extend_from_slice(&pos.to_bytes());
+                }
+
+                bytes.extend_from_slice(&color.to_bytes());
+            }
+        }
+
+        debug_assert_eq!(bytes.len(), num_bytes);
+
+        bytes
+    }
+}
+
+impl FromBytes for RenderMessage {
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let mut reader = ByteReader::new(bytes);
+        reader.read::<u32>();
+
+        match reader.read::<u8>() {
+            0 => Self::AddRender(
+                reader.read(),
+                (0..reader.read::<u16>()).map(|_| Render::from_reader(&mut reader)).collect(),
+            ),
+            1 => Self::RemoveRender(reader.read()),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl RenderMessage {
+    pub const MIN_NUM_BYTES: usize = u32::NUM_BYTES;
+
+    fn count_bytes(&self) -> usize {
+        match self {
+            Self::AddRender(_, renders) => {
+                Self::MIN_NUM_BYTES + i32::NUM_BYTES + 1 + u16::NUM_BYTES + renders.iter().map(Render::count_bytes).sum::<usize>()
+            }
+            Self::RemoveRender(_) => Self::MIN_NUM_BYTES + i32::NUM_BYTES,
+        }
+    }
+
+    pub fn get_num_bytes(bytes: &[u8]) -> usize {
+        u32::from_bytes(&bytes[..u32::NUM_BYTES]) as usize
+    }
+}
+
+impl ToBytes for RenderMessage {
+    fn to_bytes(&self) -> Vec<u8> {
+        let num_bytes = self.count_bytes();
+        let mut bytes = Vec::with_capacity(num_bytes);
+        bytes.extend_from_slice(&(num_bytes as u32).to_bytes());
+
+        match self {
+            Self::AddRender(id, renders) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&id.to_bytes());
+                bytes.extend_from_slice(&(renders.len() as u16).to_bytes());
+                bytes.extend(renders.iter().flat_map(ToBytes::to_bytes));
+            }
+            Self::RemoveRender(id) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&id.to_bytes());
+            }
+        }
+
+        debug_assert_eq!(bytes.len(), num_bytes);
+
+        bytes
+    }
+}
+
 impl FromBytes for GameState {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -475,6 +545,13 @@ impl FromBytes for GameState {
 impl GameState {
     pub const MIN_NUM_BYTES: usize = u64::NUM_BYTES + f32::NUM_BYTES + 1 + u32::NUM_BYTES * 2;
 
+    fn count_bytes(&self) -> usize {
+        Self::MIN_NUM_BYTES
+            + BallState::NUM_BYTES
+            + self.pads.len() * BoostPad::NUM_BYTES
+            + self.cars.len() * CarInfo::NUM_BYTES
+    }
+
     #[inline]
     pub fn get_num_bytes(bytes: &[u8]) -> usize {
         Self::MIN_NUM_BYTES
@@ -495,7 +572,7 @@ impl GameState {
 
     #[inline]
     pub fn read_game_mode(bytes: &[u8]) -> GameMode {
-        GameMode::from_bytes(&bytes[u64::NUM_BYTES + f32::NUM_BYTES..u64::NUM_BYTES + f32::NUM_BYTES + 1])
+        GameMode::from_bytes(&bytes[(u64::NUM_BYTES + f32::NUM_BYTES)..=(u64::NUM_BYTES + f32::NUM_BYTES)])
     }
 
     #[inline]
@@ -516,12 +593,7 @@ pub trait ToBytes {
 
 impl ToBytes for GameState {
     fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(
-            Self::MIN_NUM_BYTES
-                + BallState::NUM_BYTES
-                + self.pads.len() * BoostPad::NUM_BYTES
-                + self.cars.len() * CarInfo::NUM_BYTES,
-        );
+        let mut bytes = Vec::with_capacity(self.count_bytes());
 
         bytes.extend(self.tick_count.to_bytes());
         bytes.extend(self.tick_rate.to_bytes());
