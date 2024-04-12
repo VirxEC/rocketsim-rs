@@ -100,6 +100,12 @@ impl RLViserSocketHandler {
         // We now don't want to wait for anything UDP so set to non-blocking
         socket.set_nonblocking(true)?;
 
+        // notify rlviser that we're connected
+        // it will send us info on the desired game speed / if the game should be paused
+        // if you choose to ignore this, at least send the right game speed / paused state back
+        // otherwise things like packet interpolation will be off
+        socket.send_to(&[UdpPacketTypes::Connection as u8], rlviser_addr)?;
+
         Ok(Self {
             socket,
             rlviser_addr,
