@@ -5,8 +5,8 @@ pub use serde;
 use crate::{
     math::{RotMat, Vec3},
     sim::{
-        BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, GameMode, HeatseekerInfo, Team,
-        WheelPairConfig,
+        BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode, HeatseekerInfo, Team,
+        WheelPairConfig, WorldContact,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -78,6 +78,20 @@ pub struct CarControlsDerive {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(remote = "WorldContact")]
+pub struct WorldContactDerive {
+    pub has_contact: bool,
+    pub contact_normal: Vec3,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "CarContact")]
+pub struct CarContactDerive {
+    pub other_car_id: u32,
+    pub cooldown_timer: f32,
+}
+
+#[derive(Serialize, Deserialize)]
 #[serde(remote = "CarState")]
 pub struct CarStateDerive {
     update_counter: u64,
@@ -86,6 +100,7 @@ pub struct CarStateDerive {
     vel: Vec3,
     ang_vel: Vec3,
     is_on_ground: bool,
+    wheels_with_contact: [bool; 4],
     has_jumped: bool,
     has_double_jumped: bool,
     has_flipped: bool,
@@ -94,6 +109,7 @@ pub struct CarStateDerive {
     flip_time: f32,
     is_flipping: bool,
     is_jumping: bool,
+    air_time: f32,
     air_time_since_jump: f32,
     boost: f32,
     time_spent_boosting: f32,
@@ -103,10 +119,10 @@ pub struct CarStateDerive {
     is_auto_flipping: bool,
     auto_flip_timer: f32,
     auto_flip_torque_scale: f32,
-    has_contact: bool,
-    contact_normal: Vec3,
-    other_car_id: u32,
-    cooldown_timer: f32,
+    #[serde(with = "WorldContactDerive")]
+    world_contact: WorldContact,
+    #[serde(with = "CarContactDerive")]
+    car_contact: CarContact,
     is_demoed: bool,
     demo_respawn_timer: f32,
     #[serde(with = "BallHitInfoDerive")]

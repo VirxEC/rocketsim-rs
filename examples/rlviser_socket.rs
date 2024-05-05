@@ -236,6 +236,7 @@ fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
                     (
                         i,
                         CarControls {
+                            steer: 0.2,
                             throttle: 1.,
                             pitch: -0.1,
                             boost: true,

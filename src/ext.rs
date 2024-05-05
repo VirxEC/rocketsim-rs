@@ -2,8 +2,8 @@ use crate::{
     consts,
     math::{Angle, RotMat, Vec3},
     sim::{
-        Arena, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, DemoMode,
-        GameMode, HeatseekerInfo, MutatorConfig, Team,
+        Arena, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState,
+        DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
     },
     Init::AngleFromRotMat,
 };
@@ -442,6 +442,7 @@ impl Default for CarState {
             vel: Vec3::ZERO,
             ang_vel: Vec3::ZERO,
             is_on_ground: true,
+            wheels_with_contact: [true; 4],
             has_jumped: false,
             has_double_jumped: false,
             has_flipped: false,
@@ -450,6 +451,7 @@ impl Default for CarState {
             flip_time: 0.,
             is_flipping: false,
             is_jumping: false,
+            air_time: 0.,
             air_time_since_jump: 0.,
             boost: 100. / 3.,
             time_spent_boosting: 0.,
@@ -459,10 +461,14 @@ impl Default for CarState {
             is_auto_flipping: false,
             auto_flip_timer: 0.,
             auto_flip_torque_scale: 0.,
-            has_contact: false,
-            contact_normal: Vec3::ZERO,
-            other_car_id: 0,
-            cooldown_timer: 0.,
+            world_contact: WorldContact {
+                has_contact: false,
+                contact_normal: Vec3::ZERO,
+            },
+            car_contact: CarContact {
+                other_car_id: 0,
+                cooldown_timer: 0.,
+            },
             is_demoed: false,
             demo_respawn_timer: 0.,
             ball_hit_info: BallHitInfo::default(),
@@ -476,10 +482,10 @@ impl CarState {
     #[must_use]
     /// Returns the other Car that this Car is currently contacting, if any
     pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
-        if self.other_car_id == 0 {
+        if self.car_contact.other_car_id == 0 {
             None
         } else {
-            Some(arena.get_car(self.other_car_id))
+            Some(arena.get_car(self.car_contact.other_car_id))
         }
     }
 }

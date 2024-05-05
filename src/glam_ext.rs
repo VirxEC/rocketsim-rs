@@ -18,8 +18,8 @@ use glam::{EulerRot, Mat3, Mat3A, Quat, Vec3, Vec3A, Vec4};
 use crate::{
     math::{Angle, RotMat, Vec3 as Vec3R},
     sim::{
-        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarControls, CarState, GameMode, HeatseekerInfo, Team,
-        WheelPairConfig,
+        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode,
+        HeatseekerInfo, Team, WheelPairConfig, WorldContact,
     },
     BoostPad, CarInfo, GameState,
 };
@@ -152,8 +152,8 @@ impl FromRotMat for Quat {
 impl Vec3R {
     #[inline]
     #[must_use]
-    pub const fn to_glam(self) -> Vec4 {
-        Vec4::new(self.x, self.y, self.z, self._w)
+    pub fn to_glam(self) -> Vec3A {
+        Vec3A::from(self)
     }
 
     #[inline]
@@ -165,6 +165,12 @@ impl Vec3R {
 }
 
 impl RotMat {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> Mat3A {
+        Mat3A::from(self)
+    }
+
     #[inline]
     #[must_use]
     pub fn from_quat(quat: Quat) -> Self {
@@ -187,6 +193,14 @@ impl From<BoostPad> for BoostPadA {
             position: value.position.into(),
             state: value.state,
         }
+    }
+}
+
+impl BoostPad {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> BoostPadA {
+        self.into()
     }
 }
 
@@ -225,6 +239,14 @@ impl From<BallHitInfoA> for BallHitInfo {
             tick_count_when_hit: value.tick_count_when_hit,
             tick_count_when_extra_impulse_applied: value.tick_count_when_extra_impulse_applied,
         }
+    }
+}
+
+impl BallHitInfo {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> BallHitInfoA {
+        self.into()
     }
 }
 
@@ -280,6 +302,14 @@ impl From<BallA> for BallState {
     }
 }
 
+impl BallState {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> BallA {
+        self.into()
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct WheelPairConfigA {
     pub wheel_radius: f32,
@@ -306,6 +336,14 @@ impl From<WheelPairConfigA> for WheelPairConfig {
             suspension_rest_length: value.suspension_rest_length,
             connection_point_offset: value.connection_point_offset.into(),
         }
+    }
+}
+
+impl WheelPairConfig {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> WheelPairConfigA {
+        self.into()
     }
 }
 
@@ -344,6 +382,82 @@ impl From<CarConfigA> for CarConfig {
     }
 }
 
+impl CarConfig {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> CarConfigA {
+        self.into()
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct WorldContactA {
+    pub has_contact: bool,
+    pub contact_normal: Vec3A,
+}
+
+impl From<WorldContactA> for WorldContact {
+    #[inline]
+    fn from(value: WorldContactA) -> Self {
+        Self {
+            has_contact: value.has_contact,
+            contact_normal: value.contact_normal.into(),
+        }
+    }
+}
+
+impl From<WorldContact> for WorldContactA {
+    #[inline]
+    fn from(value: WorldContact) -> Self {
+        Self {
+            has_contact: value.has_contact,
+            contact_normal: value.contact_normal.into(),
+        }
+    }
+}
+
+impl WorldContact {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> WorldContactA {
+        self.into()
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct CarContactA {
+    pub other_car_id: u32,
+    pub cooldown_timer: f32,
+}
+
+impl From<CarContact> for CarContactA {
+    #[inline]
+    fn from(value: CarContact) -> Self {
+        Self {
+            other_car_id: value.other_car_id,
+            cooldown_timer: value.cooldown_timer,
+        }
+    }
+}
+
+impl From<CarContactA> for CarContact {
+    #[inline]
+    fn from(value: CarContactA) -> Self {
+        Self {
+            other_car_id: value.other_car_id,
+            cooldown_timer: value.cooldown_timer,
+        }
+    }
+}
+
+impl CarContact {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> CarContactA {
+        self.into()
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct CarStateA {
     pub update_counter: u64,
@@ -352,6 +466,7 @@ pub struct CarStateA {
     pub vel: Vec3A,
     pub ang_vel: Vec3A,
     pub is_on_ground: bool,
+    pub wheels_with_contact: [bool; 4],
     pub has_jumped: bool,
     pub has_double_jumped: bool,
     pub has_flipped: bool,
@@ -360,6 +475,7 @@ pub struct CarStateA {
     pub flip_time: f32,
     pub is_flipping: bool,
     pub is_jumping: bool,
+    pub air_time: f32,
     pub air_time_since_jump: f32,
     pub boost: f32,
     pub time_spent_boosting: f32,
@@ -369,10 +485,8 @@ pub struct CarStateA {
     pub is_auto_flipping: bool,
     pub auto_flip_timer: f32,
     pub auto_flip_torque_scale: f32,
-    pub has_contact: bool,
-    pub contact_normal: Vec3A,
-    pub other_car_id: u32,
-    pub cooldown_timer: f32,
+    pub world_contact: WorldContactA,
+    pub car_contact: CarContactA,
     pub is_demoed: bool,
     pub demo_respawn_timer: f32,
     pub ball_hit_info: BallHitInfoA,
@@ -389,6 +503,7 @@ impl Default for CarStateA {
             vel: Vec3A::default(),
             ang_vel: Vec3A::default(),
             is_on_ground: true,
+            wheels_with_contact: [true; 4],
             has_jumped: false,
             has_double_jumped: false,
             has_flipped: false,
@@ -397,6 +512,7 @@ impl Default for CarStateA {
             flip_time: 0.,
             is_flipping: false,
             is_jumping: false,
+            air_time: 0.,
             air_time_since_jump: 0.,
             boost: 100. / 3.,
             time_spent_boosting: 0.,
@@ -406,10 +522,8 @@ impl Default for CarStateA {
             is_auto_flipping: false,
             auto_flip_timer: 0.,
             auto_flip_torque_scale: 0.,
-            has_contact: false,
-            contact_normal: Vec3A::default(),
-            other_car_id: 0,
-            cooldown_timer: 0.,
+            world_contact: WorldContactA::default(),
+            car_contact: CarContactA::default(),
             is_demoed: false,
             demo_respawn_timer: 0.,
             ball_hit_info: BallHitInfoA::default(),
@@ -428,6 +542,7 @@ impl From<CarState> for CarStateA {
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
             is_on_ground: value.is_on_ground,
+            wheels_with_contact: value.wheels_with_contact,
             has_jumped: value.has_jumped,
             has_double_jumped: value.has_double_jumped,
             has_flipped: value.has_flipped,
@@ -436,6 +551,7 @@ impl From<CarState> for CarStateA {
             flip_time: value.flip_time,
             is_flipping: value.is_flipping,
             is_jumping: value.is_jumping,
+            air_time: value.air_time,
             air_time_since_jump: value.air_time_since_jump,
             boost: value.boost,
             time_spent_boosting: value.time_spent_boosting,
@@ -445,10 +561,8 @@ impl From<CarState> for CarStateA {
             is_auto_flipping: value.is_auto_flipping,
             auto_flip_timer: value.auto_flip_timer,
             auto_flip_torque_scale: value.auto_flip_torque_scale,
-            has_contact: value.has_contact,
-            contact_normal: value.contact_normal.into(),
-            other_car_id: value.other_car_id,
-            cooldown_timer: value.cooldown_timer,
+            world_contact: value.world_contact.into(),
+            car_contact: value.car_contact.into(),
             is_demoed: value.is_demoed,
             demo_respawn_timer: value.demo_respawn_timer,
             ball_hit_info: value.ball_hit_info.into(),
@@ -467,6 +581,7 @@ impl From<CarStateA> for CarState {
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
             is_on_ground: value.is_on_ground,
+            wheels_with_contact: value.wheels_with_contact,
             has_jumped: value.has_jumped,
             has_double_jumped: value.has_double_jumped,
             has_flipped: value.has_flipped,
@@ -475,6 +590,7 @@ impl From<CarStateA> for CarState {
             flip_time: value.flip_time,
             is_flipping: value.is_flipping,
             is_jumping: value.is_jumping,
+            air_time: value.air_time,
             air_time_since_jump: value.air_time_since_jump,
             boost: value.boost,
             time_spent_boosting: value.time_spent_boosting,
@@ -484,10 +600,8 @@ impl From<CarStateA> for CarState {
             is_auto_flipping: value.is_auto_flipping,
             auto_flip_timer: value.auto_flip_timer,
             auto_flip_torque_scale: value.auto_flip_torque_scale,
-            has_contact: value.has_contact,
-            contact_normal: value.contact_normal.into(),
-            other_car_id: value.other_car_id,
-            cooldown_timer: value.cooldown_timer,
+            world_contact: value.world_contact.into(),
+            car_contact: value.car_contact.into(),
             is_demoed: value.is_demoed,
             demo_respawn_timer: value.demo_respawn_timer,
             ball_hit_info: value.ball_hit_info.into(),
@@ -499,12 +613,18 @@ impl From<CarStateA> for CarState {
 impl CarStateA {
     #[inline]
     #[must_use]
+    pub fn to_glam(self) -> CarState {
+        self.into()
+    }
+
+    #[inline]
+    #[must_use]
     /// Returns the other Car that this Car is currently contacting, if any
     pub fn get_contacting_car(&self, arena: Pin<&mut Arena>) -> Option<Self> {
-        if self.other_car_id == 0 {
+        if self.car_contact.other_car_id == 0 {
             None
         } else {
-            Some(arena.get_car(self.other_car_id).into())
+            Some(arena.get_car(self.car_contact.other_car_id).into())
         }
     }
 }
@@ -566,6 +686,7 @@ impl From<GameState> for GameStateA {
 }
 
 impl GameState {
+    #[inline]
     #[must_use]
     pub fn to_glam(self) -> GameStateA {
         self.into()

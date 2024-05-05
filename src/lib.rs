@@ -331,9 +331,24 @@ pub mod sim {
 
             type CarState;
 
-            #[must_use]
             #[rust_name = "has_flip_or_jump"]
             fn HasFlipOrJump(self: &CarState) -> bool;
+            #[rust_name = "has_flip_reset"]
+            fn HasFlipReset(self: &CarState) -> bool;
+            #[rust_name = "got_flip_reset"]
+            fn GotFlipReset(self: &CarState) -> bool;
+        }
+
+        #[derive(Clone, Copy, Debug)]
+        struct WorldContact {
+            has_contact: bool,
+            contact_normal: Vec3,
+        }
+
+        #[derive(Clone, Copy, Debug)]
+        struct CarContact {
+            other_car_id: u32,
+            cooldown_timer: f32,
         }
 
         #[derive(Clone, Copy, Debug)]
@@ -344,6 +359,7 @@ pub mod sim {
             ang_vel: Vec3,
             update_counter: u64,
             is_on_ground: bool,
+            wheels_with_contact: [bool; 4],
             has_jumped: bool,
             has_double_jumped: bool,
             has_flipped: bool,
@@ -352,6 +368,7 @@ pub mod sim {
             flip_time: f32,
             is_flipping: bool,
             is_jumping: bool,
+            air_time: f32,
             air_time_since_jump: f32,
             boost: f32,
             time_spent_boosting: f32,
@@ -361,10 +378,8 @@ pub mod sim {
             is_auto_flipping: bool,
             auto_flip_timer: f32,
             auto_flip_torque_scale: f32,
-            has_contact: bool,
-            contact_normal: Vec3,
-            other_car_id: u32,
-            cooldown_timer: f32,
+            world_contact: WorldContact,
+            car_contact: CarContact,
             is_demoed: bool,
             demo_respawn_timer: f32,
             ball_hit_info: BallHitInfo,
@@ -375,7 +390,7 @@ pub mod sim {
         impl CxxVector<CarState> {}
     }
 
-    pub use carstate::CarState;
+    pub use carstate::{CarContact, CarState, WorldContact};
 
     #[cxx::bridge(namespace = "RocketSim")]
     mod carconfig {
