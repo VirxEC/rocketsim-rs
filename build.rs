@@ -16,6 +16,7 @@ fn main() -> Result<()> {
     }
 
     builder
+        .define("__SSE4_1__", "1")
         .use_plt(false)
         .flag_if_supported("-march=native")
         .flag_if_supported("-std=c++20")
