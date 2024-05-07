@@ -17,6 +17,7 @@ fn main() -> Result<()> {
 
     builder
         .use_plt(false)
+        .flag_if_supported("-march=native")
         .flag_if_supported("-std=c++20")
         .flag_if_supported("/std:c++20")
         .flag_if_supported("-w")
