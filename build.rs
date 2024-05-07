@@ -16,6 +16,7 @@ fn main() -> Result<()> {
     }
 
     builder
+        .compiler("clang-16")
         .cpp(true)
         .define("__SSE4_1__", "1")
         .use_plt(false)
