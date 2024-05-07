@@ -4,7 +4,7 @@ use miette::{IntoDiagnostic, Result};
 
 fn main() -> Result<()> {
     let mut builder = Builder::new("src/lib.rs", ["RocketSim/src/", "arenar/"])
-        .extra_clang_args(&["-std=c++20"])
+        .extra_clang_args(&["-std=c++20", "-march=native"])
         .build()?;
 
     if !cfg!(debug_assertions) || !cfg!(feature = "debug_logging") {
@@ -16,9 +16,6 @@ fn main() -> Result<()> {
     }
 
     builder
-        .compiler("clang-16")
-        .cpp(true)
-        .define("__SSE4_1__", "1")
         .use_plt(false)
         .flag_if_supported("-march=native")
         .flag_if_supported("-std=c++20")
