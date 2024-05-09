@@ -113,7 +113,7 @@ impl From<Quat> for Angle {
 impl From<Vec3R> for Vec3A {
     #[inline]
     fn from(value: Vec3R) -> Self {
-        Vec3A::from(F32x4::from(value.to_glam()))
+        Vec3A::new(value.x, value.y, value.z)
     }
 }
 
