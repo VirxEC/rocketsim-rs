@@ -3,7 +3,7 @@ use rocketsim_rs::{
     bytes::{FromBytes, FromBytesExact, ToBytes},
     cxx::UniquePtr,
     math::Vec3,
-    sim::{Arena, ArenaMemWeightMode, BallState, CarConfig, CarControls, GameMode, Team},
+    sim::{Arena, ArenaConfig, BallState, CarConfig, CarControls, GameMode, Team},
     GameState,
 };
 use std::{
@@ -206,7 +206,7 @@ impl RLViserSocketHandler {
 }
 
 fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
-    let mut arena = Arena::new(arena_type, ArenaMemWeightMode::LIGHT, 120.).within_unique_ptr();
+    let mut arena = Arena::new(arena_type, ArenaConfig::default(), 120.).within_unique_ptr();
 
     let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
     let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());

@@ -2,8 +2,8 @@ use crate::{
     consts,
     math::{Angle, RotMat, Vec3},
     sim::{
-        Arena, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState,
-        DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
+        Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls,
+        CarState, DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
     },
     Init::AngleFromRotMat,
 };
@@ -16,6 +16,18 @@ use std::{error::Error, fmt};
 use crate::serde_utils;
 #[cfg(feature = "serde_utils")]
 use serde::{Deserialize, Serialize};
+
+impl fmt::Debug for ArenaMemWeightMode {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::LIGHT => write!(f, "LIGHT"),
+            Self::HEAVY => write!(f, "HEAVY"),
+        }
+    }
+}
+
+impl Copy for ArenaMemWeightMode {}
 
 impl fmt::Debug for GameMode {
     #[inline]
@@ -38,6 +50,20 @@ impl Default for GameMode {
 }
 
 impl Copy for GameMode {}
+
+impl Default for ArenaConfig {
+    fn default() -> Self {
+        Self {
+            mem_weight_mode: ArenaMemWeightMode::HEAVY,
+            min_pos: Vec3::new(-4500., -6000., 0.),
+            max_pos: Vec3::new(4500., 6000., 2500.),
+            max_aabb_len: 370.,
+            no_ball_rot: false,
+            use_custom_broadphase: true,
+            max_objects: 512,
+        }
+    }
+}
 
 impl MutatorConfig {
     pub fn default(game_mode: GameMode) -> Self {
@@ -193,28 +219,28 @@ impl Arena {
     #[must_use]
     /// Create a new standard arena running at the max TPS
     pub fn default_standard() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::SOCCAR, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+        Self::new(GameMode::SOCCAR, ArenaConfig::default(), 120.).within_unique_ptr()
     }
 
     #[inline]
     #[must_use]
     /// Create a new hoops arena running at the max TPS
     pub fn default_hoops() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::HOOPS, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+        Self::new(GameMode::HOOPS, ArenaConfig::default(), 120.).within_unique_ptr()
     }
 
     #[inline]
     #[must_use]
     /// Create a new heatseeker arena running at the max TPS
     pub fn default_heatseeker() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::HEATSEEKER, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+        Self::new(GameMode::HEATSEEKER, ArenaConfig::default(), 120.).within_unique_ptr()
     }
 
     #[inline]
     #[must_use]
     /// Create a new snowday arena running at the max TPS
     pub fn default_snowday() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::SNOWDAY, ArenaMemWeightMode::HEAVY, 120.).within_unique_ptr()
+        Self::new(GameMode::SNOWDAY, ArenaConfig::default(), 120.).within_unique_ptr()
     }
 
     #[inline]

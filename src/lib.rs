@@ -141,6 +141,31 @@ pub mod sim {
 
     pub use carcontrols::CarControls;
 
+    #[cxx::bridge(namespace = "RocketSim")]
+    mod arenaconfig {
+        unsafe extern "C++" {
+            include!("Sim/Arena/ArenaConfig/ArenaConfig.h");
+
+            type ArenaConfig;
+            #[rust_name = "Vec3"]
+            type Vec = crate::math::Vec3;
+            type ArenaMemWeightMode = crate::sim::ArenaMemWeightMode;
+        }
+
+        #[derive(Clone, Copy, Debug)]
+        struct ArenaConfig {
+            mem_weight_mode: ArenaMemWeightMode,
+            min_pos: Vec3,
+            max_pos: Vec3,
+            max_aabb_len: f32,
+            no_ball_rot: bool,
+            use_custom_broadphase: bool,
+            max_objects: u32,
+        }
+    }
+
+    pub use arenaconfig::ArenaConfig;
+
     autocxx::include_cpp! {
         #include "arenar.h"
         name!(arena)
@@ -154,12 +179,12 @@ pub mod sim {
         block!("RocketSim::Team")
         block!("RocketSim::Arena")
         block!("RocketSim::MutatorConfig")
+        extern_cpp_type!("RocketSim::ArenaConfig", crate::sim::ArenaConfig)
+        pod!("RocketSim::ArenaConfig")
         generate_pod!("RocketSim::GameMode")
         generate_pod!("RocketSim::ArenaMemWeightMode")
         generate!("Arenar")
     }
-
-    pub use arena::RocketSim::GameMode;
 
     #[cxx::bridge]
     mod arena_extra {
@@ -240,7 +265,10 @@ pub mod sim {
         }
     }
 
-    pub use arena::{Arenar as Arena, RocketSim::ArenaMemWeightMode};
+    pub use arena::{
+        Arenar as Arena,
+        RocketSim::{ArenaMemWeightMode, GameMode},
+    };
 
     unsafe impl Send for Arena {}
 

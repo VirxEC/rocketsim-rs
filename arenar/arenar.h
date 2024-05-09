@@ -25,8 +25,8 @@ struct EBoostPadState {
 struct Arenar {
     Arena* a;
 
-    Arenar(GameMode game_mode, ArenaMemWeightMode memWeightMode, float tick_rate) {
-        a = Arena::Create(game_mode, memWeightMode, tick_rate);
+    Arenar(GameMode game_mode, ArenaConfig arenaConfig, float tick_rate) {
+        a = Arena::Create(game_mode, arenaConfig, tick_rate);
     }
 
     ~Arenar() {
