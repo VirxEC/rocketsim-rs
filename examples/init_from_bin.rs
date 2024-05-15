@@ -1,6 +1,5 @@
 use rocketsim_rs::{init_from_mem, sim::Arena};
 
-
 macro_rules! include_slice {
     ($path:expr) => {
         include_bytes!($path).as_slice()
