@@ -17,7 +17,7 @@ jobs:
         include:
           - os: windows-latest
           - os: macos-latest
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
           - features: all
             features_arg: --all-features
           - features: no
@@ -47,9 +47,6 @@ jobs:
           done
       - name: Get cached dependencies
         uses: Swatinem/rust-cache@v2
-      - name: Update libclang (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install libclang-15-dev -y
       - name: Build project (Windows)
         if: matrix.os == 'windows-latest'
         shell: cmd
