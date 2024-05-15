@@ -38,6 +38,7 @@ mod Init {
         include!("arenar.h");
 
         fn init(folder: &str);
+        fn init_from_mem(soccar: &[&[u8]], hoops: &[&[u8]]);
 
         #[namespace = "RocketSim"]
         type RotMat = crate::math::RotMat;
@@ -49,6 +50,8 @@ mod Init {
         fn AngleFromRotMat(mat: RotMat) -> Angle;
     }
 }
+
+pub use Init::init_from_mem;
 
 #[inline]
 /// Initializes the collision mesh system for `RocketSim`

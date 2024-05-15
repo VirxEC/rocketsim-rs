@@ -13,6 +13,7 @@ const CarConfig& getHybrid();
 const CarConfig& getMerc();
 
 void init(rust::Str collision_meshes_folder);
+void init_from_mem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops);
 Angle AngleFromRotMat(RotMat mat);
 
 struct EBoostPadState {

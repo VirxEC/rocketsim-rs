@@ -30,6 +30,22 @@ void init(rust::Str collision_meshes_folder) {
     RocketSim::Init(std::filesystem::path(std::string(collision_meshes_folder)));
 }
 
+void init_from_mem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops) {
+    std::map<GameMode, std::vector<FileData>> gameModeMeshes;
+
+    gameModeMeshes[GameMode::SOCCAR] = std::vector<FileData>(soccar.size());
+    for (size_t i = 0; i < soccar.size(); i++) {
+        gameModeMeshes[GameMode::SOCCAR][i] = FileData(soccar[i].begin(), soccar[i].end());
+    }
+
+    gameModeMeshes[GameMode::HOOPS] = std::vector<FileData>(hoops.size());
+    for (size_t i = 0; i < hoops.size(); i++) {
+        gameModeMeshes[GameMode::HOOPS][i] = FileData(hoops[i].begin(), hoops[i].end());
+    }
+
+    RocketSim::InitFromMem(gameModeMeshes);
+}
+
 Angle AngleFromRotMat(RotMat mat) {
     return Angle::FromRotMat(mat);
 }
