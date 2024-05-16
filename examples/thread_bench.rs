@@ -2,7 +2,7 @@ use rocketsim_rs::sim::{Arena, CarConfig, Team};
 use std::time::Instant;
 
 fn main() {
-    const TICKS: u32 = 50000;
+    const TICKS: u32 = 250_000;
 
     // load in assets
     rocketsim_rs::init(None);

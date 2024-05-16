@@ -93,3 +93,32 @@ fn main() {
     println!("New ball location: {}", arena.pin_mut().get_ball().pos);
 }
 ```
+
+## Benchmarks
+
+Numbers are from a system running Ubuntu 23.10 with a Ryzen 9 5900X and 3600MHz CL18 RAM.
+
+Numbers _will_ vary depending on your system. Only default features are enabled.
+
+- `real_bench`:
+
+  ```bash
+    Running on 24 threads
+    Simulated 2.78 hours in 1.485 seconds
+    FPS: 808348.4
+  ```
+
+- `cpu_bench`:
+    
+    ```bash
+    Running on 24 threads
+    Simulated 55.56 hours in 0.893 seconds
+    FPS: 26883894
+    ```
+
+- `thread_bench` (1 thread):
+
+  ```bash
+  Simulated 0.58 hours in 3.556 seconds
+  FPS: 70312.516
+  ```

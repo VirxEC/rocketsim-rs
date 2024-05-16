@@ -1,7 +1,5 @@
 use crate::{
-    consts,
-    extra::AngleFromRotMat,
-    extra::CreateArena,
+    base, consts,
     math::{Angle, RotMat, Vec3},
     sim::{
         Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls,
@@ -16,6 +14,44 @@ use std::{error::Error, fmt};
 use crate::serde_utils;
 #[cfg(feature = "serde_utils")]
 use serde::{Deserialize, Serialize};
+
+impl CarConfig {
+    #[inline]
+    #[must_use]
+    pub fn octane() -> &'static Self {
+        base::get_octane()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn dominus() -> &'static Self {
+        base::get_dominus()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn plank() -> &'static Self {
+        base::get_plank()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn breakout() -> &'static Self {
+        base::get_breakout()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn hybrid() -> &'static Self {
+        base::get_hybrid()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn merc() -> &'static Self {
+        base::get_merc()
+    }
+}
 
 impl Default for ArenaConfig {
     fn default() -> Self {
@@ -149,7 +185,7 @@ impl Arena {
     ///
     /// Tick rate MUST be equal to or between 15 and 120
     pub fn new(game_mode: GameMode, config: ArenaConfig, tick_rate: u8) -> UniquePtr<Self> {
-        CreateArena(game_mode, config, tick_rate)
+        base::CreateArena(game_mode, config, tick_rate)
     }
 
     #[inline]
@@ -480,7 +516,7 @@ impl Angle {
     #[inline]
     #[must_use]
     pub fn from_rotmat(rot_mat: RotMat) -> Self {
-        AngleFromRotMat(rot_mat)
+        base::AngleFromRotMat(rot_mat)
     }
 }
 
