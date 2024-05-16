@@ -26,11 +26,11 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
-void init(rust::Str collision_meshes_folder) {
+void Init(rust::Str collision_meshes_folder) {
     RocketSim::Init(std::filesystem::path(std::string(collision_meshes_folder)));
 }
 
-void init_from_mem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops) {
+void InitFromMem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops) {
     std::map<GameMode, std::vector<FileData>> gameModeMeshes;
 
     gameModeMeshes[GameMode::SOCCAR] = std::vector<FileData>(soccar.size());
@@ -48,6 +48,10 @@ void init_from_mem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slic
 
 Angle AngleFromRotMat(RotMat mat) {
     return Angle::FromRotMat(mat);
+}
+
+std::unique_ptr<Arenar> CreateArena(GameMode game_mode, ArenaConfig arenaConfig, uint8_t tick_rate) {
+	return std::make_unique<Arenar>(game_mode, arenaConfig, tick_rate);
 }
 
 void Arenar::SetGoalScoreCallback(rust::Fn<void(Arenar&, Team, size_t)> callback, size_t user_info) {
@@ -134,7 +138,7 @@ Vec Arenar::GetPadPos(size_t index) const {
     return a->_boostPads[index]->pos;
 }
 
-bool Arenar::get_pad_is_big(size_t index) const {
+bool Arenar::GetPadIsBig(size_t index) const {
     assert(index < a->_boostPads.size());
     return a->_boostPads[index]->isBig;
 }

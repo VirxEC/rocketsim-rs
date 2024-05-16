@@ -12,7 +12,7 @@ pub struct Stats {
     pub saves: u16,
 }
 
-const TICK_SKIP: i32 = 8;
+const TICK_SKIP: u32 = 8;
 
 fn main() {
     // see the comment above `set_goal_scored_callback` for why we need Mutexes
@@ -26,14 +26,14 @@ fn main() {
     let mut arena = Arena::default_standard();
 
     // spawn the blue team is various hitboxes
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::dominus());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::merc());
 
     // spawn the orange team is various hitboxes
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::plank());
 
     // Add a new default stats entry for each car
     STATS
@@ -71,12 +71,12 @@ fn main() {
             let ball_touches = [
                 all_ball_touches
                     .iter()
-                    .filter(|(_, team, _)| *team == Team::BLUE)
+                    .filter(|(_, team, _)| *team == Team::Blue)
                     .map(|(id, _, _)| *id)
                     .collect::<Vec<_>>(),
                 all_ball_touches
                     .iter()
-                    .filter(|(_, team, _)| *team == Team::ORANGE)
+                    .filter(|(_, team, _)| *team == Team::Orange)
                     .map(|(id, _, _)| *id)
                     .collect::<Vec<_>>(),
             ];

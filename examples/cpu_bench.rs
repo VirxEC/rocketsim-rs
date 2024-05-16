@@ -5,7 +5,7 @@ use std::{
 };
 
 fn main() {
-    const TICKS: i32 = 600_000;
+    const TICKS: u32 = 600_000;
 
     rocketsim_rs::init(None);
 

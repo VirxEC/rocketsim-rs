@@ -140,8 +140,8 @@ impl FromBytes for Team {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
-            0 => Self::BLUE,
-            1 => Self::ORANGE,
+            0 => Self::Blue,
+            1 => Self::Orange,
             _ => unreachable!(),
         }
     }
@@ -155,11 +155,11 @@ impl FromBytes for GameMode {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
-            0 => Self::SOCCAR,
-            1 => Self::HOOPS,
-            2 => Self::HEATSEEKER,
-            3 => Self::SNOWDAY,
-            4 => Self::THE_VOID,
+            0 => Self::Soccar,
+            1 => Self::Hoops,
+            2 => Self::Heatseeker,
+            3 => Self::Snowday,
+            4 => Self::TheVoid,
             _ => unreachable!(),
         }
     }

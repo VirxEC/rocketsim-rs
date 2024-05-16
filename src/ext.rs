@@ -1,13 +1,13 @@
 use crate::{
     consts,
+    extra::AngleFromRotMat,
+    extra::CreateArena,
     math::{Angle, RotMat, Vec3},
     sim::{
         Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls,
         CarState, DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
     },
-    Init::AngleFromRotMat,
 };
-use autocxx::WithinUniquePtr;
 use core::pin::Pin;
 use cxx::UniquePtr;
 use std::{error::Error, fmt};
@@ -17,44 +17,10 @@ use crate::serde_utils;
 #[cfg(feature = "serde_utils")]
 use serde::{Deserialize, Serialize};
 
-impl fmt::Debug for ArenaMemWeightMode {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::LIGHT => write!(f, "LIGHT"),
-            Self::HEAVY => write!(f, "HEAVY"),
-        }
-    }
-}
-
-impl Copy for ArenaMemWeightMode {}
-
-impl fmt::Debug for GameMode {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::SOCCAR => write!(f, "SOCCAR"),
-            Self::HOOPS => write!(f, "HOOPS"),
-            Self::HEATSEEKER => write!(f, "HEATSEEKER"),
-            Self::SNOWDAY => write!(f, "SNOWDAY"),
-            Self::THE_VOID => write!(f, "THE_VOID"),
-        }
-    }
-}
-
-impl Default for GameMode {
-    #[inline]
-    fn default() -> Self {
-        Self::THE_VOID
-    }
-}
-
-impl Copy for GameMode {}
-
 impl Default for ArenaConfig {
     fn default() -> Self {
         Self {
-            mem_weight_mode: ArenaMemWeightMode::HEAVY,
+            mem_weight_mode: ArenaMemWeightMode::Heavy,
             min_pos: Vec3::new(-4500., -6000., 0.),
             max_pos: Vec3::new(4500., 6000., 2500.),
             max_aabb_len: 370.,
@@ -72,19 +38,19 @@ impl MutatorConfig {
             car_mass: consts::CAR_MASS_BT,
             car_world_friction: consts::CARWORLD_COLLISION_FRICTION,
             car_world_restitution: consts::CARWORLD_COLLISION_RESTITUTION,
-            ball_mass: if game_mode == GameMode::SNOWDAY {
+            ball_mass: if game_mode == GameMode::Snowday {
                 consts::snowday::PUCK_MASS_BT
             } else {
                 consts::BALL_MASS_BT
             },
             ball_max_speed: consts::BALL_MAX_SPEED,
             ball_drag: consts::BALL_DRAG,
-            ball_world_friction: if game_mode == GameMode::SNOWDAY {
+            ball_world_friction: if game_mode == GameMode::Snowday {
                 consts::snowday::PUCK_FRICTION
             } else {
                 consts::BALL_FRICTION
             },
-            ball_world_restitution: if game_mode == GameMode::SNOWDAY {
+            ball_world_restitution: if game_mode == GameMode::Snowday {
                 consts::snowday::PUCK_RESTITUTION
             } else {
                 consts::BALL_RESTITUTION
@@ -101,13 +67,13 @@ impl MutatorConfig {
             ball_hit_extra_force_scale: 1.,
             bump_force_scale: 1.,
             ball_radius: match game_mode {
-                GameMode::HOOPS => consts::BALL_COLLISION_RADIUS_HOOPS,
-                GameMode::SNOWDAY => consts::snowday::PUCK_RADIUS,
+                GameMode::Hoops => consts::BALL_COLLISION_RADIUS_HOOPS,
+                GameMode::Snowday => consts::snowday::PUCK_RADIUS,
                 _ => consts::BALL_COLLISION_RADIUS_SOCCAR,
             },
             unlimited_flips: false,
             unlimited_double_jumps: false,
-            demo_mode: DemoMode::NORMAL,
+            demo_mode: DemoMode::Normal,
             enable_team_demos: false,
         }
     }
@@ -130,47 +96,15 @@ impl PartialEq for BoostPadState {
     }
 }
 
-#[derive(Debug)]
-pub struct NoCarFound(u32);
+#[derive(Clone, Copy, Debug)]
+/// Error for when a car with a given ID cannot be found
+pub struct NoCarFound(pub u32);
 
+impl Error for NoCarFound {}
 impl fmt::Display for NoCarFound {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "No car found in the given arena at the given ID {}.", self.0)
-    }
-}
-
-impl Error for NoCarFound {}
-
-impl Copy for Team {}
-
-impl Default for Team {
-    #[inline]
-    fn default() -> Self {
-        Self::BLUE
-    }
-}
-
-impl fmt::Debug for Team {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::BLUE => write!(f, "BLUE"),
-            Self::ORANGE => write!(f, "ORANGE"),
-        }
-    }
-}
-
-impl Copy for DemoMode {}
-
-impl fmt::Debug for DemoMode {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::DISABLED => write!(f, "DISABLED"),
-            Self::NORMAL => write!(f, "NORMAL"),
-            Self::ON_CONTACT => write!(f, "ON_CONTACT"),
-        }
     }
 }
 
@@ -211,42 +145,45 @@ pub struct GameState {
 impl Arena {
     #[inline]
     #[must_use]
-    pub fn clone(self: Pin<&mut Self>, copy_callbacks: bool) -> UniquePtr<Self> {
-        self.Clone(copy_callbacks).within_unique_ptr()
+    /// Create a new arena with the given game mode, arena config, and tick rate
+    ///
+    /// Tick rate MUST be equal to or between 15 and 120
+    pub fn new(game_mode: GameMode, config: ArenaConfig, tick_rate: u8) -> UniquePtr<Self> {
+        CreateArena(game_mode, config, tick_rate)
     }
 
     #[inline]
     #[must_use]
     /// Create a new standard arena running at the max TPS
     pub fn default_standard() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::SOCCAR, ArenaConfig::default(), 120.).within_unique_ptr()
+        Self::new(GameMode::Soccar, ArenaConfig::default(), 120)
     }
 
     #[inline]
     #[must_use]
     /// Create a new hoops arena running at the max TPS
     pub fn default_hoops() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::HOOPS, ArenaConfig::default(), 120.).within_unique_ptr()
+        Self::new(GameMode::Hoops, ArenaConfig::default(), 120)
     }
 
     #[inline]
     #[must_use]
     /// Create a new heatseeker arena running at the max TPS
     pub fn default_heatseeker() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::HEATSEEKER, ArenaConfig::default(), 120.).within_unique_ptr()
+        Self::new(GameMode::Heatseeker, ArenaConfig::default(), 120)
     }
 
     #[inline]
     #[must_use]
     /// Create a new snowday arena running at the max TPS
     pub fn default_snowday() -> cxx::UniquePtr<Self> {
-        Self::new(GameMode::SNOWDAY, ArenaConfig::default(), 120.).within_unique_ptr()
+        Self::new(GameMode::Snowday, ArenaConfig::default(), 120)
     }
 
     #[inline]
     /// Start ball and cars from random valid kickoff positions
     pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
-        self.ResetToRandomKickoff(seed.unwrap_or(-1));
+        self.rtrk(seed.unwrap_or(-1));
     }
 
     #[inline]
@@ -256,7 +193,7 @@ impl Arena {
     ///
     /// If there is no car with the given ID, this will return an error
     pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-        if self.RemoveCar(car_id) {
+        if self.rmvc(car_id) {
             Ok(())
         } else {
             Err(NoCarFound(car_id))
@@ -298,7 +235,7 @@ impl Arena {
     ///
     /// If there is no car with the given ID, this will return an error
     pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-        if self.DemolishCar(car_id) {
+        if self.dc(car_id) {
             Ok(())
         } else {
             Err(NoCarFound(car_id))
@@ -320,7 +257,7 @@ impl Arena {
         seed: Option<i32>,
         boost_amount: Option<f32>,
     ) -> Result<(), NoCarFound> {
-        if self.RespawnCar(car_id, seed.unwrap_or(-1), boost_amount.unwrap_or(100. / 3.)) {
+        if self.rspc(car_id, seed.unwrap_or(-1), boost_amount.unwrap_or(100. / 3.)) {
             Ok(())
         } else {
             Err(NoCarFound(car_id))
@@ -421,15 +358,17 @@ impl Arena {
     #[inline]
     #[must_use]
     /// Returns true if the ball is probably going in, does not account for wall or ceiling bounces
+    ///
     /// NOTE: Purposefully overestimates, just like the real RL's shot prediction
+    ///
     /// To check which goal it will score in, use the ball's velocity
     ///
     /// # Arguments
     ///
     /// * `max_time` - The maximum time to check for, if None, will default to 0.2s
-    /// * `extra_margin` - Aadjust the score margin (negative to prevent overestimating), will default to 0 if None
+    /// * `extra_margin` - Adjust the score margin (negative to prevent overestimating), will default to 0 if None
     pub fn is_ball_probably_going_in(&self, max_time: Option<f32>, extra_margin: Option<f32>) -> bool {
-        self.IsBallProbablyGoingIn(max_time.unwrap_or(0.2), extra_margin.unwrap_or_default())
+        self.ibpgi(max_time.unwrap_or(0.2), extra_margin.unwrap_or_default())
     }
 }
 

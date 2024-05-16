@@ -12,8 +12,8 @@ const CarConfig& getBreakout();
 const CarConfig& getHybrid();
 const CarConfig& getMerc();
 
-void init(rust::Str collision_meshes_folder);
-void init_from_mem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops);
+void Init(rust::Str collision_meshes_folder);
+void InitFromMem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops);
 Angle AngleFromRotMat(RotMat mat);
 
 struct EBoostPadState {
@@ -26,9 +26,13 @@ struct EBoostPadState {
 struct Arenar {
     Arena* a;
 
+	Arenar(Arena* arena) {
+		a = arena;
+	}
+
     Arenar(GameMode game_mode, ArenaConfig arenaConfig, float tick_rate) {
         a = Arena::Create(game_mode, arenaConfig, tick_rate);
-    }
+	}
 
     ~Arenar() {
         delete a;
@@ -45,12 +49,12 @@ struct Arenar {
     Arenar(Arenar&& other) = default;
     Arenar& operator =(Arenar && other) = default;
 
-	Arenar Clone(bool copy_callbacks) {
-		return Arenar(a->Clone(copy_callbacks));
+	std::unique_ptr<Arenar> Clone(bool copy_callbacks) const {
+		return std::make_unique<Arenar>(a->Clone(copy_callbacks));
 	}
 
 	// extra car stuff
-	size_t num_cars() const {
+	size_t NumCars() const {
 		return a->_cars.size();
 	}
 
@@ -96,36 +100,36 @@ struct Arenar {
 		a->ball->SetState(state);
 	}
 
-	float get_ball_radius() const {
+	float GetBallRadius() const {
 		return a->ball->GetRadius();
 	}
 
 	// boost pad stuff
 
-	size_t num_pads() const {
+	size_t NumPads() const {
 		return a->_boostPads.size();
 	}
 
-	bool get_pad_is_big(size_t index) const;
+	bool GetPadIsBig(size_t index) const;
 	Vec GetPadPos(size_t index) const;
 	void SetPadState(size_t index, const EBoostPadState state);
 	EBoostPadState GetPadState(size_t index) const;
 
 	// extra misc stuff
 
-	void reset_tick_count() {
+	void ResetTickCount() {
 		a->tickCount = 0;
 	}
 
-	uint64_t get_tick_count() const {
+	uint64_t GetTickCount() const {
 		return a->tickCount;
 	}
 
-	float get_tick_rate() const {
+	float GetTickRate() const {
 		return 1 / a->tickTime;
 	}
 
-	GameMode get_game_mode() const {
+	GameMode GetGameMode() const {
 		return a->gameMode;
 	}
 
@@ -133,7 +137,7 @@ struct Arenar {
 		a->ResetToRandomKickoff(seed);
 	}
 
-	void step(int32_t ticks = 1) {
+	void Step(uint32_t ticks = 1) {
 		a->Step(ticks);
 	}
 
@@ -141,7 +145,7 @@ struct Arenar {
 		return a->IsBallProbablyGoingIn(maxTime, extraMargin);
 	}
 
-	bool is_ball_scored() const {
+	bool IsBallScored() const {
 		return a->IsBallScored();
 	}
 
@@ -152,9 +156,6 @@ struct Arenar {
 	void SetMutatorConfig(MutatorConfig mutatorConfig) {
 		a->SetMutatorConfig(mutatorConfig);
 	}
-
-private:
-	Arenar(Arena* arena) {
-		a = arena;
-	}
 };
+
+std::unique_ptr<Arenar> CreateArena(GameMode game_mode, ArenaConfig arenaConfig, uint8_t tick_rate);

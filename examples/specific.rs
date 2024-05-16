@@ -2,6 +2,7 @@ use rocketsim_rs::{
     math::Vec3,
     sim::{Arena, CarConfig, CarControls, Team},
 };
+use std::time::Instant;
 
 fn main() {
     // Load in the Rocket League assets from the collision_meshes folder in the current directory
@@ -11,7 +12,7 @@ fn main() {
     let mut arena = Arena::default_standard();
     println!("Arena tick rate: {}", arena.get_tick_rate());
 
-    let car_id = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let car_id = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
 
     println!("Car id: {car_id}");
 
@@ -21,12 +22,11 @@ fn main() {
 
         car_state.pos = Vec3::new(5., 0., 50.);
         car_state.vel = Vec3::new(500., 800., 0.);
-
-        // for trivial Rust types, getting/setting is easier
         car_state.boost = 100.;
 
         println!("Created custom car state");
 
+        // Make the car boost
         arena
             .pin_mut()
             .set_car_controls(
@@ -56,7 +56,7 @@ fn main() {
     }
 
     let ticks = 1800;
-    let curr_time = std::time::Instant::now();
+    let curr_time = Instant::now();
 
     arena.pin_mut().step(ticks);
 
@@ -78,7 +78,7 @@ fn main() {
 
     // Cast the ball state position to a glam Vec3A
     #[cfg(feature = "glam")]
-    println!("New ball location: {}", glam::Vec3A::from(arena.pin_mut().get_ball().pos));
+    println!("New ball location: {}", arena.pin_mut().get_ball().pos.to_glam());
 
     #[cfg(not(feature = "glam"))]
     println!("New ball location: {}", arena.pin_mut().get_ball().pos);

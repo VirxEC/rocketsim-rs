@@ -48,20 +48,20 @@ pub struct BoostPadStateDerive {
 #[serde(remote = "Team")]
 #[allow(clippy::upper_case_acronyms)]
 pub enum TeamDerive {
-    BLUE,
-    ORANGE,
+    Blue,
+    Orange,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "GameMode")]
 #[allow(clippy::upper_case_acronyms)]
 pub enum GameModeDerive {
-    SOCCAR,
-    HOOPS,
-    HEATSEEKER,
-    SNOWDAY,
+    Soccar,
+    Hoops,
+    Heatseeker,
+    Snowday,
     #[allow(non_camel_case_types)]
-    THE_VOID,
+    TheVoid,
 }
 
 #[derive(Serialize, Deserialize)]

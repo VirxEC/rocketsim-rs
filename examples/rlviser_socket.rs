@@ -1,4 +1,3 @@
-use autocxx::WithinUniquePtr;
 use rocketsim_rs::{
     bytes::{FromBytes, FromBytesExact, ToBytes},
     cxx::UniquePtr,
@@ -69,8 +68,8 @@ fn main() -> io::Result<()> {
     let mut args = std::env::args();
     let _ = args.next();
     let arena_type = match args.next().as_deref() {
-        Some("hoops") => GameMode::HOOPS,
-        _ => GameMode::SOCCAR,
+        Some("hoops") => GameMode::Hoops,
+        _ => GameMode::Soccar,
     };
 
     RLViserSocketHandler::new()?.run(arena_type)?;
@@ -206,14 +205,14 @@ impl RLViserSocketHandler {
 }
 
 fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
-    let mut arena = Arena::new(arena_type, ArenaConfig::default(), 120.).within_unique_ptr();
+    let mut arena = Arena::new(arena_type, ArenaConfig::default(), 120);
 
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::dominus());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::merc());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::hybrid());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::plank());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::dominus());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::merc());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::plank());
 
     arena.pin_mut().set_ball(BallState {
         // pos: Vec3::new(0., -2000., 1500.),

@@ -2,20 +2,20 @@ use rocketsim_rs::sim::{Arena, CarConfig, Team};
 use std::time::Instant;
 
 fn main() {
-    const TICKS: i32 = 50000;
+    const TICKS: u32 = 50000;
 
     // load in assets
     rocketsim_rs::init(None);
 
     let mut arena = Arena::default_standard();
 
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
 
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
 
     let start_time = Instant::now();
     arena.pin_mut().step(TICKS);

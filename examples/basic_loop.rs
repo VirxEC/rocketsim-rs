@@ -1,6 +1,6 @@
 use rocketsim_rs::sim::{Arena, CarConfig, CarControls, Team};
 
-const TICK_SKIP: i32 = 8;
+const TICK_SKIP: u32 = 8;
 
 fn main() {
     // Load in the Rocket League assets from the collision_meshes folder in the current directory
@@ -10,10 +10,10 @@ fn main() {
     let mut arena = Arena::default_standard();
 
     // spawn a orange team breakout hitbox car
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
 
     // spawn a blue team hybrid hibox car
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
 
     // set kickoff with random seed
     arena.pin_mut().reset_to_random_kickoff(None);

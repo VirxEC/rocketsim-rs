@@ -3,7 +3,7 @@ use std::time::{Duration, Instant};
 
 fn main() {
     const RUNS: usize = 10000;
-    const SECONDS_PER_RUN: i32 = 8;
+    const SECONDS_PER_RUN: u32 = 8;
 
     rocketsim_rs::init(None);
 

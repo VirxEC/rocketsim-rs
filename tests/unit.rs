@@ -33,14 +33,14 @@ fn cars() {
     INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
 
-    let car_id = arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+    let car_id = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
     assert_eq!(arena.pin_mut().get_cars().len(), 1);
 
     arena.pin_mut().remove_car(car_id).unwrap();
     assert!(arena.pin_mut().get_cars().is_empty());
 
     let dominus = CarConfig::dominus();
-    let car_id = arena.pin_mut().add_car(Team::ORANGE, dominus);
+    let car_id = arena.pin_mut().add_car(Team::Orange, dominus);
 
     arena
         .pin_mut()
@@ -60,7 +60,7 @@ fn cars() {
 
     let car_info = cars[0];
 
-    assert_eq!(car_info.team, Team::ORANGE);
+    assert_eq!(car_info.team, Team::Orange);
     assert!(car_info.state.boost < 100. / 3.);
 
     // this differs the most between cars so we'll just this
@@ -113,8 +113,8 @@ fn ball() {
 fn game_state() {
     INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
     arena.pin_mut().step(120);
 
     let game_state = arena.pin_mut().get_game_state();
@@ -141,24 +141,24 @@ fn angles() {
     INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
     let ids = [
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::dominus()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::merc()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::merc()),
-        arena.pin_mut().add_car(Team::ORANGE, CarConfig::merc()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::plank()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::plank()),
-        arena.pin_mut().add_car(Team::BLUE, CarConfig::plank()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::breakout()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::breakout()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::breakout()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::dominus()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::dominus()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::dominus()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::merc()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::merc()),
+        arena.pin_mut().add_car(Team::Orange, CarConfig::merc()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::plank()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::plank()),
+        arena.pin_mut().add_car(Team::Blue, CarConfig::plank()),
     ];
     arena.pin_mut().reset_to_random_kickoff(None);
 
@@ -204,8 +204,8 @@ fn demoed() {
 
     let mut arena = Arena::default_standard();
     // set up two cars, one demoing the other
-    let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let orange = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
+    let blue = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
 
     arena
         .pin_mut()
@@ -326,8 +326,8 @@ fn game_state_serialize() {
 
     INIT.call_once(|| init(None));
     let mut arena = Arena::default_standard();
-    let _ = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-    let _ = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
+    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
     arena.pin_mut().step(120);
 
     let game_state = arena.pin_mut().get_game_state();
