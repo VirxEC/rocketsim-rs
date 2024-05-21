@@ -68,6 +68,7 @@ impl Default for ArenaConfig {
 }
 
 impl MutatorConfig {
+    #[must_use]
     pub fn default(game_mode: GameMode) -> Self {
         Self {
             gravity: Vec3::new(0., 0., consts::GRAVITY_Z),
@@ -499,7 +500,7 @@ impl fmt::Display for RotMat {
 }
 
 impl RotMat {
-    pub const IDENTITY: RotMat = RotMat {
+    pub const IDENTITY: Self = Self {
         forward: Vec3::X,
         right: Vec3::Y,
         up: Vec3::Z,
@@ -535,10 +536,10 @@ impl fmt::Display for Vec3 {
 }
 
 impl Vec3 {
-    pub const ZERO: Vec3 = Vec3::new(0., 0., 0.);
-    pub const X: Vec3 = Vec3::new(1., 0., 0.);
-    pub const Y: Vec3 = Vec3::new(0., 1., 0.);
-    pub const Z: Vec3 = Vec3::new(0., 0., 1.);
+    pub const ZERO: Self = Self::new(0., 0., 0.);
+    pub const X: Self = Self::new(1., 0., 0.);
+    pub const Y: Self = Self::new(0., 1., 0.);
+    pub const Z: Self = Self::new(0., 0., 1.);
 
     #[inline]
     #[must_use]

@@ -1,3 +1,4 @@
+#![warn(clippy::all)]
 #![doc = include_str!("../README.md")]
 #![cfg_attr(
     all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "glam"),
@@ -59,14 +60,15 @@ mod base {
         #[rust_name = "Arena"]
         type Arenar = crate::sim::Arena;
 
+        #[must_use]
         #[namespace = "RocketSim"]
         #[cxx_name = "GetStage"]
         pub fn get_stage() -> RocketSimStage;
 
         fn Init(folder: &str);
 
-        #[cxx_name = "InitFromMem"]
         /// Initializes the collision mesh system for `RocketSim` from memory
+        #[cxx_name = "InitFromMem"]
         fn init_from_mem(soccar: &[&[u8]], hoops: &[&[u8]]);
 
         #[must_use]

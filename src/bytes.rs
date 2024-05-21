@@ -462,19 +462,19 @@ impl ToBytes for Render {
         let mut bytes = Vec::with_capacity(num_bytes);
 
         match self {
-            Render::Line2D { start, end, color } => {
+            Self::Line2D { start, end, color } => {
                 bytes.push(0);
                 bytes.extend_from_slice(&start.to_bytes());
                 bytes.extend_from_slice(&end.to_bytes());
                 bytes.extend_from_slice(&color.to_bytes());
             }
-            Render::Line { start, end, color } => {
+            Self::Line { start, end, color } => {
                 bytes.push(1);
                 bytes.extend_from_slice(&start.to_bytes());
                 bytes.extend_from_slice(&end.to_bytes());
                 bytes.extend_from_slice(&color.to_bytes());
             }
-            Render::LineStrip { positions, color } => {
+            Self::LineStrip { positions, color } => {
                 bytes.push(2);
                 bytes.extend_from_slice(&(positions.len() as u16).to_bytes());
 
@@ -524,6 +524,8 @@ impl RenderMessage {
         }
     }
 
+    #[inline]
+    #[must_use]
     pub fn get_num_bytes(bytes: &[u8]) -> usize {
         u32::from_bytes(&bytes[..u32::NUM_BYTES]) as usize
     }
@@ -578,6 +580,7 @@ impl FromBytes for GameState {
 impl GameState {
     pub const MIN_NUM_BYTES: usize = u64::NUM_BYTES + f32::NUM_BYTES + 1 + u32::NUM_BYTES * 2;
 
+    #[inline]
     fn count_bytes(&self) -> usize {
         Self::MIN_NUM_BYTES
             + BallState::NUM_BYTES
@@ -586,6 +589,7 @@ impl GameState {
     }
 
     #[inline]
+    #[must_use]
     pub fn get_num_bytes(bytes: &[u8]) -> usize {
         Self::MIN_NUM_BYTES
             + BallState::NUM_BYTES
@@ -594,27 +598,32 @@ impl GameState {
     }
 
     #[inline]
+    #[must_use]
     pub fn read_tick_count(bytes: &[u8]) -> u64 {
         u64::from_bytes(&bytes[..u64::NUM_BYTES])
     }
 
     #[inline]
+    #[must_use]
     pub fn read_tick_rate(bytes: &[u8]) -> f32 {
         f32::from_bytes(&bytes[u64::NUM_BYTES..u64::NUM_BYTES + f32::NUM_BYTES])
     }
 
     #[inline]
+    #[must_use]
     pub fn read_game_mode(bytes: &[u8]) -> GameMode {
         GameMode::from_bytes(&bytes[(u64::NUM_BYTES + f32::NUM_BYTES)..=(u64::NUM_BYTES + f32::NUM_BYTES)])
     }
 
     #[inline]
+    #[must_use]
     pub fn read_num_pads(bytes: &[u8]) -> usize {
         u32::from_bytes(&bytes[u64::NUM_BYTES + f32::NUM_BYTES + 1..u64::NUM_BYTES + f32::NUM_BYTES + 1 + u32::NUM_BYTES])
             as usize
     }
 
     #[inline]
+    #[must_use]
     pub fn read_num_cars(bytes: &[u8]) -> usize {
         u32::from_bytes(&bytes[u64::NUM_BYTES + f32::NUM_BYTES + 1 + u32::NUM_BYTES..Self::MIN_NUM_BYTES]) as usize
     }

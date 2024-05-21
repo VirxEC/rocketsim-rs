@@ -26,16 +26,19 @@ mod base {
 
         type CarState;
 
-        #[cxx_name = "HasFlipOrJump"]
         /// Returns if the car has flipped or jumped
+        #[must_use]
+        #[cxx_name = "HasFlipOrJump"]
         fn has_flip_or_jump(self: &CarState) -> bool;
 
-        #[cxx_name = "HasFlipReset"]
         /// Returns if the car has a flip reset
+        #[must_use]
+        #[cxx_name = "HasFlipReset"]
         fn has_flip_reset(self: &CarState) -> bool;
 
-        #[cxx_name = "GotFlipReset"]
         /// Returns if the car got a flip reset
+        #[must_use]
+        #[cxx_name = "GotFlipReset"]
         fn got_flip_reset(self: &CarState) -> bool;
     }
 

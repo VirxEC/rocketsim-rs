@@ -54,6 +54,7 @@ mod base {
         #[rust_name = "rscc"]
         fn SetCarControls(self: Pin<&mut Arena>, car_id: u32, car_controls: CarControls) -> bool;
 
+        #[must_use]
         #[doc(hidden)]
         #[rust_name = "rmvc"]
         fn RemoveCar(self: Pin<&mut Arena>, car_id: u32) -> bool;
@@ -62,14 +63,17 @@ mod base {
         #[rust_name = "rtrk"]
         fn ResetToRandomKickoff(self: Pin<&mut Arena>, seed: i32);
 
+        #[must_use]
         #[doc(hidden)]
         #[rust_name = "dc"]
         fn DemolishCar(self: Pin<&mut Arena>, car_id: u32) -> bool;
 
+        #[must_use]
         #[doc(hidden)]
         #[rust_name = "rspc"]
         fn RespawnCar(self: Pin<&mut Arena>, car_id: u32, seed: i32, boost_amount: f32) -> bool;
 
+        #[must_use]
         #[doc(hidden)]
         #[rust_name = "ibpgi"]
         fn IsBallProbablyGoingIn(self: &Arena, max_time: f32, extra_margin: f32) -> bool;
@@ -121,16 +125,16 @@ mod base {
         #[must_use]
         #[cxx_name = "GetCarTeam"]
         fn get_car_team(self: &Arena, id: u32) -> Team;
-        /// Sets the goal scored callback
 
+        /// Sets the goal scored callback
         #[cxx_name = "SetGoalScoreCallback"]
         fn set_goal_scored_callback(
             self: Pin<&mut Arena>,
             callback: fn(arena: Pin<&mut Arena>, car_team: Team, user_data: usize),
             user_data: usize,
         );
-        /// Sets the car bump callback
 
+        /// Sets the car bump callback
         #[cxx_name = "SetCarBumpCallback"]
         fn set_car_bump_callback(
             self: Pin<&mut Arena>,
@@ -156,18 +160,22 @@ mod base {
         fn clone(self: &Arena, copy_callbacks: bool) -> UniquePtr<Arena>;
 
         /// Returns the number of cars in the arena
+        #[must_use]
         #[cxx_name = "NumCars"]
         fn num_cars(self: &Arena) -> usize;
 
         /// Returns the radius of the ball
+        #[must_use]
         #[cxx_name = "GetBallRadius"]
         fn get_ball_radius(self: &Arena) -> f32;
 
         /// Returns the number of pads in the arena
+        #[must_use]
         #[cxx_name = "NumPads"]
         fn num_pads(self: &Arena) -> usize;
 
         /// Returns if the pad with the given index is big (gives 100 boost instead of 12)
+        #[must_use]
         #[cxx_name = "GetPadIsBig"]
         fn get_pad_is_big(self: &Arena, index: usize) -> bool;
 
@@ -176,14 +184,17 @@ mod base {
         fn reset_tick_count(self: Pin<&mut Arena>);
 
         /// Returns the tick count
+        #[must_use]
         #[cxx_name = "GetTickCount"]
         fn get_tick_count(self: &Arena) -> u64;
 
         /// Returns the tick rate (i.e. `0.008333` aka `1 / 120`)
+        #[must_use]
         #[cxx_name = "GetTickRate"]
         fn get_tick_rate(self: &Arena) -> f32;
 
         /// Returns the game mode
+        #[must_use]
         #[cxx_name = "GetGameMode"]
         fn get_game_mode(self: &Arena) -> GameMode;
 
@@ -192,6 +203,7 @@ mod base {
         fn step(self: Pin<&mut Arena>, num_ticks: u32);
 
         /// Returns if the ball is within a goal
+        #[must_use]
         #[cxx_name = "IsBallScored"]
         fn is_ball_scored(self: &Arena) -> bool;
     }
