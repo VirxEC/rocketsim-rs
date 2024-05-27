@@ -60,7 +60,7 @@ impl Default for ArenaConfig {
             min_pos: Vec3::new(-4500., -6000., 0.),
             max_pos: Vec3::new(4500., 6000., 2500.),
             max_aabb_len: 370.,
-            no_ball_rot: false,
+            no_ball_rot: true,
             use_custom_broadphase: true,
             max_objects: 512,
         }

@@ -205,15 +205,7 @@ impl RLViserSocketHandler {
 }
 
 fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
-    // let mut arena = Arena::new(arena_type, ArenaConfig::default(), 120);
-    let mut arena = Arena::new(
-        arena_type,
-        ArenaConfig {
-            no_ball_rot: true,
-            ..Default::default()
-        },
-        120,
-    );
+    let mut arena = Arena::new(arena_type, ArenaConfig::default(), 120);
 
     let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
     let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::dominus());
