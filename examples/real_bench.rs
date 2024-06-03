@@ -5,7 +5,7 @@ use std::{
 };
 
 fn main() {
-    const TICKS: u32 = 50000;
+    const TICKS: u32 = 200_000;
 
     // load in assets
     rocketsim_rs::init(None);

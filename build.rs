@@ -32,6 +32,8 @@ fn main() {
 
     if !cfg!(debug_assertions) {
         builder.define("RS_MAX_SPEED", "1");
+        builder.flag_if_supported("-flto=thin");
+        builder.opt_level_str("3");
     }
 
     builder

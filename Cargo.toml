@@ -1,7 +1,7 @@
 [package]
 name = "rocketsim_rs"
 description = "Rust bindings for the RocketSim project"
-version = "0.30.0"
+version = "0.30.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/VirxEC/rocketsim-rs"
@@ -21,6 +21,8 @@ cxx-build = "1.0.122"
 
 [profile.release]
 lto = true
+codegen-units = 1
+panic = "abort"
 
 [features]
 default = ["debug_logging", "bin"]
