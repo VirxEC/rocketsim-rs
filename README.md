@@ -101,22 +101,21 @@ Numbers _will_ vary depending on your system. Only default features are enabled.
 - `real_bench`:
 
   ```bash
-    Running on 24 threads
-    Simulated 2.78 hours in 1.485 seconds
-    FPS: 808348.4
+  Running on 24 threads
+  Simulated 11.11 hours in 7.003 seconds
+  FPS: 685459
   ```
 
 - `cpu_bench`:
-    
-    ```bash
-    Running on 24 threads
-    Simulated 55.56 hours in 0.893 seconds
-    FPS: 26883894
-    ```
+  ```bash
+  Running on 24 threads
+  Simulated 55.56 hours in 1.039 seconds
+  FPS: 23091926
+  ```
 
 - `thread_bench` (1 thread):
 
   ```bash
-  Simulated 0.58 hours in 3.556 seconds
-  FPS: 70312.516
+  Simulated 2.31 hours in 12.307 seconds
+  FPS: 81253.64
   ```
