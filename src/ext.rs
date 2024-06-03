@@ -112,6 +112,7 @@ impl MutatorConfig {
             unlimited_double_jumps: false,
             demo_mode: DemoMode::Normal,
             enable_team_demos: false,
+            goal_base_threshold_y: consts::SOCCAR_GOAL_SCORE_BASE_THRESHOLD_Y,
         }
     }
 }

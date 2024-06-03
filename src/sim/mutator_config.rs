@@ -53,6 +53,8 @@ mod base {
         unlimited_double_jumps: bool,
         demo_mode: DemoMode,
         enable_team_demos: bool,
+        /// Only used if the game mode has soccar goals (i.e. soccar, heatseeker, snowday)
+        goal_base_threshold_y: f32,
     }
 }
 
