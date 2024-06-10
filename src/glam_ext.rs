@@ -18,8 +18,8 @@ use glam::{EulerRot, Mat3, Mat3A, Quat, Vec3, Vec3A, Vec4};
 use crate::{
     math::{Angle, RotMat, Vec3 as Vec3R},
     sim::{
-        Arena, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode,
-        HeatseekerInfo, Team, WheelPairConfig, WorldContact,
+        Arena, BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState,
+        GameMode, HeatseekerInfo, Team, WheelPairConfig, WorldContact,
     },
     BoostPad, CarInfo, GameState,
 };
@@ -160,7 +160,7 @@ impl Vec3R {
     #[must_use]
     pub const fn from_glam(vec: Vec4) -> Self {
         let [x, y, z, w] = vec.to_array();
-        Self { x, y, z, _w: w }
+        Self { x, y, z, w }
     }
 }
 
@@ -179,9 +179,32 @@ impl RotMat {
 }
 
 #[derive(Clone, Copy, Debug, Default)]
-pub struct BoostPadA {
-    pub is_big: bool,
+pub struct BoostPadConfigA {
     pub position: Vec3A,
+    pub is_big: bool,
+}
+
+impl From<BoostPadConfig> for BoostPadConfigA {
+    #[inline]
+    fn from(value: BoostPadConfig) -> Self {
+        Self {
+            position: value.position.into(),
+            is_big: value.is_big,
+        }
+    }
+}
+
+impl BoostPadConfig {
+    #[inline]
+    #[must_use]
+    pub fn to_glam(self) -> BoostPadConfigA {
+        self.into()
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct BoostPadA {
+    pub config: BoostPadConfigA,
     pub state: BoostPadState,
 }
 
@@ -189,8 +212,7 @@ impl From<BoostPad> for BoostPadA {
     #[inline]
     fn from(value: BoostPad) -> Self {
         Self {
-            is_big: value.is_big,
-            position: value.position.into(),
+            config: value.config.into(),
             state: value.state,
         }
     }

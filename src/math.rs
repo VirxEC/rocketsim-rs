@@ -8,7 +8,7 @@ pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub _w: f32,
+    pub(crate) w: f32,
 }
 
 unsafe impl cxx::ExternType for Vec3 {

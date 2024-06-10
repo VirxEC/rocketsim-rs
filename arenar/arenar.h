@@ -16,6 +16,15 @@ void Init(rust::Str collision_meshes_folder);
 void InitFromMem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops);
 Angle AngleFromRotMat(RotMat mat);
 
+struct EArenaConfig {
+	ArenaMemWeightMode memWeightMode;
+	Vec minPos, maxPos;
+	float maxAABBLen;
+	bool noBallRot;
+	bool useCustomBroadphase;
+	int maxObjects;
+};
+
 struct EBoostPadState {
 	bool isActive;
 	float cooldown;
@@ -30,8 +39,20 @@ struct Arenar {
 		a = arena;
 	}
 
-    Arenar(GameMode game_mode, ArenaConfig arenaConfig, float tick_rate) {
-        a = Arena::Create(game_mode, arenaConfig, tick_rate);
+    Arenar(GameMode game_mode, EArenaConfig arenaConfig, float tick_rate) {
+		ArenaConfig config = ArenaConfig {
+			.memWeightMode = (ArenaMemWeightMode) arenaConfig.memWeightMode,
+			.minPos = Vec(arenaConfig.minPos.x, arenaConfig.minPos.y, arenaConfig.minPos.z),
+			.maxPos = Vec(arenaConfig.maxPos.x, arenaConfig.maxPos.y, arenaConfig.maxPos.z),
+			.maxAABBLen = arenaConfig.maxAABBLen,
+			.noBallRot = arenaConfig.noBallRot,
+			.useCustomBroadphase = arenaConfig.useCustomBroadphase,
+			.maxObjects = arenaConfig.maxObjects,
+			.useCustomBoostPads = false,
+			.customBoostPads = {}
+		};
+
+        a = Arena::Create(game_mode, config, tick_rate);
 	}
 
     ~Arenar() {
@@ -110,8 +131,7 @@ struct Arenar {
 		return a->_boostPads.size();
 	}
 
-	bool GetPadIsBig(size_t index) const;
-	Vec GetPadPos(size_t index) const;
+	BoostPadConfig GetPadConfig(size_t index) const;
 	void SetPadState(size_t index, const EBoostPadState state);
 	EBoostPadState GetPadState(size_t index) const;
 
@@ -158,4 +178,4 @@ struct Arenar {
 	}
 };
 
-std::unique_ptr<Arenar> CreateArena(GameMode game_mode, ArenaConfig arenaConfig, uint8_t tick_rate);
+std::unique_ptr<Arenar> CreateArena(GameMode game_mode, EArenaConfig arenaConfig, uint8_t tick_rate);

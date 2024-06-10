@@ -55,7 +55,7 @@ mod base {
         type Angle = crate::math::Angle;
         #[namespace = "RocketSim"]
         type GameMode = crate::sim::GameMode;
-        #[namespace = "RocketSim"]
+        #[cxx_name = "EArenaConfig"]
         type ArenaConfig = crate::sim::ArenaConfig;
         #[rust_name = "Arena"]
         type Arenar = crate::sim::Arena;

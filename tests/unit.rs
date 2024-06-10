@@ -21,7 +21,7 @@ fn pads() {
     INIT.call_once(|| init(None));
     let arena = Arena::default_standard();
 
-    let statics = arena.iter_pad_static().collect::<Vec<_>>();
+    let statics = arena.iter_pad_config().collect::<Vec<_>>();
     assert!(statics.len() == arena.num_pads());
 
     let states = arena.iter_pad_state().collect::<Vec<_>>();

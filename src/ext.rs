@@ -2,8 +2,8 @@ use crate::{
     base, consts,
     math::{Angle, RotMat, Vec3},
     sim::{
-        Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls,
-        CarState, DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
+        Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig,
+        CarContact, CarControls, CarState, DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
     },
 };
 use core::pin::Pin;
@@ -149,8 +149,8 @@ impl fmt::Display for NoCarFound {
 #[derive(Clone, Copy, Debug, Default)]
 #[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
 pub struct BoostPad {
-    pub is_big: bool,
-    pub position: Vec3,
+    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::BoostPadConfigDerive"))]
+    pub config: BoostPadConfig,
     #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::BoostPadStateDerive"))]
     pub state: BoostPadState,
 }
@@ -159,7 +159,6 @@ pub struct BoostPad {
 #[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
 pub struct CarInfo {
     pub id: u32,
-    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::TeamDerive"))]
     pub team: Team,
     #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::CarStateDerive"))]
     pub state: CarState,
@@ -172,7 +171,6 @@ pub struct CarInfo {
 pub struct GameState {
     pub tick_rate: f32,
     pub tick_count: u64,
-    #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::GameModeDerive"))]
     pub game_mode: GameMode,
     pub cars: Vec<CarInfo>,
     #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::BallStateDerive"))]
@@ -326,8 +324,8 @@ impl Arena {
 
     #[inline]
     /// Iterates over the static `(position, is_big)` info of boost pads in the Arena
-    pub fn iter_pad_static(&self) -> impl Iterator<Item = (bool, Vec3)> + '_ {
-        (0..self.num_pads()).map(|i| (self.get_pad_is_big(i), self.get_pad_pos(i)))
+    pub fn iter_pad_config(&self) -> impl Iterator<Item = BoostPadConfig> + '_ {
+        (0..self.num_pads()).map(|i| (self.get_pad_config(i)))
     }
 
     #[inline]
@@ -340,8 +338,7 @@ impl Arena {
     /// Returns an iterator over the all `BoostPad` information in the arena
     pub fn iter_pads(&self) -> impl Iterator<Item = BoostPad> + '_ {
         (0..self.num_pads()).map(|i| BoostPad {
-            is_big: self.get_pad_is_big(i),
-            position: self.get_pad_pos(i),
+            config: self.get_pad_config(i),
             state: self.get_pad_state(i),
         })
     }
@@ -545,7 +542,7 @@ impl Vec3 {
     #[inline]
     #[must_use]
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
-        Self { x, y, z, _w: 0. }
+        Self { x, y, z, w: 0. }
     }
 }
 

@@ -5,24 +5,11 @@ pub use serde;
 use crate::{
     math::{RotMat, Vec3},
     sim::{
-        BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode, HeatseekerInfo, Team,
+        BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState, HeatseekerInfo,
         WheelPairConfig, WorldContact,
     },
 };
 use serde::{Deserialize, Serialize};
-
-// impl Serialize for Vec3 {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//                 let mut s = serializer.serialize_struct("Vec3", 4)?;
-//                 s.serialize_field("x", &self.x)?;
-//                 s.serialize_field("y", &self.y)?;
-//                 s.serialize_field("z", &self.z)?;
-//                 s.serialize_field("_w", &self._w)?;
-//                 s.end()
-//     }
-// }
 
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "BallHitInfo")]
@@ -36,32 +23,19 @@ pub struct BallHitInfoDerive {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(remote = "BoostPadConfig")]
+pub struct BoostPadConfigDerive {
+    position: Vec3,
+    is_big: bool,
+}
+
+#[derive(Serialize, Deserialize)]
 #[serde(remote = "BoostPadState")]
 pub struct BoostPadStateDerive {
     is_active: bool,
     cooldown: f32,
     cur_locked_car_id: u32,
     prev_locked_car_id: u32,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "Team")]
-#[allow(clippy::upper_case_acronyms)]
-pub enum TeamDerive {
-    Blue,
-    Orange,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "GameMode")]
-#[allow(clippy::upper_case_acronyms)]
-pub enum GameModeDerive {
-    Soccar,
-    Hoops,
-    Heatseeker,
-    Snowday,
-    #[allow(non_camel_case_types)]
-    TheVoid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -152,14 +126,6 @@ pub struct CarConfigDerive {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(remote = "HeatseekerInfo")]
-pub struct HeatseekerInfoDerive {
-    pub y_target_dir: f32,
-    pub cur_target_speed: f32,
-    pub time_since_hit: f32,
-}
-
-#[derive(Serialize, Deserialize)]
 #[serde(remote = "BallState")]
 pub struct BallStateDerive {
     update_counter: u64,
@@ -167,6 +133,5 @@ pub struct BallStateDerive {
     rot_mat: RotMat,
     vel: Vec3,
     ang_vel: Vec3,
-    #[serde(with = "HeatseekerInfoDerive")]
     hs_info: HeatseekerInfo,
 }

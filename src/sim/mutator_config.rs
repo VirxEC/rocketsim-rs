@@ -1,5 +1,6 @@
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde_utils", derive(serde::Serialize, serde::Deserialize))]
 pub enum DemoMode {
     #[default]
     Normal = 0,

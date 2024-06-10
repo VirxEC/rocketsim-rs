@@ -1,5 +1,6 @@
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde_utils", derive(serde::Serialize, serde::Deserialize))]
 pub enum GameMode {
     #[default]
     Soccar,
@@ -35,14 +36,12 @@ mod base {
         #[namespace = "RocketSim"]
         type CarControls = crate::sim::CarControls;
         #[namespace = "RocketSim"]
-        #[rust_name = "Vec3"]
-        type Vec = crate::math::Vec3;
-        #[namespace = "RocketSim"]
         type Team = crate::sim::Team;
         #[namespace = "RocketSim"]
         type MutatorConfig = crate::sim::MutatorConfig;
         #[namespace = "RocketSim"]
         type GameMode = crate::sim::GameMode;
+        type BoostPadConfig = crate::sim::BoostPadConfig;
 
         #[must_use]
         #[doc(hidden)]
@@ -102,12 +101,12 @@ mod base {
         #[cxx_name = "SetBall"]
         fn set_ball(self: Pin<&mut Arena>, ball: BallState);
 
-        /// Returns the position of the pad with the given index
+        /// Returns the config of the pad with the given index
         #[must_use]
-        #[cxx_name = "GetPadPos"]
-        fn get_pad_pos(self: &Arena, index: usize) -> Vec3;
-        /// Sets the state of the pad with the given index
+        #[cxx_name = "GetPadConfig"]
+        fn get_pad_config(self: &Arena, index: usize) -> BoostPadConfig;
 
+        /// Sets the state of the pad with the given index
         #[cxx_name = "SetPadState"]
         fn set_pad_state(self: Pin<&mut Arena>, index: usize, pad: BoostPadState);
 
@@ -173,11 +172,6 @@ mod base {
         #[must_use]
         #[cxx_name = "NumPads"]
         fn num_pads(self: &Arena) -> usize;
-
-        /// Returns if the pad with the given index is big (gives 100 boost instead of 12)
-        #[must_use]
-        #[cxx_name = "GetPadIsBig"]
-        fn get_pad_is_big(self: &Arena, index: usize) -> bool;
 
         /// Resets the tick count
         #[cxx_name = "ResetTickCount"]

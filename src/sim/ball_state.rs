@@ -1,4 +1,5 @@
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde_utils", derive(serde::Serialize, serde::Deserialize))]
 pub struct HeatseekerInfo {
     /// Which net the ball should seek towards;
     /// When 0, no net

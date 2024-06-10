@@ -1,5 +1,6 @@
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde_utils", derive(serde::Serialize, serde::Deserialize))]
 pub enum ArenaMemWeightMode {
     #[default]
     Heavy,
@@ -13,19 +14,22 @@ unsafe impl cxx::ExternType for ArenaMemWeightMode {
     type Kind = cxx::kind::Trivial;
 }
 
-#[cxx::bridge(namespace = "RocketSim")]
+#[cxx::bridge]
 mod base {
     unsafe extern "C++" {
-        include!("Sim/Arena/ArenaConfig/ArenaConfig.h");
+        include!("arenar.h");
 
-        type ArenaConfig;
         #[rust_name = "Vec3"]
+        #[namespace = "RocketSim"]
         type Vec = crate::math::Vec3;
+
+        type EArenaConfig;
+        #[namespace = "RocketSim"]
         type ArenaMemWeightMode = crate::sim::ArenaMemWeightMode;
     }
 
     #[derive(Clone, Copy, Debug)]
-    struct ArenaConfig {
+    struct EArenaConfig {
         mem_weight_mode: ArenaMemWeightMode,
         min_pos: Vec3,
         max_pos: Vec3,
@@ -36,4 +40,4 @@ mod base {
     }
 }
 
-pub use base::ArenaConfig;
+pub use base::EArenaConfig as ArenaConfig;

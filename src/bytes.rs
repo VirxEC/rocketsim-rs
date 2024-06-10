@@ -2,8 +2,8 @@ use crate::{
     math::{RotMat, Vec3},
     render::{Color, Render, RenderMessage, Vec2},
     sim::{
-        BallHitInfo, BallState, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode, HeatseekerInfo, Team,
-        WheelPairConfig, WorldContact,
+        BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode,
+        HeatseekerInfo, Team, WheelPairConfig, WorldContact,
     },
     BoostPad, CarInfo, GameState,
 };
@@ -327,13 +327,8 @@ impl_bytes_exact!(
     cur_locked_car_id,
     prev_locked_car_id
 );
-impl_bytes_exact!(
-    BoostPad,
-    1 + Vec3::NUM_BYTES + BoostPadState::NUM_BYTES,
-    is_big,
-    position,
-    state
-);
+impl_bytes_exact!(BoostPadConfig, 1 + Vec3::NUM_BYTES, is_big, position);
+impl_bytes_exact!(BoostPad, BoostPadConfig::NUM_BYTES + BoostPadState::NUM_BYTES, config, state);
 impl_bytes_exact!(
     BallHitInfo,
     1 + Vec3::NUM_BYTES * 3 + u64::NUM_BYTES * 2,

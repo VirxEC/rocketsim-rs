@@ -50,7 +50,7 @@ Angle AngleFromRotMat(RotMat mat) {
     return Angle::FromRotMat(mat);
 }
 
-std::unique_ptr<Arenar> CreateArena(GameMode game_mode, ArenaConfig arenaConfig, uint8_t tick_rate) {
+std::unique_ptr<Arenar> CreateArena(GameMode game_mode, EArenaConfig arenaConfig, uint8_t tick_rate) {
 	return std::make_unique<Arenar>(game_mode, arenaConfig, tick_rate);
 }
 
@@ -133,14 +133,9 @@ bool Arenar::RespawnCar(uint32_t carID, int32_t seed, float boostAmount) {
     return true;
 }
 
-Vec Arenar::GetPadPos(size_t index) const {
+BoostPadConfig Arenar::GetPadConfig(size_t index) const {
     assert(index < a->_boostPads.size());
-    return a->_boostPads[index]->pos;
-}
-
-bool Arenar::GetPadIsBig(size_t index) const {
-    assert(index < a->_boostPads.size());
-    return a->_boostPads[index]->isBig;
+    return a->_boostPads[index]->config;
 }
 
 void Arenar::SetPadState(size_t index, const EBoostPadState state) {
