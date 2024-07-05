@@ -18,7 +18,7 @@ static INIT: Once = Once::new();
 
 #[test]
 fn pads() {
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
     let arena = Arena::default_standard();
 
     let statics = arena.iter_pad_config().collect::<Vec<_>>();
@@ -30,7 +30,7 @@ fn pads() {
 
 #[test]
 fn cars() {
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
     let mut arena = Arena::default_standard();
 
     let car_id = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
@@ -76,7 +76,7 @@ fn cars() {
 
 #[test]
 fn ball() {
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
     let mut arena = Arena::default_standard();
 
     arena.pin_mut().set_ball(BallState {
@@ -111,7 +111,7 @@ fn ball() {
 
 #[test]
 fn game_state() {
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
     let mut arena = Arena::default_standard();
     let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
     let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
@@ -138,7 +138,7 @@ fn game_state() {
 
 #[test]
 fn angles() {
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
     let mut arena = Arena::default_standard();
     let ids = [
         arena.pin_mut().add_car(Team::Orange, CarConfig::breakout()),
@@ -174,7 +174,7 @@ fn angles() {
 #[test]
 fn goal_score() {
     static SCORED: AtomicBool = AtomicBool::new(false);
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
 
     let mut arena = Arena::default_standard();
     arena.pin_mut().set_ball(BallState {
@@ -200,7 +200,7 @@ fn goal_score() {
 #[test]
 fn demoed() {
     static DEMOED: AtomicBool = AtomicBool::new(false);
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
 
     let mut arena = Arena::default_standard();
     // set up two cars, one demoing the other
@@ -324,7 +324,7 @@ fn demoed() {
 fn game_state_serialize() {
     use serde_json;
 
-    INIT.call_once(|| init(None));
+    INIT.call_once(|| init(None, true));
     let mut arena = Arena::default_standard();
     let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
     let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());

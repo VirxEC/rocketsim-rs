@@ -26,8 +26,8 @@ const CarConfig& getMerc() {
     return CAR_CONFIG_MERC;
 }
 
-void Init(rust::Str collision_meshes_folder) {
-    RocketSim::Init(std::filesystem::path(std::string(collision_meshes_folder)));
+void Init(rust::Str collision_meshes_folder, bool silent) {
+    RocketSim::Init(std::filesystem::path(std::string(collision_meshes_folder)), silent);
 }
 
 void InitFromMem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops) {

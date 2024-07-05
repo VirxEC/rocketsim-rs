@@ -14,7 +14,7 @@ use rocketsim_rs::{
 use std::time::Instant;
 
 // Load in the Rocket League assets from the collision_meshes folder in the current directory
-rocketsim_rs::init(None);
+rocketsim_rs::init(None, true);
 
 // Create a new arena with gamemode soccar and a tick rate of 120
 let mut arena = Arena::default_standard();
@@ -107,10 +107,11 @@ Numbers _will_ vary depending on your system. Only default features are enabled.
   ```
 
 - `cpu_bench`:
+
   ```bash
   Running on 24 threads
-  Simulated 55.56 hours in 1.039 seconds
-  FPS: 23091926
+  Simulated 55.56 hours in 0.907 seconds
+  FPS: 26474106
   ```
 
 - `thread_bench` (1 thread):

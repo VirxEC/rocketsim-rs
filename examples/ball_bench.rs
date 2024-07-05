@@ -5,7 +5,7 @@ fn main() {
     const RUNS: usize = 10000;
     const SECONDS_PER_RUN: u32 = 8;
 
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, false);
 
     let mut arena = Arena::default_standard();
     let mut times = Vec::with_capacity(RUNS);

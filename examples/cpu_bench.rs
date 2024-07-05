@@ -7,7 +7,7 @@ use std::{
 fn main() {
     const TICKS: u32 = 1_000_000;
 
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, true);
 
     let num_cpu = available_parallelism().unwrap().get();
 

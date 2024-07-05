@@ -12,7 +12,7 @@ const CarConfig& getBreakout();
 const CarConfig& getHybrid();
 const CarConfig& getMerc();
 
-void Init(rust::Str collision_meshes_folder);
+void Init(rust::Str collision_meshes_folder, bool silent);
 void InitFromMem(rust::Slice<const rust::Slice<const byte>> soccar, rust::Slice<const rust::Slice<const byte>> hoops);
 Angle AngleFromRotMat(RotMat mat);
 

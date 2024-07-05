@@ -63,7 +63,7 @@ fn ctrl_channel() -> Result<Receiver<()>, ctrlc::Error> {
 
 fn main() -> io::Result<()> {
     // Load rocketsim
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, true);
 
     let mut args = std::env::args();
     let _ = args.next();

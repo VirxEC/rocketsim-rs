@@ -4,7 +4,7 @@ const TICK_SKIP: u32 = 8;
 
 fn main() {
     // Load in the Rocket League assets from the collision_meshes folder in the current directory
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, false);
 
     // Create a new arena with gamemode soccar and a tick rate of 120
     let mut arena = Arena::default_standard();

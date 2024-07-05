@@ -22,7 +22,7 @@ fn write_ball(file: &mut fs::File, ball: BallState, time: f32) -> io::Result<()>
 }
 
 fn main() -> io::Result<()> {
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, true);
 
     let mut arena = Arena::default_standard();
     let mut ball = arena.pin_mut().get_ball();

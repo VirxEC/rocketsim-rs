@@ -8,7 +8,7 @@ fn main() {
     const TICKS: u32 = 200_000;
 
     // load in assets
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, true);
 
     let num_cpu = available_parallelism().unwrap().get();
 

@@ -5,7 +5,7 @@ fn main() {
     const TICKS: u32 = 1_000_000;
 
     // load in assets
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, true);
 
     let mut arena = Arena::default_standard();
 

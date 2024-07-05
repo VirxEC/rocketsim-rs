@@ -65,7 +65,7 @@ mod base {
         #[cxx_name = "GetStage"]
         pub fn get_stage() -> RocketSimStage;
 
-        fn Init(folder: &str);
+        fn Init(folder: &str, silent: bool);
 
         /// Initializes the collision mesh system for `RocketSim` from memory
         #[cxx_name = "InitFromMem"]
@@ -103,6 +103,6 @@ pub use base::{get_stage, init_from_mem};
 
 #[inline]
 /// Initializes the collision mesh system for `RocketSim`
-pub fn init(collision_meshes_folder: Option<&str>) {
-    base::Init(collision_meshes_folder.unwrap_or("collision_meshes"));
+pub fn init(collision_meshes_folder: Option<&str>, silent: bool) {
+    base::Init(collision_meshes_folder.unwrap_or("collision_meshes"), silent);
 }
