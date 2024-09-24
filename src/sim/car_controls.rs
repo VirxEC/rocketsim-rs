@@ -13,8 +13,8 @@ mod base {
         pub pitch: f32,
         pub yaw: f32,
         pub roll: f32,
-        pub boost: bool,
         pub jump: bool,
+        pub boost: bool,
         pub handbrake: bool,
     }
 }
