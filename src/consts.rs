@@ -57,6 +57,8 @@ pub const BRAKE_TORQUE_AMOUNT: f32 = CAR_MASS_BT * (14.25 + (1. / 3.));
 pub const STOPPING_FORWARD_VEL: f32 = 25.;
 /// How much the brake is applied when costing
 pub const COASTING_BRAKE_FACTOR: f32 = 0.15;
+/// If we are braking and moving faster than this, disable throttle
+pub const BRAKING_NO_THROTTLE_SPEED_THRESH: f32 = 0.01;
 /// Throttle input of less than this is ignored
 pub const THROTTLE_DEADZONE: f32 = 0.001;
 pub const THROTTLE_AIR_ACCEL: f32 = 200. / 3.;
