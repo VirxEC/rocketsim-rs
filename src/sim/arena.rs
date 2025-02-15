@@ -7,6 +7,7 @@ pub enum GameMode {
     Hoops,
     Heatseeker,
     Snowday,
+    Dropshot,
     TheVoid,
 }
 

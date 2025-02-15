@@ -11,6 +11,8 @@ pub const ARENA_HEIGHT: f32 = 2048.;
 pub const ARENA_EXTENT_X_HOOPS: f32 = 8900. / 3.;
 pub const ARENA_EXTENT_Y_HOOPS: f32 = 3581.;
 pub const ARENA_HEIGHT_HOOPS: f32 = 1820.;
+pub const ARENA_HEIGHT_DROPSHOT: f32 = 2024.;
+pub const FLOOR_HEIGHT_DROPSHOT: f32 = 1.5;
 pub const CAR_MASS_BT: f32 = 180.;
 /// Ref: https://www.reddit.com/r/RocketLeague/comments/bmje9l/comment/emxkwrl/?context=3
 pub const BALL_MASS_BT: f32 = CAR_MASS_BT / 6.;
@@ -202,7 +204,7 @@ pub mod heatseeker {
     use crate::math::Vec3;
     use std::f32::consts::PI;
 
-    /// TODO: Verify
+    /// Initial target speed from kickoff (goes to 2985 after the first touch)
     pub const INITIAL_TARGET_SPEED: f32 = 2900.;
     /// Increase of target speed each touch
     pub const TARGET_SPEED_INCREMENT: f32 = 85.;
@@ -226,7 +228,7 @@ pub mod heatseeker {
     pub const WALL_BOUNCE_CHANGE_Y_THRESH: f32 = 300.;
     /// Threshold of Y normal to trigger bounce-back
     pub const WALL_BOUNCE_CHANGE_Y_NORMAL: f32 = 0.5;
-    /// Scale of the extra wall bounce impulse (TODO: ???)
+    /// Scale of the extra wall bounce impulse
     pub const WALL_BOUNCE_FORCE_SCALE: f32 = 1. / 3.;
     /// Fraction of upward bounce impulse that goes straight up
     pub const WALL_BOUNCE_UP_FRAC: f32 = 0.3;
@@ -244,6 +246,33 @@ pub mod snowday {
     pub const PUCK_GROUND_STICK_FORCE: f32 = 70.;
     pub const PUCK_FRICTION: f32 = 0.1;
     pub const PUCK_RESTITUTION: f32 = 0.3;
+}
+
+pub mod dropshot {
+    use crate::math::Vec3;
+
+    const BT_TO_UU: f32 = 50.0;
+
+    /// TODO: Might be slightly off, just based on quick testing
+    pub const BALL_START_VEL: Vec3 = Vec3::new(0., 0., 985.);
+    pub const TILE_HEXAGON_AABB_MAX: Vec3 = Vec3::new(8.85, 7.6643, 0.);
+    pub const NUM_TILES_PER_TEAM: i32 = 57;
+    pub const TEAM_AMOUNT: i32 = 2;
+    /// Number decends each row
+    pub const TILES_IN_FIRST_ROW: i32 = 13;
+    pub const TILES_IN_LAST_ROW: i32 = 7;
+    pub const NUM_TILE_ROWS: i32 = TILES_IN_FIRST_ROW - TILES_IN_LAST_ROW + 1;
+    pub const TILE_HEXAGON_VERTS_BT: [Vec3; 6] = [
+        Vec3::new(8.85, 0.0, 0.),
+        Vec3::new(4.425, 7.6643, 0.),
+        Vec3::new(-4.425, 7.6643, 0.),
+        Vec3::new(-8.85, 0.0, 0.),
+        Vec3::new(-4.425, -7.6643, 0.),
+        Vec3::new(4.425, -7.6643, 0.),
+    ];
+    pub const TILE_SIZE_X: f32 = TILE_HEXAGON_VERTS_BT[0].x * BT_TO_UU;
+    pub const ROW_OFFSET_Y: f32 = (TILE_HEXAGON_VERTS_BT[0].x + TILE_HEXAGON_VERTS_BT[1].x) * BT_TO_UU;
+    pub const TILE_OFFSET_Y: f32 = 2.54736 * BT_TO_UU;
 }
 
 pub mod boostpads {

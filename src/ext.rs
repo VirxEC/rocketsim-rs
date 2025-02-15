@@ -107,6 +107,7 @@ impl MutatorConfig {
             ball_radius: match game_mode {
                 GameMode::Hoops => consts::BALL_COLLISION_RADIUS_HOOPS,
                 GameMode::Snowday => consts::snowday::PUCK_RADIUS,
+                GameMode::Dropshot => consts::BALL_COLLISION_RADIUS_DROPSHOT,
                 _ => consts::BALL_COLLISION_RADIUS_SOCCAR,
             },
             unlimited_flips: false,

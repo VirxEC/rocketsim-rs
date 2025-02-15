@@ -155,7 +155,7 @@ fn main() {
         0,
     );
 
-    let mut random = rand::thread_rng();
+    let mut random = rand::rng();
 
     // run the simulation for 20 minutes (18000 * 8 = 144,000 ticks with 120 ticks per second and 60 seconds per minute)
     let sim_rounds = 18000;
@@ -231,9 +231,9 @@ fn main() {
         for car_info in game_state.cars {
             // Randomize the controls
             let controls = CarControls {
-                throttle: random.gen_range(0.1..1.0),
-                steer: random.gen_range(-0.5..0.5),
-                boost: random.gen_bool(0.75),
+                throttle: random.random_range(0.1..1.0),
+                steer: random.random_range(-0.5..0.5),
+                boost: random.random_bool(0.75),
                 ..Default::default()
             };
 

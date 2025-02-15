@@ -2,6 +2,7 @@ import re
 
 # read RocketSim/src/RLConst.h and generate src/consts.rs
 
+
 def ensure_rust_float(val: str):
     try:
         val = val.strip()
@@ -12,21 +13,33 @@ def ensure_rust_float(val: str):
 
     return val
 
+
 def to_vec3_str(vals):
     return f"Vec3::new({', '.join(vals)})"
 
+
 def to_car_spawn_pos_str(vals):
     return f"CarSpawnPos::new({', '.join(vals)})"
+
 
 def to_linear_piece_curve_str(vals, indent):
     if len(vals) < 1:
         indents = [" ", " ", f" {indent}", "", ""]
     elif len(vals) > 4:
-        indents = [f"\n    {indent}", f",\n{indent}", f"\n        {indent}", f"\n        {indent}", f",\n    {indent}"]
+        indents = [
+            f"\n    {indent}",
+            f",\n{indent}",
+            f"\n        {indent}",
+            f"\n        {indent}",
+            f",\n    {indent}",
+        ]
     else:
         indents = [f"\n    {indent}", f",\n{indent}", f" {indent}", "", ""]
-    join_val = f",{indents[2]}".join([f"({ensure_rust_float(val[0])}, {ensure_rust_float(val[1])})" for val in vals])
+    join_val = f",{indents[2]}".join(
+        [f"({ensure_rust_float(val[0])}, {ensure_rust_float(val[1])})" for val in vals]
+    )
     return f"LinearPieceCurve {{{indents[0]}value_mappings: [{indents[3]}{join_val}{indents[4]}]{indents[1]}}}"
+
 
 lines = []
 
@@ -66,7 +79,34 @@ for i, line in enumerate(lines):
 
     namespace = " ".join(current_section)
 
-    if line.startswith("constexpr"):
+    if line.startswith("constexpr static"):
+        parts = line.split(" ")
+        const_type = parts[2]
+
+        name = None
+
+        if len(parts) > 3 and parts[3] != "//":
+            name = parts[3]
+        else:
+            next_line = lines[i + 1]
+            pred_name = next_line.split(" = ")[0].strip()
+
+            if "[" in pred_name:
+                name = pred_name
+
+        if name is not None and "[" in name:
+            array_len = name.split("[")[1].removesuffix("]")
+            if array_len.isdigit():
+                const_type = f"[{const_type}; {array_len}]"
+            else:
+                const_type = f"[{const_type}; {array_len} as usize]"
+
+        if consts[namespace].get(const_type) is None:
+            consts[namespace][const_type] = []
+
+        if name is not None and "[" in name:
+            consts[namespace][const_type].append([name.split("[")[0].split()[-1], []])
+    elif line.startswith("constexpr"):
         parts = line.split(" ")
         const_type = parts[1]
 
@@ -91,7 +131,7 @@ for i, line in enumerate(lines):
         if name is not None:
             consts[namespace][const_type].append([name.split("[")[0].split()[-1], []])
 
-    if line.startswith("const static"):
+    elif line.startswith("const static"):
         parts = line.split(" ")
         const_type = parts[2]
         name = None
@@ -116,6 +156,7 @@ for i, line in enumerate(lines):
             consts[namespace][const_type].append([name.split("[")[0].split()[-1], []])
 
     items = line.split(" = ")
+
     if len(items) == 1:
         if items[0][0] != "{":
             continue
@@ -135,6 +176,14 @@ for i, line in enumerate(lines):
     if "[" in items[0]:
         continue
 
+    items[0] = (
+        items[0]
+        .replace("constexpr", "")
+        .replace("static", "")
+        .replace("const", "")
+        .replace(const_type, "")  # type: ignore
+        .strip()
+    )
     comment = items[1].split(" //")
     if len(comment) == 2:
         items[1] = comment[0]
@@ -159,7 +208,7 @@ for i, line in enumerate(lines):
             if valz == "/":
                 continue
             elif valz == "<<":
-                vals[i+1] = vals[i+1] + " as f32"
+                vals[i + 1] = vals[i + 1] + " as f32"
                 continue
 
             vals[i] = ensure_rust_float(valz)
@@ -215,12 +264,15 @@ for namespace, types in consts.items():
         consts_rs.append(f"\npub mod {namespace} {{")
         indent = "    "
 
-        if namespace in {"boostpads", "heatseeker"}:
+        if namespace in {"boostpads", "heatseeker", "dropshot"}:
             consts_rs.append(f"{indent}use crate::math::Vec3;")
 
             if namespace == "heatseeker":
                 consts_rs.append(f"{indent}use std::f32::consts::PI;")
             consts_rs.append("")
+
+        if namespace == "dropshot":
+            consts_rs.append(f"{indent}const BT_TO_UU: f32 = 50.0;\n")
 
     for raw_item_type, vars in types.items():
         if "[" in raw_item_type:
@@ -235,7 +287,7 @@ for namespace, types in consts.items():
             item_type = item_type.replace(old_type, real_type)
         else:
             item_type = type_convert.get(raw_item_type)
-            real_type = "" # anything other than None
+            real_type = ""  # anything other than None
 
         if item_type is None or real_type is None:
             print(f"Couldn't find Rust type for {raw_item_type} ({vars})")
