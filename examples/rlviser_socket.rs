@@ -1,15 +1,15 @@
 use rocketsim_rs::{
+    GameState,
     bytes::{FromBytes, FromBytesExact, ToBytes},
     cxx::UniquePtr,
     math::Vec3,
     sim::{Arena, ArenaConfig, BallState, CarConfig, CarControls, GameMode, Team},
-    GameState,
 };
 use std::{
     io,
     net::{IpAddr, SocketAddr, UdpSocket},
     str::FromStr,
-    sync::mpsc::{channel, Receiver},
+    sync::mpsc::{Receiver, channel},
     thread::sleep,
     time::{Duration, Instant},
 };
