@@ -1,15 +1,15 @@
 use rocketsim_rs::{
-    GameState,
     bytes::{FromBytes, FromBytesExact, ToBytes},
     cxx::UniquePtr,
     math::Vec3,
     sim::{Arena, ArenaConfig, BallState, CarConfig, CarControls, GameMode, Team},
+    GameState,
 };
 use std::{
     io,
     net::{IpAddr, SocketAddr, UdpSocket},
     str::FromStr,
-    sync::mpsc::{Receiver, channel},
+    sync::mpsc::{channel, Receiver},
     thread::sleep,
     time::{Duration, Instant},
 };
@@ -169,11 +169,15 @@ impl RLViserSocketHandler {
 
             match packet_type {
                 UdpPacketTypes::GameState => {
-                    self.socket.peek_from(&mut self.min_game_state_buf)?;
+                    self.socket.set_nonblocking(false)?;
+
+                    let _ = self.socket.peek_from(&mut self.min_game_state_buf);
 
                     let num_bytes = GameState::get_num_bytes(&self.min_game_state_buf);
                     self.game_state_buffer.resize(num_bytes, 0);
                     self.socket.recv_from(&mut self.game_state_buffer)?;
+
+                    self.socket.set_nonblocking(true)?;
 
                     // set the game state
                     let game_state = GameState::from_bytes(&self.game_state_buffer);
@@ -185,13 +189,21 @@ impl RLViserSocketHandler {
                     println!("Connection established to {src}");
                 }
                 UdpPacketTypes::Speed => {
+                    self.socket.set_nonblocking(false)?;
+
                     let mut speed_buffer = [0; f32::NUM_BYTES];
                     self.socket.recv_from(&mut speed_buffer)?;
+
+                    self.socket.set_nonblocking(true)?;
+
                     let speed = f32::from_bytes(&speed_buffer);
                     *interval = Duration::from_secs_f32(1. / (120. * speed));
                 }
                 UdpPacketTypes::Paused => {
+                    self.socket.set_nonblocking(false)?;
                     self.socket.recv_from(&mut byte_buffer)?;
+                    self.socket.set_nonblocking(true)?;
+
                     self.paused = byte_buffer[0] == 1;
                 }
                 UdpPacketTypes::Quit | UdpPacketTypes::Render => {
