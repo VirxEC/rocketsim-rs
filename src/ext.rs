@@ -231,7 +231,11 @@ impl Arena {
     ///
     /// If there is no car with the given ID, this will return an error
     pub fn remove_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-        if self.rmvc(car_id) { Ok(()) } else { Err(NoCarFound(car_id)) }
+        if self.rmvc(car_id) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
     }
 
     #[inline]
@@ -269,7 +273,11 @@ impl Arena {
     ///
     /// If there is no car with the given ID, this will return an error
     pub fn demolish_car(self: Pin<&mut Self>, car_id: u32) -> Result<(), NoCarFound> {
-        if self.dc(car_id) { Ok(()) } else { Err(NoCarFound(car_id)) }
+        if self.dc(car_id) {
+            Ok(())
+        } else {
+            Err(NoCarFound(car_id))
+        }
     }
 
     #[inline]

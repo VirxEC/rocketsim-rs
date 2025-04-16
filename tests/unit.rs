@@ -6,8 +6,8 @@ use rocketsim_rs::{
 use std::{
     f32::consts::PI,
     sync::{
-        Once,
         atomic::{AtomicBool, Ordering},
+        Once,
     },
 };
 
