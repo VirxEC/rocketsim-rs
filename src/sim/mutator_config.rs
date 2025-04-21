@@ -53,6 +53,9 @@ mod base {
         ball_radius: f32,
         unlimited_flips: bool,
         unlimited_double_jumps: bool,
+        recharge_boost_enabled: bool,
+        recharge_boost_per_second: f32,
+        recharge_boost_delay: f32,
         demo_mode: DemoMode,
         enable_team_demos: bool,
         /// Only used if the game mode has soccar goals (i.e. soccar, heatseeker, snowday)

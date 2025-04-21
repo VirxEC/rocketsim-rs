@@ -274,7 +274,7 @@ impl BallHitInfo {
 
 #[derive(Clone, Copy, Debug)]
 pub struct BallA {
-    pub update_counter: u64,
+    pub tick_count_since_update: u64,
     pub pos: Vec3A,
     pub rot_mat: Mat3A,
     pub vel: Vec3A,
@@ -286,7 +286,7 @@ impl Default for BallA {
     #[inline]
     fn default() -> Self {
         Self {
-            update_counter: 0,
+            tick_count_since_update: 0,
             pos: Vec3A::new(0., 0., 93.15),
             rot_mat: Mat3A::IDENTITY,
             vel: Vec3A::default(),
@@ -300,7 +300,7 @@ impl From<BallState> for BallA {
     #[inline]
     fn from(value: BallState) -> Self {
         Self {
-            update_counter: value.update_counter,
+            tick_count_since_update: value.tick_count_since_update,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -314,7 +314,7 @@ impl From<BallA> for BallState {
     #[inline]
     fn from(value: BallA) -> Self {
         Self {
-            update_counter: value.update_counter,
+            tick_count_since_update: value.tick_count_since_update,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -375,6 +375,7 @@ pub struct CarConfigA {
     pub hitbox_pos_offset: Vec3A,
     pub front_wheels: WheelPairConfigA,
     pub back_wheels: WheelPairConfigA,
+    pub three_wheels: bool,
     pub dodge_deadzone: f32,
 }
 
@@ -386,6 +387,7 @@ impl From<CarConfig> for CarConfigA {
             hitbox_pos_offset: value.hitbox_pos_offset.into(),
             front_wheels: value.front_wheels.into(),
             back_wheels: value.back_wheels.into(),
+            three_wheels: value.three_wheels,
             dodge_deadzone: value.dodge_deadzone,
         }
     }
@@ -399,6 +401,7 @@ impl From<CarConfigA> for CarConfig {
             hitbox_pos_offset: value.hitbox_pos_offset.into(),
             front_wheels: value.front_wheels.into(),
             back_wheels: value.back_wheels.into(),
+            three_wheels: value.three_wheels,
             dodge_deadzone: value.dodge_deadzone,
         }
     }
@@ -482,7 +485,7 @@ impl CarContact {
 
 #[derive(Clone, Copy, Debug)]
 pub struct CarStateA {
-    pub update_counter: u64,
+    pub tick_count_since_update: u64,
     pub pos: Vec3A,
     pub rot_mat: Mat3A,
     pub vel: Vec3A,
@@ -500,7 +503,9 @@ pub struct CarStateA {
     pub air_time: f32,
     pub air_time_since_jump: f32,
     pub boost: f32,
-    pub time_spent_boosting: f32,
+    pub time_since_boosted: f32,
+    pub is_boosting: bool,
+    pub boosting_time: f32,
     pub is_supersonic: bool,
     pub supersonic_time: f32,
     pub handbrake_val: f32,
@@ -519,7 +524,7 @@ impl Default for CarStateA {
     #[inline]
     fn default() -> Self {
         Self {
-            update_counter: 0,
+            tick_count_since_update: 0,
             pos: Vec3A::new(0., 0., 17.),
             rot_mat: Mat3A::IDENTITY,
             vel: Vec3A::default(),
@@ -537,7 +542,9 @@ impl Default for CarStateA {
             air_time: 0.,
             air_time_since_jump: 0.,
             boost: 100. / 3.,
-            time_spent_boosting: 0.,
+            time_since_boosted: 0.,
+            is_boosting: false,
+            boosting_time: 0.,
             is_supersonic: false,
             supersonic_time: 0.,
             handbrake_val: 0.,
@@ -558,7 +565,7 @@ impl From<CarState> for CarStateA {
     #[inline]
     fn from(value: CarState) -> Self {
         Self {
-            update_counter: value.update_counter,
+            tick_count_since_update: value.tick_count_since_update,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -576,7 +583,9 @@ impl From<CarState> for CarStateA {
             air_time: value.air_time,
             air_time_since_jump: value.air_time_since_jump,
             boost: value.boost,
-            time_spent_boosting: value.time_spent_boosting,
+            time_since_boosted: value.time_since_boosted,
+            is_boosting: value.is_boosting,
+            boosting_time: value.boosting_time,
             is_supersonic: value.is_supersonic,
             supersonic_time: value.supersonic_time,
             handbrake_val: value.handbrake_val,
@@ -597,7 +606,7 @@ impl From<CarStateA> for CarState {
     #[inline]
     fn from(value: CarStateA) -> Self {
         Self {
-            update_counter: value.update_counter,
+            tick_count_since_update: value.tick_count_since_update,
             pos: value.pos.into(),
             rot_mat: value.rot_mat.into(),
             vel: value.vel.into(),
@@ -615,7 +624,9 @@ impl From<CarStateA> for CarState {
             air_time: value.air_time,
             air_time_since_jump: value.air_time_since_jump,
             boost: value.boost,
-            time_spent_boosting: value.time_spent_boosting,
+            time_since_boosted: value.time_since_boosted,
+            is_boosting: value.is_boosting,
+            boosting_time: value.boosting_time,
             is_supersonic: value.is_supersonic,
             supersonic_time: value.supersonic_time,
             handbrake_val: value.handbrake_val,

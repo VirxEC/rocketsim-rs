@@ -3,7 +3,8 @@ use crate::{
     math::{Angle, RotMat, Vec3},
     sim::{
         Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig,
-        CarContact, CarControls, CarState, DemoMode, GameMode, HeatseekerInfo, MutatorConfig, Team, WorldContact,
+        CarContact, CarControls, CarState, DemoMode, DropshotTileState, DropshotTilesState, GameMode, HeatseekerInfo,
+        MutatorConfig, Team, WorldContact,
     },
 };
 use core::pin::Pin;
@@ -14,6 +15,47 @@ use std::{error::Error, fmt};
 use crate::serde_utils;
 #[cfg(feature = "serde_utils")]
 use serde::{Deserialize, Serialize};
+
+impl Default for DropshotTileState {
+    fn default() -> Self {
+        Self::new(DropshotTileState::STATE_FULL)
+    }
+}
+
+impl PartialEq for DropshotTileState {
+    fn eq(&self, other: &Self) -> bool {
+        self.damage_state == other.damage_state
+    }
+}
+impl Eq for DropshotTileState {}
+
+impl DropshotTileState {
+    pub const STATE_FULL: u8 = 0;
+    pub const STATE_DAMAGED: u8 = 1;
+    pub const STATE_BROKEN: u8 = 2;
+
+    pub const fn new(damage_state: u8) -> Self {
+        debug_assert!(damage_state <= Self::STATE_DAMAGED);
+        Self { damage_state }
+    }
+}
+
+impl Default for DropshotTilesState {
+    fn default() -> Self {
+        Self::DEFAULT
+    }
+}
+
+impl DropshotTilesState {
+    pub const DEFAULT: Self = Self::new(0);
+
+    pub const fn new(damage_state: u8) -> Self {
+        Self {
+            states: [[DropshotTileState::new(damage_state); consts::dropshot::NUM_TILES_PER_TEAM as usize];
+                consts::dropshot::TEAM_AMOUNT as usize],
+        }
+    }
+}
 
 impl CarConfig {
     #[inline]
@@ -50,6 +92,12 @@ impl CarConfig {
     #[must_use]
     pub fn merc() -> &'static Self {
         base::get_merc()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn psyclops() -> &'static Self {
+        base::get_psyclops()
     }
 }
 
@@ -101,7 +149,10 @@ impl MutatorConfig {
             bump_cooldown_time: consts::BUMP_COOLDOWN_TIME,
             boost_pad_cooldown_big: consts::boostpads::COOLDOWN_BIG,
             boost_pad_cooldown_small: consts::boostpads::COOLDOWN_SMALL,
-            car_spawn_boost_amount: consts::BOOST_SPAWN_AMOUNT,
+            car_spawn_boost_amount: match game_mode {
+                GameMode::Dropshot => 100.,
+                _ => consts::BOOST_SPAWN_AMOUNT,
+            },
             ball_hit_extra_force_scale: 1.,
             bump_force_scale: 1.,
             ball_radius: match game_mode {
@@ -112,6 +163,9 @@ impl MutatorConfig {
             },
             unlimited_flips: false,
             unlimited_double_jumps: false,
+            recharge_boost_enabled: game_mode == GameMode::Dropshot,
+            recharge_boost_per_second: consts::RECHARGE_BOOST_PER_SECOND,
+            recharge_boost_delay: consts::RECHARGE_BOOST_DELAY,
             demo_mode: DemoMode::Normal,
             enable_team_demos: false,
             goal_base_threshold_y: consts::SOCCAR_GOAL_SCORE_BASE_THRESHOLD_Y,
@@ -220,8 +274,11 @@ impl Arena {
 
     #[inline]
     /// Start ball and cars from random valid kickoff positions
-    pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<i32>) {
-        self.rtrk(seed.unwrap_or(-1));
+    ///
+    /// If `seed` is `None`, the random number generator will be randomly seeded.
+    /// If `seed` is `Some(i)`, the random number generator will be seeded with `i`.
+    pub fn reset_to_random_kickoff(self: Pin<&mut Self>, seed: Option<u32>) {
+        self.rtrk(seed.map(|i| i as i32).unwrap_or(-1));
     }
 
     #[inline]
@@ -424,7 +481,7 @@ impl Default for BallState {
     #[inline]
     fn default() -> Self {
         Self {
-            update_counter: 0,
+            tick_count_since_update: 0,
             pos: Vec3::new(0., 0., 93.15),
             rot_mat: RotMat::IDENTITY,
             vel: Vec3::ZERO,
@@ -438,7 +495,7 @@ impl Default for CarState {
     #[inline]
     fn default() -> Self {
         Self {
-            update_counter: 0,
+            tick_count_since_update: 0,
             pos: Vec3::new(0., 0., 17.),
             rot_mat: RotMat::IDENTITY,
             vel: Vec3::ZERO,
@@ -456,7 +513,9 @@ impl Default for CarState {
             air_time: 0.,
             air_time_since_jump: 0.,
             boost: 100. / 3.,
-            time_spent_boosting: 0.,
+            time_since_boosted: 0.,
+            is_boosting: false,
+            boosting_time: 0.,
             is_supersonic: false,
             supersonic_time: 0.,
             handbrake_val: 0.,

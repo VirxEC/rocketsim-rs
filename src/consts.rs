@@ -13,6 +13,8 @@ pub const ARENA_EXTENT_Y_HOOPS: f32 = 3581.;
 pub const ARENA_HEIGHT_HOOPS: f32 = 1820.;
 pub const ARENA_HEIGHT_DROPSHOT: f32 = 2024.;
 pub const FLOOR_HEIGHT_DROPSHOT: f32 = 1.5;
+pub const ARENA_COLLISION_BASE_FRICTION: f32 = 0.6;
+pub const ARENA_COLLISION_BASE_RESTITUTION: f32 = 0.3;
 pub const CAR_MASS_BT: f32 = 180.;
 /// Ref: https://www.reddit.com/r/RocketLeague/comments/bmje9l/comment/emxkwrl/?context=3
 pub const BALL_MASS_BT: f32 = CAR_MASS_BT / 6.;
@@ -34,7 +36,8 @@ pub const BALL_FRICTION: f32 = 0.35;
 /// Bounce factor
 pub const BALL_RESTITUTION: f32 = 0.6;
 /// Z impulse applied to hoops ball on kickoff
-pub const BALL_HOOPS_Z_VEL: f32 = 1000.;
+pub const BALL_HOOPS_LAUNCH_Z_VEL: f32 = 1000.;
+pub const BALL_HOOPS_LAUNCH_DELAY: f32 = 0.265;
 pub const CAR_MAX_SPEED: f32 = 2300.;
 pub const BALL_MAX_SPEED: f32 = 6000.;
 pub const BOOST_MAX: f32 = 100.;
@@ -46,6 +49,10 @@ pub const BOOST_ACCEL_GROUND: f32 = 2975. / 3.;
 /// uu/s for vel (airborne)
 pub const BOOST_ACCEL_AIR: f32 = 3175. / 3.;
 pub const BOOST_SPAWN_AMOUNT: f32 = BOOST_MAX / 3.;
+/// Amount of boost recharged per second when recharging
+pub const RECHARGE_BOOST_PER_SECOND: f32 = 10.;
+/// Delay after the car stops boosting
+pub const RECHARGE_BOOST_DELAY: f32 = 0.25;
 /// Car can never exceed this angular velocity (radians/s)
 pub const CAR_MAX_ANG_SPEED: f32 = 5.5;
 pub const SUPERSONIC_START_SPEED: f32 = 2200.;
@@ -129,6 +136,13 @@ pub const CAR_SPAWN_LOCATIONS_HOOPS: [CarSpawnPos; CAR_SPAWN_LOCATION_AMOUNT as 
     CarSpawnPos::new(-2816., -2816., FRAC_PI_4 * 2.),
     CarSpawnPos::new(-3200., -3200., FRAC_PI_4 * 2.),
 ];
+pub const CAR_SPAWN_LOCATIONS_DROPSHOT: [CarSpawnPos; CAR_SPAWN_LOCATION_AMOUNT as usize] = [
+    CarSpawnPos::new(-2380., -2380., FRAC_PI_4 * 1.),
+    CarSpawnPos::new(-2380., -2380., FRAC_PI_4 * 3.),
+    CarSpawnPos::new(-3576., -3576., FRAC_PI_4 * 2.),
+    CarSpawnPos::new(-3576., -3576., FRAC_PI_4 * 2.),
+    CarSpawnPos::new(-4088., -4088., FRAC_PI_4 * 2.),
+];
 pub const CAR_SPAWN_LOCATIONS_HEATSEEKER: [CarSpawnPos; CAR_SPAWN_LOCATION_AMOUNT_HEATSEEKER as usize] = [
     CarSpawnPos::new(-4620., -4620., FRAC_PI_2),
     CarSpawnPos::new(-4620., -4620., FRAC_PI_2),
@@ -147,6 +161,12 @@ pub const CAR_RESPAWN_LOCATIONS_HOOPS: [CarSpawnPos; CAR_RESPAWN_LOCATION_AMOUNT
     CarSpawnPos::new(-3072., -3072., FRAC_PI_2),
     CarSpawnPos::new(-3072., -3072., FRAC_PI_2),
 ];
+pub const CAR_RESPAWN_LOCATIONS_DROPSHOT: [CarSpawnPos; CAR_RESPAWN_LOCATION_AMOUNT as usize] = [
+    CarSpawnPos::new(-3410., -3410., FRAC_PI_2),
+    CarSpawnPos::new(-3100., -3100., FRAC_PI_2),
+    CarSpawnPos::new(-3410., -3410., FRAC_PI_2),
+    CarSpawnPos::new(-3100., -3100., FRAC_PI_2),
+];
 pub const STEER_ANGLE_FROM_SPEED_CURVE: LinearPieceCurve<6> = LinearPieceCurve {
     value_mappings: [
         (0., 0.53356),
@@ -156,6 +176,9 @@ pub const STEER_ANGLE_FROM_SPEED_CURVE: LinearPieceCurve<6> = LinearPieceCurve {
         (1750., 0.08507),
         (3000., 0.03454),
     ],
+};
+pub const STEER_ANGLE_FROM_SPEED_CURVE_THREEWHEEL: LinearPieceCurve<2> = LinearPieceCurve {
+    value_mappings: [(0., 0.342473), (2300., 0.034837)],
 };
 pub const POWERSLIDE_STEER_ANGLE_FROM_SPEED_CURVE: LinearPieceCurve<2> = LinearPieceCurve {
     value_mappings: [(0., 0.39235), (2500., 0.12610)],
@@ -168,6 +191,9 @@ pub const NON_STICKY_FRICTION_FACTOR_CURVE: LinearPieceCurve<3> = LinearPieceCur
 };
 pub const LAT_FRICTION_CURVE: LinearPieceCurve<2> = LinearPieceCurve {
     value_mappings: [(0., 1.0), (1., 0.2)],
+};
+pub const LAT_FRICTION_CURVE_THREEWHEEL: LinearPieceCurve<2> = LinearPieceCurve {
+    value_mappings: [(0., 0.30), (1., 0.25)],
 };
 pub const LONG_FRICTION_CURVE: LinearPieceCurve<0> = LinearPieceCurve { value_mappings: [] };
 pub const HANDBRAKE_LAT_FRICTION_FACTOR_CURVE: LinearPieceCurve<1> = LinearPieceCurve {
@@ -253,26 +279,36 @@ pub mod dropshot {
 
     const BT_TO_UU: f32 = 50.0;
 
-    /// TODO: Might be slightly off, just based on quick testing
-    pub const BALL_START_VEL: Vec3 = Vec3::new(0., 0., 985.);
-    pub const TILE_HEXAGON_AABB_MAX: Vec3 = Vec3::new(8.85, 7.6643, 0.);
-    pub const NUM_TILES_PER_TEAM: i32 = 57;
+    pub const BALL_LAUNCH_Z_VEL: f32 = 985.;
+    pub const BALL_LAUNCH_DELAY: f32 = 0.26;
+    /// Minimum downward speed to damage tiles
+    pub const MIN_DOWNWARD_SPEED_TO_DAMAGE: f32 = 250.;
+    /// Minimum car->ball delta speed required to accumulate absorbed force
+    pub const MIN_CHARGE_HIT_SPEED: f32 = 500.;
+    /// Minimum absorbed force to charge/"break open" the ball
+    pub const MIN_ABSORBED_FORCE_FOR_CHARGE: f32 = 2500.;
+    /// Minimum absorbed force to super-charge the ball
+    pub const MIN_ABSORBED_FORCE_FOR_SUPERCHARGE: f32 = 11000.;
+    /// Minimum time between damaging tiles
+    pub const MIN_DAMAGE_INTERVAL: f32 = 0.1;
+    pub const TILE_WIDTH_X: f32 = TILE_HEXAGON_VERTS_BT[1].x * 2. * BT_TO_UU;
+    pub const ROW_OFFSET_Y: f32 = (TILE_HEXAGON_VERTS_BT[3].y + TILE_HEXAGON_VERTS_BT[4].y) * BT_TO_UU;
+    pub const TILE_OFFSET_Y: f32 = 2.54736 * BT_TO_UU;
+    pub const NUM_TILES_PER_TEAM: i32 = 70;
     pub const TEAM_AMOUNT: i32 = 2;
     /// Number decends each row
     pub const TILES_IN_FIRST_ROW: i32 = 13;
     pub const TILES_IN_LAST_ROW: i32 = 7;
     pub const NUM_TILE_ROWS: i32 = TILES_IN_FIRST_ROW - TILES_IN_LAST_ROW + 1;
+    pub const TILE_HEXAGON_AABB_MAX: Vec3 = Vec3::new(7.6643, 8.85, 0.);
     pub const TILE_HEXAGON_VERTS_BT: [Vec3; 6] = [
-        Vec3::new(8.85, 0.0, 0.),
-        Vec3::new(4.425, 7.6643, 0.),
-        Vec3::new(-4.425, 7.6643, 0.),
-        Vec3::new(-8.85, 0.0, 0.),
-        Vec3::new(-4.425, -7.6643, 0.),
-        Vec3::new(4.425, -7.6643, 0.),
+        Vec3::new(0.0, -8.85, 0.),
+        Vec3::new(7.6643, -4.425, 0.),
+        Vec3::new(7.6643, 4.425, 0.),
+        Vec3::new(0.0, 8.85, 0.),
+        Vec3::new(-7.6643, 4.425, 0.),
+        Vec3::new(-7.6643, -4.425, 0.),
     ];
-    pub const TILE_SIZE_X: f32 = TILE_HEXAGON_VERTS_BT[0].x * BT_TO_UU;
-    pub const ROW_OFFSET_Y: f32 = (TILE_HEXAGON_VERTS_BT[0].x + TILE_HEXAGON_VERTS_BT[1].x) * BT_TO_UU;
-    pub const TILE_OFFSET_Y: f32 = 2.54736 * BT_TO_UU;
 }
 
 pub mod boostpads {

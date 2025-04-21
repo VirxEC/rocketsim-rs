@@ -34,7 +34,7 @@ mod base {
         rot_mat: RotMat,
         vel: Vec3,
         ang_vel: Vec3,
-        update_counter: u64,
+        tick_count_since_update: u64,
         hs_info: HeatseekerInfo,
     }
 }

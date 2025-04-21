@@ -43,6 +43,8 @@ mod base {
         #[namespace = "RocketSim"]
         type GameMode = crate::sim::GameMode;
         type BoostPadConfig = crate::sim::BoostPadConfig;
+        #[namespace = "RocketSim"]
+        type DropshotTilesState = crate::sim::DropshotTilesState;
 
         #[must_use]
         #[doc(hidden)]
@@ -133,6 +135,14 @@ mod base {
             callback: fn(arena: Pin<&mut Arena>, car_team: Team, user_data: usize),
             user_data: usize,
         );
+
+        /// Gets the state information of every dropshot tile
+        #[cxx_name = "GetDropshotTilesState"]
+        fn get_dropshot_tiles_state(self: &Arena) -> &DropshotTilesState;
+
+        /// Sets the state information of every dropshot tile
+        #[cxx_name = "SetDropshotTilesState"]
+        fn set_dropshot_tiles_state(self: Pin<&mut Arena>, state: &DropshotTilesState);
 
         /// Sets the car bump callback
         #[cxx_name = "SetCarBumpCallback"]

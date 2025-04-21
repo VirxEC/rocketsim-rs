@@ -1,4 +1,4 @@
-use rocketsim_rs::sim::{Arena, CarConfig, Team};
+use rocketsim_rs::sim::{Arena, CarConfig, CarControls, Team};
 use std::{
     thread::{available_parallelism, spawn},
     time::Instant,
@@ -20,13 +20,32 @@ fn main() {
             spawn(|| {
                 let mut arena = Arena::default_standard();
 
-                let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
-                let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
-                let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
+                let ids = [
+                    arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+                    arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+                    arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+                    arena.pin_mut().add_car(Team::Orange, CarConfig::octane()),
+                    arena.pin_mut().add_car(Team::Orange, CarConfig::octane()),
+                    arena.pin_mut().add_car(Team::Orange, CarConfig::octane()),
+                ];
 
-                let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
-                let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
-                let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::octane());
+                let controls = ids
+                    .into_iter()
+                    .map(|id| {
+                        (
+                            id,
+                            CarControls {
+                                throttle: 1.0,
+                                steer: 0.1,
+                                boost: true,
+                                ..Default::default()
+                            },
+                        )
+                    })
+                    .collect::<Vec<_>>();
+
+                arena.pin_mut().reset_to_random_kickoff(Some(0));
+                arena.pin_mut().set_all_controls(&controls).unwrap();
 
                 arena.pin_mut().step(TICKS);
             })

@@ -6,6 +6,7 @@ mod boost_pad;
 mod car_config;
 mod car_controls;
 mod car_state;
+mod dropshot_tiles;
 mod mutator_config;
 
 pub use arena::{Arena, GameMode};
@@ -16,4 +17,5 @@ pub use boost_pad::{BoostPadConfig, BoostPadState};
 pub use car_config::{CarConfig, WheelPairConfig};
 pub use car_controls::CarControls;
 pub use car_state::{CarContact, CarState, Team, WorldContact};
+pub use dropshot_tiles::{DropshotTileState, DropshotTilesState};
 pub use mutator_config::{DemoMode, MutatorConfig};

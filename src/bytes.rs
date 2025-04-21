@@ -312,7 +312,7 @@ impl_bytes_exact!(
 impl_bytes_exact!(
     BallState,
     u64::NUM_BYTES + Vec3::NUM_BYTES * 3 + RotMat::NUM_BYTES + HeatseekerInfo::NUM_BYTES,
-    update_counter,
+    tick_count_since_update,
     pos,
     rot_mat,
     vel,
@@ -364,7 +364,7 @@ impl_bytes_exact!(
         + CarContact::NUM_BYTES
         + BallHitInfo::NUM_BYTES
         + CarControls::NUM_BYTES,
-    update_counter,
+    tick_count_since_update,
     pos,
     rot_mat,
     vel,
@@ -382,7 +382,9 @@ impl_bytes_exact!(
     air_time,
     air_time_since_jump,
     boost,
-    time_spent_boosting,
+    time_since_boosted,
+    is_boosting,
+    boosting_time,
     is_supersonic,
     supersonic_time,
     handbrake_val,
@@ -410,6 +412,7 @@ impl_bytes_exact!(
     hitbox_pos_offset,
     front_wheels,
     back_wheels,
+    three_wheels,
     dodge_deadzone
 );
 impl_bytes_exact!(

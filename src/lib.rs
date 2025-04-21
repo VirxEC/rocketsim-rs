@@ -96,6 +96,9 @@ mod base {
 
         #[rust_name = "get_merc"]
         fn getMerc() -> &'static CarConfig;
+
+        #[rust_name = "get_psyclops"]
+        fn getPsyclops() -> &'static CarConfig;
     }
 }
 

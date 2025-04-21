@@ -5,6 +5,8 @@ use std::path::PathBuf;
 fn main() {
     println!("cargo:rerun-if-changed=src/lib.rs");
 
+    // rerun if src/sim/ changes
+
     let cpp_files = glob("RocketSim/libsrc/bullet3-3.24/**/*.cpp")
         .unwrap()
         .chain(glob("RocketSim/src/**/*.cpp").unwrap())
@@ -18,11 +20,14 @@ fn main() {
 
     let rust_files: Vec<PathBuf> = glob("src/sim/*.rs")
         .unwrap()
-        .chain(glob("RocketSim/src/**/*.rs").unwrap())
         .flatten()
         .filter(|path| !path.ends_with("mod.rs"))
         .chain([PathBuf::from("src/math.rs"), PathBuf::from("src/lib.rs")])
         .collect::<Vec<_>>();
+
+    for file in &rust_files {
+        println!("cargo:rerun-if-changed={}", file.display());
+    }
 
     let mut builder = bridges(rust_files);
 

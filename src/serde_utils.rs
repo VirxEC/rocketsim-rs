@@ -68,7 +68,7 @@ pub struct CarContactDerive {
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "CarState")]
 pub struct CarStateDerive {
-    update_counter: u64,
+    tick_count_since_update: u64,
     pos: Vec3,
     rot_mat: RotMat,
     vel: Vec3,
@@ -86,7 +86,9 @@ pub struct CarStateDerive {
     air_time: f32,
     air_time_since_jump: f32,
     boost: f32,
-    time_spent_boosting: f32,
+    time_since_boosted: f32,
+    is_boosting: bool,
+    boosting_time: f32,
     is_supersonic: bool,
     supersonic_time: f32,
     handbrake_val: f32,
@@ -122,13 +124,14 @@ pub struct CarConfigDerive {
     front_wheels: WheelPairConfig,
     #[serde(with = "WheelPairConfigDerive")]
     back_wheels: WheelPairConfig,
+    three_wheels: bool,
     dodge_deadzone: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "BallState")]
 pub struct BallStateDerive {
-    update_counter: u64,
+    tick_count_since_update: u64,
     pos: Vec3,
     rot_mat: RotMat,
     vel: Vec3,

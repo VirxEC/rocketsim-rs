@@ -123,12 +123,15 @@ for i, line in enumerate(lines):
 
         if name is not None and "[" in name:
             array_len = name.split("[")[1].removesuffix("]")
-            const_type = f"[{const_type}; {array_len} as usize]"
+            if not array_len.isdigit():
+                array_len = f"{array_len} as usize"
+
+            const_type = f"[{const_type}; {array_len}]"
 
         if consts[namespace].get(const_type) is None:
             consts[namespace][const_type] = []
 
-        if name is not None:
+        if name is not None and "[" in name:
             consts[namespace][const_type].append([name.split("[")[0].split()[-1], []])
 
     elif line.startswith("const static"):
@@ -147,7 +150,10 @@ for i, line in enumerate(lines):
 
         if name is not None and "[" in name:
             array_len = name.split("[")[1].removesuffix("]")
-            const_type = f"[{const_type}; {array_len} as usize]"
+            if not array_len.isdigit():
+                array_len = f"{array_len} as usize"
+
+            const_type = f"[{const_type}; {array_len}]"
 
         if consts[namespace].get(const_type) is None:
             consts[namespace][const_type] = []
@@ -321,7 +327,7 @@ for namespace, types in consts.items():
                 else:
                     continue
 
-                vals = f",\n".join([f"    {indent}" + conv_func(vals) for vals in val])
+                vals = ",\n".join([f"    {indent}" + conv_func(vals) for vals in val])
                 val = f"[\n{vals},\n{indent}]"
 
             if item_type.startswith("LinearPieceCurve"):
@@ -332,6 +338,7 @@ for namespace, types in consts.items():
 
             if comment is not None:
                 consts_rs.append(f"{indent}/// {comment}")
+
             consts_rs.append(f"{indent}pub const {name}: {item_type} = {val};")
 
     if namespace is not None:

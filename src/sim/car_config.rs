@@ -23,6 +23,7 @@ mod base {
         hitbox_pos_offset: Vec3,
         front_wheels: WheelPairConfig,
         back_wheels: WheelPairConfig,
+        three_wheels: bool,
         dodge_deadzone: f32,
     }
 }
