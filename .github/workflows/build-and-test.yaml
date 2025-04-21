@@ -16,7 +16,7 @@ jobs:
         features: [ all, no, default ]
         include:
           - os: windows-latest
-          - os: macos-latest
+          - os: macos-15
           - os: ubuntu-24.04
           - features: all
             features_arg: --all-features
@@ -55,7 +55,7 @@ jobs:
           cargo build ${{ matrix.features_arg }}
       - name: Build project
         if: matrix.os != 'windows-latest'
-        run: CXX="clang++" cargo build ${{ matrix.features_arg }}
+        run: cargo build ${{ matrix.features_arg }}
       - name: Run tests
         if: matrix.os != 'windows-latest'
         run: cargo test ${{ matrix.features_arg }}
