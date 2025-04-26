@@ -5,8 +5,8 @@ pub use serde;
 use crate::{
     math::{RotMat, Vec3},
     sim::{
-        BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState, HeatseekerInfo,
-        WheelPairConfig, WorldContact,
+        BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState, DropshotInfo,
+        HeatseekerInfo, WheelPairConfig, WorldContact,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -137,4 +137,5 @@ pub struct BallStateDerive {
     vel: Vec3,
     ang_vel: Vec3,
     hs_info: HeatseekerInfo,
+    ds_info: DropshotInfo,
 }

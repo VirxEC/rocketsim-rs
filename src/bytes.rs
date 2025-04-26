@@ -1,11 +1,12 @@
 use crate::{
+    consts,
     math::{RotMat, Vec3},
     render::{Color, Render, RenderMessage, Vec2},
     sim::{
-        BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState, GameMode,
-        HeatseekerInfo, Team, WheelPairConfig, WorldContact,
+        BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState, DropshotInfo,
+        GameMode, HeatseekerInfo, Team, WheelPairConfig, WorldContact,
     },
-    BoostPad, CarInfo, GameState,
+    BoostPad, CarInfo, DropshotTile, GameState, TileState,
 };
 use core::fmt;
 
@@ -33,11 +34,11 @@ impl<'a> ByteReader<'a> {
         self.idx += I::NUM_BYTES;
         item
     }
+}
 
-    #[inline]
-    #[track_caller]
-    pub fn debug_assert_num_bytes(&self, num_bytes: usize) {
-        debug_assert_eq!(self.idx, num_bytes, "ByteReader::debug_assert_num_bytes() failed");
+impl Drop for ByteReader<'_> {
+    fn drop(&mut self) {
+        debug_assert_eq!(self.idx, self.bytes.len(), "ByteReader dropped with unread data");
     }
 }
 
@@ -127,43 +128,28 @@ impl<T: FromBytesExact + fmt::Debug, const N: usize> FromBytes for [T; N] {
         let mut reader = ByteReader::new(bytes);
 
         let items = (0..N).map(|_| reader.read()).collect::<Vec<T>>();
-        reader.debug_assert_num_bytes(Self::NUM_BYTES);
         items.try_into().unwrap()
     }
 }
 
-impl FromBytesExact for Team {
-    const NUM_BYTES: usize = 1;
+macro_rules! impl_from_bytes_exact_for_enums {
+    ($($variant:ident),*) => {
+        $(
+            impl FromBytesExact for $variant {
+                const NUM_BYTES: usize = 1;
+            }
+
+            impl FromBytes for $variant {
+                #[inline]
+                fn from_bytes(bytes: &[u8]) -> Self {
+                    Self::try_from(bytes[0]).unwrap()
+                }
+            }
+        )*
+    };
 }
 
-impl FromBytes for Team {
-    #[inline]
-    fn from_bytes(bytes: &[u8]) -> Self {
-        match bytes[0] {
-            0 => Self::Blue,
-            1 => Self::Orange,
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl FromBytesExact for GameMode {
-    const NUM_BYTES: usize = 1;
-}
-
-impl FromBytes for GameMode {
-    #[inline]
-    fn from_bytes(bytes: &[u8]) -> Self {
-        match bytes[0] {
-            0 => Self::Soccar,
-            1 => Self::Hoops,
-            2 => Self::Heatseeker,
-            3 => Self::Snowday,
-            4 => Self::TheVoid,
-            _ => unreachable!(),
-        }
-    }
-}
+impl_from_bytes_exact_for_enums!(Team, GameMode, TileState);
 
 impl FromBytesExact for Vec3 {
     const NUM_BYTES: usize = f32::NUM_BYTES * 3;
@@ -176,38 +162,14 @@ impl FromBytes for Vec3 {
     }
 }
 
-impl FromBytesExact for Vec2 {
-    const NUM_BYTES: usize = f32::NUM_BYTES * 2;
-}
-
-impl FromBytes for Vec2 {
-    fn from_bytes(bytes: &[u8]) -> Self {
-        let mut reader = ByteReader::new(bytes);
-        Self::new(reader.read(), reader.read())
-    }
-}
-
-impl FromBytesExact for Color {
-    const NUM_BYTES: usize = f32::NUM_BYTES * 4;
-}
-
-impl FromBytes for Color {
-    fn from_bytes(bytes: &[u8]) -> Self {
-        let mut reader = ByteReader::new(bytes);
-        Self::rgba(reader.read(), reader.read(), reader.read(), reader.read())
-    }
-}
-
 macro_rules! impl_from_bytes_exact {
     ($t:ty, $n:expr, $($p:ident),+) => {
         impl FromBytes for $t {
             fn from_bytes(bytes: &[u8]) -> Self {
                 let mut reader = ByteReader::new(bytes);
-                let item = Self {
+                Self {
                     $($p: reader.read(),)+
-                };
-                reader.debug_assert_num_bytes(Self::NUM_BYTES);
-                item
+                }
             }
         }
 
@@ -244,15 +206,21 @@ impl<const N: usize> ByteWriter<N> {
     }
 }
 
-impl ToBytesExact<{ bool::NUM_BYTES * 4 }> for [bool; 4] {
-    fn to_bytes(&self) -> [u8; bool::NUM_BYTES * 4] {
-        let mut writer = ByteWriter::<{ bool::NUM_BYTES * 4 }>::new();
-        for item in self {
-            writer.write(item);
-        }
-        writer.inner()
+macro_rules! impl_to_bytes_for_array_size {
+    ($([$t:ty; $N:expr]),+) => {
+        $(impl ToBytesExact<{ <$t>::NUM_BYTES * $N }> for [$t; $N] {
+            fn to_bytes(&self) -> [u8; <$t>::NUM_BYTES * $N] {
+                let mut writer = ByteWriter::<{ <$t>::NUM_BYTES * $N }>::new();
+                for item in self {
+                    writer.write(item);
+                }
+                writer.inner()
+            }
+        })+
     }
 }
+
+impl_to_bytes_for_array_size!([bool; 4]);
 
 macro_rules! impl_to_bytes_exact_via_std {
     ($($t:ty),+) => {
@@ -276,7 +244,7 @@ macro_rules! impl_to_bytes_exact_as_u8 {
     };
 }
 
-impl_to_bytes_exact_as_u8!(bool, Team, GameMode);
+impl_to_bytes_exact_as_u8!(bool, Team, GameMode, TileState);
 
 macro_rules! impl_to_bytes_exact {
     ($t:ty, $($p:ident),+) => {
@@ -290,9 +258,7 @@ macro_rules! impl_to_bytes_exact {
     };
 }
 
-impl_to_bytes_exact!(Vec2, x, y);
 impl_to_bytes_exact!(Vec3, x, y, z);
-impl_to_bytes_exact!(Color, r, g, b, a);
 
 macro_rules! impl_bytes_exact {
     ($t:ty, $n:expr, $($p:ident),+) => {
@@ -301,6 +267,8 @@ macro_rules! impl_bytes_exact {
     };
 }
 
+impl_bytes_exact!(Vec2, f32::NUM_BYTES * 2, x, y);
+impl_bytes_exact!(Color, u8::NUM_BYTES * 4, r, g, b, a);
 impl_bytes_exact!(RotMat, Vec3::NUM_BYTES * 3, forward, right, up);
 impl_bytes_exact!(
     HeatseekerInfo,
@@ -310,14 +278,24 @@ impl_bytes_exact!(
     time_since_hit
 );
 impl_bytes_exact!(
+    DropshotInfo,
+    i32::NUM_BYTES + f32::NUM_BYTES * 2 + 1 + u64::NUM_BYTES,
+    charge_level,
+    accumulated_hit_force,
+    y_target_dir,
+    has_damaged,
+    last_damage_tick
+);
+impl_bytes_exact!(
     BallState,
-    u64::NUM_BYTES + Vec3::NUM_BYTES * 3 + RotMat::NUM_BYTES + HeatseekerInfo::NUM_BYTES,
+    u64::NUM_BYTES + Vec3::NUM_BYTES * 3 + RotMat::NUM_BYTES + HeatseekerInfo::NUM_BYTES + DropshotInfo::NUM_BYTES,
     tick_count_since_update,
     pos,
     rot_mat,
     vel,
     ang_vel,
-    hs_info
+    hs_info,
+    ds_info
 );
 impl_bytes_exact!(
     BoostPadState,
@@ -358,8 +336,8 @@ impl_bytes_exact!(
     u64::NUM_BYTES
         + Vec3::NUM_BYTES * 4
         + RotMat::NUM_BYTES
-        + 13
-        + f32::NUM_BYTES * 11
+        + 14
+        + f32::NUM_BYTES * 12
         + WorldContact::NUM_BYTES
         + CarContact::NUM_BYTES
         + BallHitInfo::NUM_BYTES
@@ -407,7 +385,7 @@ impl_bytes_exact!(
 );
 impl_bytes_exact!(
     CarConfig,
-    Vec3::NUM_BYTES * 2 + WheelPairConfig::NUM_BYTES * 2 + f32::NUM_BYTES,
+    Vec3::NUM_BYTES * 2 + WheelPairConfig::NUM_BYTES * 2 + f32::NUM_BYTES + 1,
     hitbox_size,
     hitbox_pos_offset,
     front_wheels,
@@ -423,6 +401,7 @@ impl_bytes_exact!(
     state,
     config
 );
+impl_bytes_exact!(DropshotTile, Vec3::NUM_BYTES + 1, pos, state);
 
 impl Render {
     fn count_bytes(&self) -> usize {
@@ -557,20 +536,25 @@ impl ToBytes for RenderMessage {
 impl FromBytes for GameState {
     #[inline]
     fn from_bytes(bytes: &[u8]) -> Self {
+        let mut reader = ByteReader::new(bytes);
+
+        let tick_count = reader.read();
+        let tick_rate = reader.read();
+        let game_mode = reader.read();
+        let num_pads = reader.read();
+        let num_cars = reader.read();
+
         Self {
-            tick_count: Self::read_tick_count(bytes),
-            tick_rate: Self::read_tick_rate(bytes),
-            game_mode: Self::read_game_mode(bytes),
-            ball: BallState::from_bytes(&bytes[Self::MIN_NUM_BYTES..Self::MIN_NUM_BYTES + BallState::NUM_BYTES]),
-            pads: bytes[Self::MIN_NUM_BYTES + BallState::NUM_BYTES
-                ..Self::MIN_NUM_BYTES + BallState::NUM_BYTES + Self::read_num_pads(bytes) * BoostPad::NUM_BYTES]
-                .chunks_exact(BoostPad::NUM_BYTES)
-                .map(BoostPad::from_bytes)
-                .collect(),
-            cars: bytes[Self::MIN_NUM_BYTES + BallState::NUM_BYTES + Self::read_num_pads(bytes) * BoostPad::NUM_BYTES..]
-                .chunks_exact(CarInfo::NUM_BYTES)
-                .map(CarInfo::from_bytes)
-                .collect(),
+            tick_count,
+            tick_rate,
+            game_mode,
+            ball: reader.read(),
+            pads: (0..num_pads).map(|_| reader.read()).collect(),
+            cars: (0..num_cars).map(|_| reader.read()).collect(),
+            tiles: [
+                (0..consts::dropshot::NUM_TILES_PER_TEAM).map(|_| reader.read()).collect(),
+                (0..consts::dropshot::NUM_TILES_PER_TEAM).map(|_| reader.read()).collect(),
+            ],
         }
     }
 }
@@ -584,6 +568,7 @@ impl GameState {
             + BallState::NUM_BYTES
             + self.pads.len() * BoostPad::NUM_BYTES
             + self.cars.len() * CarInfo::NUM_BYTES
+            + DropshotTile::NUM_BYTES * consts::dropshot::NUM_TILES_PER_TEAM as usize * 2
     }
 
     #[inline]
@@ -593,6 +578,7 @@ impl GameState {
             + BallState::NUM_BYTES
             + Self::read_num_pads(bytes) * BoostPad::NUM_BYTES
             + Self::read_num_cars(bytes) * CarInfo::NUM_BYTES
+            + DropshotTile::NUM_BYTES * consts::dropshot::NUM_TILES_PER_TEAM as usize * 2
     }
 
     #[inline]
@@ -633,7 +619,8 @@ pub trait ToBytes {
 
 impl ToBytes for GameState {
     fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(self.count_bytes());
+        let num_bytes = self.count_bytes();
+        let mut bytes = Vec::with_capacity(num_bytes);
 
         bytes.extend(self.tick_count.to_bytes());
         bytes.extend(self.tick_rate.to_bytes());
@@ -643,7 +630,18 @@ impl ToBytes for GameState {
         bytes.extend(self.ball.to_bytes());
         bytes.extend(self.pads.iter().flat_map(ToBytesExact::<{ BoostPad::NUM_BYTES }>::to_bytes));
         bytes.extend(self.cars.iter().flat_map(ToBytesExact::<{ CarInfo::NUM_BYTES }>::to_bytes));
+        bytes.extend(
+            self.tiles[0]
+                .iter()
+                .flat_map(ToBytesExact::<{ DropshotTile::NUM_BYTES }>::to_bytes),
+        );
+        bytes.extend(
+            self.tiles[1]
+                .iter()
+                .flat_map(ToBytesExact::<{ DropshotTile::NUM_BYTES }>::to_bytes),
+        );
 
+        debug_assert_eq!(num_bytes, bytes.len());
         bytes
     }
 }

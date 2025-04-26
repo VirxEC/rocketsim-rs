@@ -69,7 +69,6 @@ fn main() -> io::Result<()> {
     let _ = args.next();
     let arena_type = match args.next().as_deref() {
         Some("hoops") => GameMode::Hoops,
-        Some("dropshot") => GameMode::Dropshot,
         _ => GameMode::Soccar,
     };
 
@@ -220,12 +219,20 @@ impl RLViserSocketHandler {
 fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
     let mut arena = Arena::new(arena_type, ArenaConfig::default(), 120);
 
-    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::octane());
-    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::dominus());
-    let _ = arena.pin_mut().add_car(Team::Blue, CarConfig::merc());
-    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
-    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::hybrid());
-    let _ = arena.pin_mut().add_car(Team::Orange, CarConfig::plank());
+    let num_repeat = 20;
+
+    let ids = (0..num_repeat)
+        .flat_map(|_| {
+            [
+                arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),
+                arena.pin_mut().add_car(Team::Blue, CarConfig::dominus()),
+                arena.pin_mut().add_car(Team::Blue, CarConfig::merc()),
+                arena.pin_mut().add_car(Team::Orange, CarConfig::breakout()),
+                arena.pin_mut().add_car(Team::Orange, CarConfig::hybrid()),
+                arena.pin_mut().add_car(Team::Orange, CarConfig::plank()),
+            ]
+        })
+        .collect::<Vec<_>>();
 
     arena.pin_mut().set_ball(BallState {
         pos: Vec3::new(3236.619, 4695.641, 789.734),
@@ -244,7 +251,7 @@ fn setup_arena(arena_type: GameMode) -> UniquePtr<Arena> {
     arena
         .pin_mut()
         .set_all_controls(
-            (1..=6u32)
+            ids.into_iter()
                 .map(|i| {
                     (
                         i,

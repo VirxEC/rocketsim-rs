@@ -19,9 +19,9 @@ use crate::{
     math::{Angle, RotMat, Vec3 as Vec3R},
     sim::{
         Arena, BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState,
-        GameMode, HeatseekerInfo, Team, WheelPairConfig, WorldContact,
+        DropshotInfo, GameMode, HeatseekerInfo, Team, WheelPairConfig, WorldContact,
     },
-    BoostPad, CarInfo, GameState,
+    BoostPad, CarInfo, DropshotTile, GameState, TileState,
 };
 
 impl From<RotMat> for Mat3A {
@@ -280,6 +280,7 @@ pub struct BallA {
     pub vel: Vec3A,
     pub ang_vel: Vec3A,
     pub hs_info: HeatseekerInfo,
+    pub ds_info: DropshotInfo,
 }
 
 impl Default for BallA {
@@ -292,6 +293,7 @@ impl Default for BallA {
             vel: Vec3A::default(),
             ang_vel: Vec3A::default(),
             hs_info: HeatseekerInfo::default(),
+            ds_info: DropshotInfo::default(),
         }
     }
 }
@@ -306,6 +308,7 @@ impl From<BallState> for BallA {
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
             hs_info: value.hs_info,
+            ds_info: value.ds_info,
         }
     }
 }
@@ -320,6 +323,7 @@ impl From<BallA> for BallState {
             vel: value.vel.into(),
             ang_vel: value.ang_vel.into(),
             hs_info: value.hs_info,
+            ds_info: value.ds_info,
         }
     }
 }
@@ -694,6 +698,38 @@ impl From<CarInfoA> for CarInfo {
     }
 }
 
+#[derive(Clone, Copy, Default, Debug)]
+pub struct DropshotTileA {
+    pub pos: Vec3A,
+    pub state: TileState,
+}
+
+impl From<DropshotTile> for DropshotTileA {
+    #[inline]
+    fn from(value: DropshotTile) -> Self {
+        Self {
+            pos: value.pos.into(),
+            state: value.state,
+        }
+    }
+}
+
+impl From<DropshotTileA> for DropshotTile {
+    #[inline]
+    fn from(value: DropshotTileA) -> Self {
+        Self {
+            pos: value.pos.into(),
+            state: value.state,
+        }
+    }
+}
+
+impl DropshotTile {
+    pub fn to_glam(self) -> DropshotTileA {
+        self.into()
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct GameStateA {
     pub tick_rate: f32,
@@ -702,11 +738,13 @@ pub struct GameStateA {
     pub cars: Vec<CarInfoA>,
     pub ball: BallA,
     pub pads: Vec<BoostPadA>,
+    pub tiles: [Vec<DropshotTileA>; 2],
 }
 
 impl From<GameState> for GameStateA {
-    #[inline]
     fn from(value: GameState) -> Self {
+        let [blue_tiles, orange_tiles] = value.tiles;
+
         Self {
             tick_rate: value.tick_rate,
             tick_count: value.tick_count,
@@ -714,6 +752,10 @@ impl From<GameState> for GameStateA {
             cars: value.cars.into_iter().map(CarInfoA::from).collect(),
             ball: value.ball.into(),
             pads: value.pads.into_iter().map(BoostPadA::from).collect(),
+            tiles: [
+                blue_tiles.into_iter().map(DropshotTileA::from).collect(),
+                orange_tiles.into_iter().map(DropshotTileA::from).collect(),
+            ],
         }
     }
 }

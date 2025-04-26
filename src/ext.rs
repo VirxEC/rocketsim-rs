@@ -3,8 +3,8 @@ use crate::{
     math::{Angle, RotMat, Vec3},
     sim::{
         Arena, ArenaConfig, ArenaMemWeightMode, BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig,
-        CarContact, CarControls, CarState, DemoMode, DropshotTileState, DropshotTilesState, GameMode, HeatseekerInfo,
-        MutatorConfig, Team, WorldContact,
+        CarContact, CarControls, CarState, DemoMode, DropshotInfo, DropshotTileState, DropshotTilesState, GameMode,
+        GetTilePos, HeatseekerInfo, MutatorConfig, Team, WorldContact,
     },
 };
 use core::pin::Pin;
@@ -15,6 +15,34 @@ use std::{error::Error, fmt};
 use crate::serde_utils;
 #[cfg(feature = "serde_utils")]
 use serde::{Deserialize, Serialize};
+
+impl TryFrom<u8> for GameMode {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Soccar),
+            1 => Ok(Self::Hoops),
+            2 => Ok(Self::Heatseeker),
+            3 => Ok(Self::Snowday),
+            4 => Ok(Self::Dropshot),
+            5 => Ok(Self::TheVoid),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<u8> for Team {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Blue),
+            1 => Ok(Self::Orange),
+            _ => Err(()),
+        }
+    }
+}
 
 impl Default for DropshotTileState {
     fn default() -> Self {
@@ -35,8 +63,12 @@ impl DropshotTileState {
     pub const STATE_BROKEN: u8 = 2;
 
     pub const fn new(damage_state: u8) -> Self {
-        debug_assert!(damage_state <= Self::STATE_DAMAGED);
+        debug_assert!(damage_state <= Self::STATE_BROKEN);
         Self { damage_state }
+    }
+
+    pub fn get_tile_pos(team: usize, index: usize) -> Vec3 {
+        GetTilePos(team as i32, index as i32)
     }
 }
 
@@ -53,6 +85,57 @@ impl DropshotTilesState {
         Self {
             states: [[DropshotTileState::new(damage_state); consts::dropshot::NUM_TILES_PER_TEAM as usize];
                 consts::dropshot::TEAM_AMOUNT as usize],
+        }
+    }
+
+    #[inline]
+    /// Gets the position of a tile in the dropshot map.
+    pub fn get_tile_pos(team: usize, index: usize) -> Vec3 {
+        GetTilePos(team as i32, index as i32)
+    }
+}
+
+#[repr(u8)]
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
+pub enum TileState {
+    #[default]
+    Full,
+    Damaged,
+    Broken,
+}
+
+impl TryFrom<u8> for TileState {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Full),
+            1 => Ok(Self::Damaged),
+            2 => Ok(Self::Broken),
+            _ => Err(()),
+        }
+    }
+}
+
+impl From<DropshotTileState> for TileState {
+    fn from(state: DropshotTileState) -> Self {
+        Self::try_from(state.damage_state).unwrap()
+    }
+}
+
+#[derive(Clone, Copy, Default, Debug)]
+#[cfg_attr(feature = "serde_utils", derive(Serialize, Deserialize))]
+pub struct DropshotTile {
+    pub pos: Vec3,
+    pub state: TileState,
+}
+
+impl DropshotTile {
+    pub fn new(index: usize, team: usize, state: DropshotTileState) -> Self {
+        Self {
+            pos: DropshotTilesState::get_tile_pos(team, index),
+            state: state.into(),
         }
     }
 }
@@ -232,6 +315,7 @@ pub struct GameState {
     #[cfg_attr(feature = "serde_utils", serde(with = "serde_utils::BallStateDerive"))]
     pub ball: BallState,
     pub pads: Vec<BoostPad>,
+    pub tiles: [Vec<DropshotTile>; 2],
 }
 
 impl Arena {
@@ -270,6 +354,13 @@ impl Arena {
     /// Create a new snowday arena running at the max TPS
     pub fn default_snowday() -> cxx::UniquePtr<Self> {
         Self::new(GameMode::Snowday, ArenaConfig::default(), 120)
+    }
+
+    #[inline]
+    #[must_use]
+    /// Create a new dropshot arena running at the max TPS
+    pub fn default_dropshot() -> cxx::UniquePtr<Self> {
+        Self::new(GameMode::Dropshot, ArenaConfig::default(), 120)
     }
 
     #[inline]
@@ -416,14 +507,43 @@ impl Arena {
 
     #[inline]
     #[must_use]
+    /// Gets the position and state of all dropshot tiles.
+    pub fn get_dropshot_tiles(&self) -> [Vec<DropshotTile>; 2] {
+        let [blue, orange] = self.get_dropshot_tiles_state().states;
+
+        [
+            blue.into_iter()
+                .enumerate()
+                .map(|(i, state)| DropshotTile::new(i, 0, state))
+                .collect(),
+            orange
+                .into_iter()
+                .enumerate()
+                .map(|(i, state)| DropshotTile::new(i, 1, state))
+                .collect(),
+        ]
+    }
+
+    #[must_use]
     /// Get all game state information in one struct
     pub fn get_game_state(mut self: Pin<&mut Self>) -> GameState {
+        let game_mode = self.get_game_mode();
+
         GameState {
+            game_mode,
             tick_rate: self.get_tick_rate(),
             tick_count: self.get_tick_count(),
-            game_mode: self.get_game_mode(),
-            pads: self.iter_pads().collect(),
+            pads: if game_mode == GameMode::Dropshot {
+                Default::default()
+            } else {
+                self.iter_pads().collect()
+            },
             ball: self.as_mut().get_ball(),
+            tiles: if game_mode == GameMode::Dropshot {
+                self.get_dropshot_tiles()
+            } else {
+                Default::default()
+            },
             cars: self.get_car_infos(),
         }
     }
@@ -440,8 +560,19 @@ impl Arena {
             self.as_mut().set_car(car.id, car.state)?;
         }
 
-        for (i, pad) in game_state.pads.iter().enumerate() {
-            self.as_mut().set_pad_state(i, pad.state);
+        if game_state.tiles[0].is_empty() {
+            for (i, pad) in game_state.pads.iter().enumerate() {
+                self.as_mut().set_pad_state(i, pad.state);
+            }
+        } else {
+            let mut tile_states = DropshotTilesState::DEFAULT;
+            for (team, tile) in game_state.tiles.iter().enumerate() {
+                for (i, tile) in tile.iter().enumerate() {
+                    tile_states.states[team][i].damage_state = tile.state as u8;
+                }
+            }
+
+            self.as_mut().set_dropshot_tiles_state(&tile_states);
         }
 
         self.set_ball(game_state.ball);
@@ -477,6 +608,19 @@ impl Default for HeatseekerInfo {
     }
 }
 
+impl Default for DropshotInfo {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            charge_level: 1,
+            accumulated_hit_force: 0.,
+            y_target_dir: 0.,
+            has_damaged: false,
+            last_damage_tick: 0,
+        }
+    }
+}
+
 impl Default for BallState {
     #[inline]
     fn default() -> Self {
@@ -487,6 +631,7 @@ impl Default for BallState {
             vel: Vec3::ZERO,
             ang_vel: Vec3::ZERO,
             hs_info: HeatseekerInfo::default(),
+            ds_info: DropshotInfo::default(),
         }
     }
 }

@@ -19,6 +19,8 @@ fn main() {
         .map(|_| {
             spawn(|| {
                 let mut arena = Arena::default_standard();
+                // let mut arena = Arena::default_hoops();
+                // let mut arena = Arena::default_dropshot();
 
                 let ids = [
                     arena.pin_mut().add_car(Team::Blue, CarConfig::octane()),

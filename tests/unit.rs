@@ -261,12 +261,12 @@ fn demoed() {
 // #[test]
 // fn demoed_hoops() {
 //     static DEMOED: AtomicBool = AtomicBool::new(false);
-//     INIT.call_once(|| init(None));
+//     INIT.call_once(|| init(None, true));
 
 //     let mut arena = Arena::default_hoops();
 //     // set up two cars, one demoing the other
-//     let orange = arena.pin_mut().add_car(Team::ORANGE, CarConfig::breakout());
-//     let blue = arena.pin_mut().add_car(Team::BLUE, CarConfig::hybrid());
+//     let orange = arena.pin_mut().add_car(Team::Orange, CarConfig::breakout());
+//     let blue = arena.pin_mut().add_car(Team::Blue, CarConfig::hybrid());
 
 //     arena
 //         .pin_mut()

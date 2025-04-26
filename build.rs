@@ -5,8 +5,6 @@ use std::path::PathBuf;
 fn main() {
     println!("cargo:rerun-if-changed=src/lib.rs");
 
-    // rerun if src/sim/ changes
-
     let cpp_files = glob("RocketSim/libsrc/bullet3-3.24/**/*.cpp")
         .unwrap()
         .chain(glob("RocketSim/src/**/*.cpp").unwrap())

@@ -19,6 +19,9 @@ glob = "0.3.0"
 cc = { version = "1.0.83", features = ["parallel"] }
 cxx-build = "1.0.122"
 
+[profile.dev]
+panic = "abort"
+
 [profile.release]
 lto = true
 codegen-units = 1
