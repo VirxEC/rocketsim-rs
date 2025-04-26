@@ -48,3 +48,7 @@ serde_json = "1.0.111"
 [[example]]
 name = "rlviser_socket"
 required-features = ["bin"]
+
+[[example]]
+name = "rlviser_stress"
+required-features = ["bin"]
