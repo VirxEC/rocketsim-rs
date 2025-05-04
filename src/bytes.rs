@@ -566,9 +566,17 @@ impl GameState {
     fn count_bytes(&self) -> usize {
         Self::MIN_NUM_BYTES
             + BallState::NUM_BYTES
-            + self.pads.len() * BoostPad::NUM_BYTES
+            + if self.game_mode == GameMode::Dropshot {
+                0
+            } else {
+                self.pads.len() * BoostPad::NUM_BYTES
+            }
             + self.cars.len() * CarInfo::NUM_BYTES
-            + DropshotTile::NUM_BYTES * consts::dropshot::NUM_TILES_PER_TEAM as usize * 2
+            + if self.game_mode == GameMode::Dropshot {
+                DropshotTile::NUM_BYTES * consts::dropshot::NUM_TILES_PER_TEAM as usize * 2
+            } else {
+                0
+            }
     }
 
     #[inline]
