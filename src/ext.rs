@@ -560,19 +560,18 @@ impl Arena {
             self.as_mut().set_car(car.id, car.state)?;
         }
 
-        if game_state.tiles[0].is_empty() {
-            for (i, pad) in game_state.pads.iter().enumerate() {
-                self.as_mut().set_pad_state(i, pad.state);
-            }
-        } else {
+        if game_state.game_mode == GameMode::Dropshot {
             let mut tile_states = DropshotTilesState::DEFAULT;
             for (team, tile) in game_state.tiles.iter().enumerate() {
                 for (i, tile) in tile.iter().enumerate() {
                     tile_states.states[team][i].damage_state = tile.state as u8;
                 }
             }
-
             self.as_mut().set_dropshot_tiles_state(&tile_states);
+        } else {
+            for (i, pad) in game_state.pads.iter().enumerate() {
+                self.as_mut().set_pad_state(i, pad.state);
+            }
         }
 
         self.set_ball(game_state.ball);
