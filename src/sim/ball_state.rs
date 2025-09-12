@@ -1,3 +1,5 @@
+use crate::math::{RotMat, Vec3};
+
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 #[cfg_attr(feature = "serde_utils", derive(serde::Serialize, serde::Deserialize))]
@@ -41,31 +43,34 @@ unsafe impl cxx::ExternType for DropshotInfo {
     type Kind = cxx::kind::Trivial;
 }
 
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct BallState {
+    pub pos: Vec3,
+    pub rot_mat: RotMat,
+    pub vel: Vec3,
+    pub ang_vel: Vec3,
+    pub tick_count_since_update: u64,
+    pub hs_info: HeatseekerInfo,
+    pub ds_info: DropshotInfo,
+}
+
+unsafe impl cxx::ExternType for BallState {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::BallState");
+    type Kind = cxx::kind::Trivial;
+}
+
 #[cxx::bridge(namespace = "RocketSim")]
 mod base {
     unsafe extern "C++" {
         include!("Sim/Ball/Ball.h");
 
-        #[rust_name = "Vec3"]
-        type Vec = crate::math::Vec3;
-        type RotMat = crate::math::RotMat;
-        type BallState;
+        type BallState = crate::sim::BallState;
         #[namespace = "RocketSim::BallState"]
         type HeatseekerInfo = crate::sim::HeatseekerInfo;
         #[namespace = "RocketSim::BallState"]
         type DropshotInfo = crate::sim::DropshotInfo;
     }
-
-    #[derive(Clone, Copy, Debug)]
-    struct BallState {
-        pos: Vec3,
-        rot_mat: RotMat,
-        vel: Vec3,
-        ang_vel: Vec3,
-        tick_count_since_update: u64,
-        hs_info: HeatseekerInfo,
-        ds_info: DropshotInfo,
-    }
 }
-
-pub use base::BallState;

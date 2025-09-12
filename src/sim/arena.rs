@@ -42,6 +42,7 @@ mod base {
         type MutatorConfig = crate::sim::MutatorConfig;
         #[namespace = "RocketSim"]
         type GameMode = crate::sim::GameMode;
+        #[namespace = "RocketSim"]
         type BoostPadConfig = crate::sim::BoostPadConfig;
         #[namespace = "RocketSim"]
         type DropshotTilesState = crate::sim::DropshotTilesState;

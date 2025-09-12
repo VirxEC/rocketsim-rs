@@ -34,12 +34,27 @@ unsafe impl cxx::ExternType for RotMat {
     type Kind = cxx::kind::Trivial;
 }
 
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct Angle {
+    pub yaw: f32,
+    pub pitch: f32,
+    pub roll: f32,
+}
+
+unsafe impl cxx::ExternType for Angle {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::Angle");
+    type Kind = cxx::kind::Trivial;
+}
+
 #[cxx::bridge(namespace = "RocketSim")]
 mod inner_math {
     unsafe extern "C++" {
         include!("Math/MathTypes/MathTypes.h");
 
-        type Angle;
+        type Angle = crate::math::Angle;
         type RotMat = crate::math::RotMat;
 
         #[must_use]
@@ -47,13 +62,4 @@ mod inner_math {
         /// Converts the angle to a RocketSim rotation matrix
         fn to_rotmat(self: &Angle) -> RotMat;
     }
-
-    #[derive(Clone, Copy, Debug, Default)]
-    struct Angle {
-        yaw: f32,
-        pitch: f32,
-        roll: f32,
-    }
 }
-
-pub use inner_math::Angle;

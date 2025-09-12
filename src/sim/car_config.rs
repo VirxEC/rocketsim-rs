@@ -1,31 +1,44 @@
+use crate::math::Vec3;
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct WheelPairConfig {
+    pub wheel_radius: f32,
+    pub suspension_rest_length: f32,
+    pub connection_point_offset: Vec3,
+}
+
+unsafe impl cxx::ExternType for WheelPairConfig {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::WheelPairConfig");
+    type Kind = cxx::kind::Trivial;
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct CarConfig {
+    pub hitbox_size: Vec3,
+    pub hitbox_pos_offset: Vec3,
+    pub front_wheels: WheelPairConfig,
+    pub back_wheels: WheelPairConfig,
+    pub three_wheels: bool,
+    pub dodge_deadzone: f32,
+}
+
+unsafe impl cxx::ExternType for CarConfig {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::CarConfig");
+    type Kind = cxx::kind::Trivial;
+}
+
 #[cxx::bridge(namespace = "RocketSim")]
 mod base {
     unsafe extern "C++" {
         include!("Sim/Car/CarConfig/CarConfig.h");
 
-        #[rust_name = "Vec3"]
-        type Vec = crate::math::Vec3;
-
-        type WheelPairConfig;
-        type CarConfig;
-    }
-
-    #[derive(Clone, Copy, Debug, Default)]
-    struct WheelPairConfig {
-        wheel_radius: f32,
-        suspension_rest_length: f32,
-        connection_point_offset: Vec3,
-    }
-
-    #[derive(Clone, Copy, Debug, Default)]
-    struct CarConfig {
-        hitbox_size: Vec3,
-        hitbox_pos_offset: Vec3,
-        front_wheels: WheelPairConfig,
-        back_wheels: WheelPairConfig,
-        three_wheels: bool,
-        dodge_deadzone: f32,
+        type WheelPairConfig = crate::sim::WheelPairConfig;
+        type CarConfig = crate::sim::CarConfig;
     }
 }
-
-pub use base::{CarConfig, WheelPairConfig};

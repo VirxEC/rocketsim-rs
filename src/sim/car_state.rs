@@ -1,3 +1,8 @@
+use crate::{
+    math::{RotMat, Vec3},
+    sim::{BallHitInfo, CarControls},
+};
+
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
 #[cfg_attr(feature = "serde_utils", derive(serde::Serialize, serde::Deserialize))]
@@ -14,18 +19,85 @@ unsafe impl cxx::ExternType for Team {
     type Kind = cxx::kind::Trivial;
 }
 
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct WorldContact {
+    pub has_contact: bool,
+    pub contact_normal: Vec3,
+}
+
+unsafe impl cxx::ExternType for WorldContact {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::WorldContact");
+    type Kind = cxx::kind::Trivial;
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct CarContact {
+    pub other_car_id: u32,
+    pub cooldown_timer: f32,
+}
+
+unsafe impl cxx::ExternType for CarContact {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::CarContact");
+    type Kind = cxx::kind::Trivial;
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct CarState {
+    pub pos: Vec3,
+    pub rot_mat: RotMat,
+    pub vel: Vec3,
+    pub ang_vel: Vec3,
+    pub tick_count_since_update: u64,
+    pub is_on_ground: bool,
+    pub wheels_with_contact: [bool; 4],
+    pub has_jumped: bool,
+    pub has_double_jumped: bool,
+    pub has_flipped: bool,
+    pub flip_rel_torque: Vec3,
+    pub jump_time: f32,
+    pub flip_time: f32,
+    pub is_flipping: bool,
+    pub is_jumping: bool,
+    pub air_time: f32,
+    pub air_time_since_jump: f32,
+    pub boost: f32,
+    pub time_since_boosted: f32,
+    pub is_boosting: bool,
+    pub boosting_time: f32,
+    pub is_supersonic: bool,
+    pub supersonic_time: f32,
+    pub handbrake_val: f32,
+    pub is_auto_flipping: bool,
+    pub auto_flip_timer: f32,
+    pub auto_flip_torque_scale: f32,
+    pub world_contact: WorldContact,
+    pub car_contact: CarContact,
+    pub is_demoed: bool,
+    pub demo_respawn_timer: f32,
+    pub ball_hit_info: BallHitInfo,
+    pub last_controls: CarControls,
+}
+
+unsafe impl cxx::ExternType for CarState {
+    #[allow(unused_attributes)]
+    #[doc(hidden)]
+    type Id = cxx::type_id!("RocketSim::CarState");
+    type Kind = cxx::kind::Trivial;
+}
+
 #[cxx::bridge(namespace = "RocketSim")]
 mod base {
     unsafe extern "C++" {
         include!("Sim/Car/Car.h");
 
-        #[rust_name = "Vec3"]
-        type Vec = crate::math::Vec3;
-        type RotMat = crate::math::RotMat;
-        type CarControls = crate::sim::CarControls;
-        type BallHitInfo = crate::sim::BallHitInfo;
-
-        type CarState;
+        type CarState = crate::sim::CarState;
 
         /// Returns if the car has flipped or jumped
         #[must_use]
@@ -43,57 +115,6 @@ mod base {
         fn got_flip_reset(self: &CarState) -> bool;
     }
 
-    #[derive(Clone, Copy, Debug)]
-    struct WorldContact {
-        has_contact: bool,
-        contact_normal: Vec3,
-    }
-
-    #[derive(Clone, Copy, Debug)]
-    struct CarContact {
-        other_car_id: u32,
-        cooldown_timer: f32,
-    }
-
-    #[derive(Clone, Copy, Debug)]
-    struct CarState {
-        pos: Vec3,
-        rot_mat: RotMat,
-        vel: Vec3,
-        ang_vel: Vec3,
-        tick_count_since_update: u64,
-        is_on_ground: bool,
-        wheels_with_contact: [bool; 4],
-        has_jumped: bool,
-        has_double_jumped: bool,
-        has_flipped: bool,
-        flip_rel_torque: Vec3,
-        jump_time: f32,
-        flip_time: f32,
-        is_flipping: bool,
-        is_jumping: bool,
-        air_time: f32,
-        air_time_since_jump: f32,
-        boost: f32,
-        time_since_boosted: f32,
-        is_boosting: bool,
-        boosting_time: f32,
-        is_supersonic: bool,
-        supersonic_time: f32,
-        handbrake_val: f32,
-        is_auto_flipping: bool,
-        auto_flip_timer: f32,
-        auto_flip_torque_scale: f32,
-        world_contact: WorldContact,
-        car_contact: CarContact,
-        is_demoed: bool,
-        demo_respawn_timer: f32,
-        ball_hit_info: BallHitInfo,
-        last_controls: CarControls,
-    }
-
     impl UniquePtr<CarState> {}
     impl CxxVector<CarState> {}
 }
-
-pub use base::{CarContact, CarState, WorldContact};

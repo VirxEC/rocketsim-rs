@@ -475,7 +475,7 @@ impl Arena {
     #[inline]
     /// Iterates over the static `(position, is_big)` info of boost pads in the Arena
     pub fn iter_pad_config(&self) -> impl Iterator<Item = BoostPadConfig> + '_ {
-        (0..self.num_pads()).map(|i| (self.get_pad_config(i)))
+        (0..self.num_pads()).map(|i| self.get_pad_config(i))
     }
 
     #[inline]
