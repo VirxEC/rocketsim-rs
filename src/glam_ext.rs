@@ -16,12 +16,12 @@ use core::pin::Pin;
 use glam::{EulerRot, Mat3, Mat3A, Quat, Vec3, Vec3A, Vec4};
 
 use crate::{
+    BoostPad, CarInfo, DropshotTile, GameState, TileState,
     math::{Angle, RotMat, Vec3 as Vec3R},
     sim::{
         Arena, BallHitInfo, BallState, BoostPadConfig, BoostPadState, CarConfig, CarContact, CarControls, CarState,
         DropshotInfo, GameMode, HeatseekerInfo, Team, WheelPairConfig, WorldContact,
     },
-    BoostPad, CarInfo, DropshotTile, GameState, TileState,
 };
 
 impl From<RotMat> for Mat3A {
