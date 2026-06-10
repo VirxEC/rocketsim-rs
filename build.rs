@@ -1,11 +1,16 @@
 use cxx_build::bridges;
 use glob::glob;
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
+#[cfg(feature = "bin")]
 const SCHEMA_DIR: &str = "./spec";
+#[cfg(feature = "bin")]
 const OUT_FILE: &str = "./src/flat.rs";
 
+#[cfg(feature = "bin")]
 fn generate_flatbuffers() {
+    use std::fs;
+
     println!("cargo:rerun-if-changed={SCHEMA_DIR}");
 
     let fbs_path = PathBuf::from(SCHEMA_DIR).join("core.fbs");
@@ -20,6 +25,8 @@ fn generate_flatbuffers() {
 fn main() {
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=build.rs");
+
+    #[cfg(feature = "bin")]
     generate_flatbuffers();
 
     let cpp_files = glob("RocketSim/libsrc/bullet3-3.24/**/*.cpp")

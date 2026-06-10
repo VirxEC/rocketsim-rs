@@ -3547,12 +3547,12 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<self::Vec3>,
-            T1: ::planus::WriteAs<self::Vec3>,
-            T2: ::planus::WriteAs<self::Vec3>,
-            T3: ::planus::WriteAsDefault<u64, u64>,
-            T4: ::planus::WriteAsDefault<u64, u64>,
-        > ::planus::WriteAs<::planus::Offset<BallHitInfo>> for BallHitInfoBuilder<(T0, T1, T2, T3, T4)>
+                T0: ::planus::WriteAs<self::Vec3>,
+                T1: ::planus::WriteAs<self::Vec3>,
+                T2: ::planus::WriteAs<self::Vec3>,
+                T3: ::planus::WriteAsDefault<u64, u64>,
+                T4: ::planus::WriteAsDefault<u64, u64>,
+            > ::planus::WriteAs<::planus::Offset<BallHitInfo>> for BallHitInfoBuilder<(T0, T1, T2, T3, T4)>
         {
             type Prepared = ::planus::Offset<BallHitInfo>;
 
@@ -3563,12 +3563,12 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<self::Vec3>,
-            T1: ::planus::WriteAs<self::Vec3>,
-            T2: ::planus::WriteAs<self::Vec3>,
-            T3: ::planus::WriteAsDefault<u64, u64>,
-            T4: ::planus::WriteAsDefault<u64, u64>,
-        > ::planus::WriteAsOptional<::planus::Offset<BallHitInfo>> for BallHitInfoBuilder<(T0, T1, T2, T3, T4)>
+                T0: ::planus::WriteAs<self::Vec3>,
+                T1: ::planus::WriteAs<self::Vec3>,
+                T2: ::planus::WriteAs<self::Vec3>,
+                T3: ::planus::WriteAsDefault<u64, u64>,
+                T4: ::planus::WriteAsDefault<u64, u64>,
+            > ::planus::WriteAsOptional<::planus::Offset<BallHitInfo>> for BallHitInfoBuilder<(T0, T1, T2, T3, T4)>
         {
             type Prepared = ::planus::Offset<BallHitInfo>;
 
@@ -3579,12 +3579,12 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<self::Vec3>,
-            T1: ::planus::WriteAs<self::Vec3>,
-            T2: ::planus::WriteAs<self::Vec3>,
-            T3: ::planus::WriteAsDefault<u64, u64>,
-            T4: ::planus::WriteAsDefault<u64, u64>,
-        > ::planus::WriteAsOffset<BallHitInfo> for BallHitInfoBuilder<(T0, T1, T2, T3, T4)>
+                T0: ::planus::WriteAs<self::Vec3>,
+                T1: ::planus::WriteAs<self::Vec3>,
+                T2: ::planus::WriteAs<self::Vec3>,
+                T3: ::planus::WriteAsDefault<u64, u64>,
+                T4: ::planus::WriteAsDefault<u64, u64>,
+            > ::planus::WriteAsOffset<BallHitInfo> for BallHitInfoBuilder<(T0, T1, T2, T3, T4)>
         {
             #[inline]
             fn prepare(&self, builder: &mut ::planus::Builder) -> ::planus::Offset<BallHitInfo> {
@@ -5396,9 +5396,9 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
-            T1: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
-        > ::planus::WriteAs<::planus::Offset<DropshotTilesByTeam>> for DropshotTilesByTeamBuilder<(T0, T1)>
+                T0: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
+                T1: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
+            > ::planus::WriteAs<::planus::Offset<DropshotTilesByTeam>> for DropshotTilesByTeamBuilder<(T0, T1)>
         {
             type Prepared = ::planus::Offset<DropshotTilesByTeam>;
 
@@ -5409,9 +5409,9 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
-            T1: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
-        > ::planus::WriteAsOptional<::planus::Offset<DropshotTilesByTeam>> for DropshotTilesByTeamBuilder<(T0, T1)>
+                T0: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
+                T1: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
+            > ::planus::WriteAsOptional<::planus::Offset<DropshotTilesByTeam>> for DropshotTilesByTeamBuilder<(T0, T1)>
         {
             type Prepared = ::planus::Offset<DropshotTilesByTeam>;
 
@@ -5425,9 +5425,9 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
-            T1: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
-        > ::planus::WriteAsOffset<DropshotTilesByTeam> for DropshotTilesByTeamBuilder<(T0, T1)>
+                T0: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
+                T1: ::planus::WriteAs<::planus::Offset<[::planus::Offset<self::DropshotTile>]>>,
+            > ::planus::WriteAsOffset<DropshotTilesByTeam> for DropshotTilesByTeamBuilder<(T0, T1)>
         {
             #[inline]
             fn prepare(&self, builder: &mut ::planus::Builder) -> ::planus::Offset<DropshotTilesByTeam> {
@@ -7209,7 +7209,32 @@ mod root {
             }
         }
 
-        impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
+        impl<
+                T0,
+                T1,
+                T2,
+                T3,
+                T4,
+                T5,
+                T6,
+                T7,
+                T8,
+                T9,
+                T10,
+                T11,
+                T12,
+                T13,
+                T14,
+                T15,
+                T16,
+                T17,
+                T18,
+                T19,
+                T20,
+                T21,
+                T22,
+                T23,
+            >
             CarStateBuilder<(
                 T0,
                 T1,
@@ -7342,32 +7367,32 @@ mod root {
         }
 
         impl<
-            T0,
-            T1,
-            T2,
-            T3,
-            T4,
-            T5,
-            T6,
-            T7,
-            T8,
-            T9,
-            T10,
-            T11,
-            T12,
-            T13,
-            T14,
-            T15,
-            T16,
-            T17,
-            T18,
-            T19,
-            T20,
-            T21,
-            T22,
-            T23,
-            T24,
-        >
+                T0,
+                T1,
+                T2,
+                T3,
+                T4,
+                T5,
+                T6,
+                T7,
+                T8,
+                T9,
+                T10,
+                T11,
+                T12,
+                T13,
+                T14,
+                T15,
+                T16,
+                T17,
+                T18,
+                T19,
+                T20,
+                T21,
+                T22,
+                T23,
+                T24,
+            >
             CarStateBuilder<(
                 T0,
                 T1,
@@ -7504,33 +7529,33 @@ mod root {
         }
 
         impl<
-            T0,
-            T1,
-            T2,
-            T3,
-            T4,
-            T5,
-            T6,
-            T7,
-            T8,
-            T9,
-            T10,
-            T11,
-            T12,
-            T13,
-            T14,
-            T15,
-            T16,
-            T17,
-            T18,
-            T19,
-            T20,
-            T21,
-            T22,
-            T23,
-            T24,
-            T25,
-        >
+                T0,
+                T1,
+                T2,
+                T3,
+                T4,
+                T5,
+                T6,
+                T7,
+                T8,
+                T9,
+                T10,
+                T11,
+                T12,
+                T13,
+                T14,
+                T15,
+                T16,
+                T17,
+                T18,
+                T19,
+                T20,
+                T21,
+                T22,
+                T23,
+                T24,
+                T25,
+            >
             CarStateBuilder<(
                 T0,
                 T1,
@@ -7671,34 +7696,34 @@ mod root {
         }
 
         impl<
-            T0,
-            T1,
-            T2,
-            T3,
-            T4,
-            T5,
-            T6,
-            T7,
-            T8,
-            T9,
-            T10,
-            T11,
-            T12,
-            T13,
-            T14,
-            T15,
-            T16,
-            T17,
-            T18,
-            T19,
-            T20,
-            T21,
-            T22,
-            T23,
-            T24,
-            T25,
-            T26,
-        >
+                T0,
+                T1,
+                T2,
+                T3,
+                T4,
+                T5,
+                T6,
+                T7,
+                T8,
+                T9,
+                T10,
+                T11,
+                T12,
+                T13,
+                T14,
+                T15,
+                T16,
+                T17,
+                T18,
+                T19,
+                T20,
+                T21,
+                T22,
+                T23,
+                T24,
+                T25,
+                T26,
+            >
             CarStateBuilder<(
                 T0,
                 T1,
@@ -7843,35 +7868,35 @@ mod root {
         }
 
         impl<
-            T0,
-            T1,
-            T2,
-            T3,
-            T4,
-            T5,
-            T6,
-            T7,
-            T8,
-            T9,
-            T10,
-            T11,
-            T12,
-            T13,
-            T14,
-            T15,
-            T16,
-            T17,
-            T18,
-            T19,
-            T20,
-            T21,
-            T22,
-            T23,
-            T24,
-            T25,
-            T26,
-            T27,
-        >
+                T0,
+                T1,
+                T2,
+                T3,
+                T4,
+                T5,
+                T6,
+                T7,
+                T8,
+                T9,
+                T10,
+                T11,
+                T12,
+                T13,
+                T14,
+                T15,
+                T16,
+                T17,
+                T18,
+                T19,
+                T20,
+                T21,
+                T22,
+                T23,
+                T24,
+                T25,
+                T26,
+                T27,
+            >
             CarStateBuilder<(
                 T0,
                 T1,
@@ -7981,36 +8006,36 @@ mod root {
         }
 
         impl<
-            T0,
-            T1,
-            T2,
-            T3,
-            T4,
-            T5,
-            T6,
-            T7,
-            T8,
-            T9,
-            T10,
-            T11,
-            T12,
-            T13,
-            T14,
-            T15,
-            T16,
-            T17,
-            T18,
-            T19,
-            T20,
-            T21,
-            T22,
-            T23,
-            T24,
-            T25,
-            T26,
-            T27,
-            T28,
-        >
+                T0,
+                T1,
+                T2,
+                T3,
+                T4,
+                T5,
+                T6,
+                T7,
+                T8,
+                T9,
+                T10,
+                T11,
+                T12,
+                T13,
+                T14,
+                T15,
+                T16,
+                T17,
+                T18,
+                T19,
+                T20,
+                T21,
+                T22,
+                T23,
+                T24,
+                T25,
+                T26,
+                T27,
+                T28,
+            >
             CarStateBuilder<(
                 T0,
                 T1,
@@ -8054,36 +8079,36 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<self::PhysState>,
-            T1: ::planus::WriteAsDefault<bool, bool>,
-            T2: ::planus::WriteAs<self::WheelsWithContact>,
-            T3: ::planus::WriteAsDefault<bool, bool>,
-            T4: ::planus::WriteAsDefault<bool, bool>,
-            T5: ::planus::WriteAsDefault<bool, bool>,
-            T6: ::planus::WriteAs<self::Vec3>,
-            T7: ::planus::WriteAsDefault<f32, f32>,
-            T8: ::planus::WriteAsDefault<f32, f32>,
-            T9: ::planus::WriteAsDefault<bool, bool>,
-            T10: ::planus::WriteAsDefault<bool, bool>,
-            T11: ::planus::WriteAsDefault<f32, f32>,
-            T12: ::planus::WriteAsDefault<f32, f32>,
-            T13: ::planus::WriteAsDefault<f32, f32>,
-            T14: ::planus::WriteAsDefault<f32, f32>,
-            T15: ::planus::WriteAsDefault<bool, bool>,
-            T16: ::planus::WriteAsDefault<f32, f32>,
-            T17: ::planus::WriteAsDefault<bool, bool>,
-            T18: ::planus::WriteAsDefault<f32, f32>,
-            T19: ::planus::WriteAsDefault<f32, f32>,
-            T20: ::planus::WriteAsDefault<bool, bool>,
-            T21: ::planus::WriteAsDefault<f32, f32>,
-            T22: ::planus::WriteAsDefault<f32, f32>,
-            T23: ::planus::WriteAsOptional<self::Vec3>,
-            T24: ::planus::WriteAsOptional<::planus::Offset<self::CarContact>>,
-            T25: ::planus::WriteAsDefault<bool, bool>,
-            T26: ::planus::WriteAsDefault<f32, f32>,
-            T27: ::planus::WriteAsOptional<::planus::Offset<self::BallHitInfo>>,
-            T28: ::planus::WriteAs<self::CarControls>,
-        > ::planus::WriteAs<::planus::Offset<CarState>>
+                T0: ::planus::WriteAs<self::PhysState>,
+                T1: ::planus::WriteAsDefault<bool, bool>,
+                T2: ::planus::WriteAs<self::WheelsWithContact>,
+                T3: ::planus::WriteAsDefault<bool, bool>,
+                T4: ::planus::WriteAsDefault<bool, bool>,
+                T5: ::planus::WriteAsDefault<bool, bool>,
+                T6: ::planus::WriteAs<self::Vec3>,
+                T7: ::planus::WriteAsDefault<f32, f32>,
+                T8: ::planus::WriteAsDefault<f32, f32>,
+                T9: ::planus::WriteAsDefault<bool, bool>,
+                T10: ::planus::WriteAsDefault<bool, bool>,
+                T11: ::planus::WriteAsDefault<f32, f32>,
+                T12: ::planus::WriteAsDefault<f32, f32>,
+                T13: ::planus::WriteAsDefault<f32, f32>,
+                T14: ::planus::WriteAsDefault<f32, f32>,
+                T15: ::planus::WriteAsDefault<bool, bool>,
+                T16: ::planus::WriteAsDefault<f32, f32>,
+                T17: ::planus::WriteAsDefault<bool, bool>,
+                T18: ::planus::WriteAsDefault<f32, f32>,
+                T19: ::planus::WriteAsDefault<f32, f32>,
+                T20: ::planus::WriteAsDefault<bool, bool>,
+                T21: ::planus::WriteAsDefault<f32, f32>,
+                T22: ::planus::WriteAsDefault<f32, f32>,
+                T23: ::planus::WriteAsOptional<self::Vec3>,
+                T24: ::planus::WriteAsOptional<::planus::Offset<self::CarContact>>,
+                T25: ::planus::WriteAsDefault<bool, bool>,
+                T26: ::planus::WriteAsDefault<f32, f32>,
+                T27: ::planus::WriteAsOptional<::planus::Offset<self::BallHitInfo>>,
+                T28: ::planus::WriteAs<self::CarControls>,
+            > ::planus::WriteAs<::planus::Offset<CarState>>
             for CarStateBuilder<(
                 T0,
                 T1,
@@ -8125,36 +8150,36 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<self::PhysState>,
-            T1: ::planus::WriteAsDefault<bool, bool>,
-            T2: ::planus::WriteAs<self::WheelsWithContact>,
-            T3: ::planus::WriteAsDefault<bool, bool>,
-            T4: ::planus::WriteAsDefault<bool, bool>,
-            T5: ::planus::WriteAsDefault<bool, bool>,
-            T6: ::planus::WriteAs<self::Vec3>,
-            T7: ::planus::WriteAsDefault<f32, f32>,
-            T8: ::planus::WriteAsDefault<f32, f32>,
-            T9: ::planus::WriteAsDefault<bool, bool>,
-            T10: ::planus::WriteAsDefault<bool, bool>,
-            T11: ::planus::WriteAsDefault<f32, f32>,
-            T12: ::planus::WriteAsDefault<f32, f32>,
-            T13: ::planus::WriteAsDefault<f32, f32>,
-            T14: ::planus::WriteAsDefault<f32, f32>,
-            T15: ::planus::WriteAsDefault<bool, bool>,
-            T16: ::planus::WriteAsDefault<f32, f32>,
-            T17: ::planus::WriteAsDefault<bool, bool>,
-            T18: ::planus::WriteAsDefault<f32, f32>,
-            T19: ::planus::WriteAsDefault<f32, f32>,
-            T20: ::planus::WriteAsDefault<bool, bool>,
-            T21: ::planus::WriteAsDefault<f32, f32>,
-            T22: ::planus::WriteAsDefault<f32, f32>,
-            T23: ::planus::WriteAsOptional<self::Vec3>,
-            T24: ::planus::WriteAsOptional<::planus::Offset<self::CarContact>>,
-            T25: ::planus::WriteAsDefault<bool, bool>,
-            T26: ::planus::WriteAsDefault<f32, f32>,
-            T27: ::planus::WriteAsOptional<::planus::Offset<self::BallHitInfo>>,
-            T28: ::planus::WriteAs<self::CarControls>,
-        > ::planus::WriteAsOptional<::planus::Offset<CarState>>
+                T0: ::planus::WriteAs<self::PhysState>,
+                T1: ::planus::WriteAsDefault<bool, bool>,
+                T2: ::planus::WriteAs<self::WheelsWithContact>,
+                T3: ::planus::WriteAsDefault<bool, bool>,
+                T4: ::planus::WriteAsDefault<bool, bool>,
+                T5: ::planus::WriteAsDefault<bool, bool>,
+                T6: ::planus::WriteAs<self::Vec3>,
+                T7: ::planus::WriteAsDefault<f32, f32>,
+                T8: ::planus::WriteAsDefault<f32, f32>,
+                T9: ::planus::WriteAsDefault<bool, bool>,
+                T10: ::planus::WriteAsDefault<bool, bool>,
+                T11: ::planus::WriteAsDefault<f32, f32>,
+                T12: ::planus::WriteAsDefault<f32, f32>,
+                T13: ::planus::WriteAsDefault<f32, f32>,
+                T14: ::planus::WriteAsDefault<f32, f32>,
+                T15: ::planus::WriteAsDefault<bool, bool>,
+                T16: ::planus::WriteAsDefault<f32, f32>,
+                T17: ::planus::WriteAsDefault<bool, bool>,
+                T18: ::planus::WriteAsDefault<f32, f32>,
+                T19: ::planus::WriteAsDefault<f32, f32>,
+                T20: ::planus::WriteAsDefault<bool, bool>,
+                T21: ::planus::WriteAsDefault<f32, f32>,
+                T22: ::planus::WriteAsDefault<f32, f32>,
+                T23: ::planus::WriteAsOptional<self::Vec3>,
+                T24: ::planus::WriteAsOptional<::planus::Offset<self::CarContact>>,
+                T25: ::planus::WriteAsDefault<bool, bool>,
+                T26: ::planus::WriteAsDefault<f32, f32>,
+                T27: ::planus::WriteAsOptional<::planus::Offset<self::BallHitInfo>>,
+                T28: ::planus::WriteAs<self::CarControls>,
+            > ::planus::WriteAsOptional<::planus::Offset<CarState>>
             for CarStateBuilder<(
                 T0,
                 T1,
@@ -8196,36 +8221,36 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAs<self::PhysState>,
-            T1: ::planus::WriteAsDefault<bool, bool>,
-            T2: ::planus::WriteAs<self::WheelsWithContact>,
-            T3: ::planus::WriteAsDefault<bool, bool>,
-            T4: ::planus::WriteAsDefault<bool, bool>,
-            T5: ::planus::WriteAsDefault<bool, bool>,
-            T6: ::planus::WriteAs<self::Vec3>,
-            T7: ::planus::WriteAsDefault<f32, f32>,
-            T8: ::planus::WriteAsDefault<f32, f32>,
-            T9: ::planus::WriteAsDefault<bool, bool>,
-            T10: ::planus::WriteAsDefault<bool, bool>,
-            T11: ::planus::WriteAsDefault<f32, f32>,
-            T12: ::planus::WriteAsDefault<f32, f32>,
-            T13: ::planus::WriteAsDefault<f32, f32>,
-            T14: ::planus::WriteAsDefault<f32, f32>,
-            T15: ::planus::WriteAsDefault<bool, bool>,
-            T16: ::planus::WriteAsDefault<f32, f32>,
-            T17: ::planus::WriteAsDefault<bool, bool>,
-            T18: ::planus::WriteAsDefault<f32, f32>,
-            T19: ::planus::WriteAsDefault<f32, f32>,
-            T20: ::planus::WriteAsDefault<bool, bool>,
-            T21: ::planus::WriteAsDefault<f32, f32>,
-            T22: ::planus::WriteAsDefault<f32, f32>,
-            T23: ::planus::WriteAsOptional<self::Vec3>,
-            T24: ::planus::WriteAsOptional<::planus::Offset<self::CarContact>>,
-            T25: ::planus::WriteAsDefault<bool, bool>,
-            T26: ::planus::WriteAsDefault<f32, f32>,
-            T27: ::planus::WriteAsOptional<::planus::Offset<self::BallHitInfo>>,
-            T28: ::planus::WriteAs<self::CarControls>,
-        > ::planus::WriteAsOffset<CarState>
+                T0: ::planus::WriteAs<self::PhysState>,
+                T1: ::planus::WriteAsDefault<bool, bool>,
+                T2: ::planus::WriteAs<self::WheelsWithContact>,
+                T3: ::planus::WriteAsDefault<bool, bool>,
+                T4: ::planus::WriteAsDefault<bool, bool>,
+                T5: ::planus::WriteAsDefault<bool, bool>,
+                T6: ::planus::WriteAs<self::Vec3>,
+                T7: ::planus::WriteAsDefault<f32, f32>,
+                T8: ::planus::WriteAsDefault<f32, f32>,
+                T9: ::planus::WriteAsDefault<bool, bool>,
+                T10: ::planus::WriteAsDefault<bool, bool>,
+                T11: ::planus::WriteAsDefault<f32, f32>,
+                T12: ::planus::WriteAsDefault<f32, f32>,
+                T13: ::planus::WriteAsDefault<f32, f32>,
+                T14: ::planus::WriteAsDefault<f32, f32>,
+                T15: ::planus::WriteAsDefault<bool, bool>,
+                T16: ::planus::WriteAsDefault<f32, f32>,
+                T17: ::planus::WriteAsDefault<bool, bool>,
+                T18: ::planus::WriteAsDefault<f32, f32>,
+                T19: ::planus::WriteAsDefault<f32, f32>,
+                T20: ::planus::WriteAsDefault<bool, bool>,
+                T21: ::planus::WriteAsDefault<f32, f32>,
+                T22: ::planus::WriteAsDefault<f32, f32>,
+                T23: ::planus::WriteAsOptional<self::Vec3>,
+                T24: ::planus::WriteAsOptional<::planus::Offset<self::CarContact>>,
+                T25: ::planus::WriteAsDefault<bool, bool>,
+                T26: ::planus::WriteAsDefault<f32, f32>,
+                T27: ::planus::WriteAsOptional<::planus::Offset<self::BallHitInfo>>,
+                T28: ::planus::WriteAs<self::CarControls>,
+            > ::planus::WriteAsOffset<CarState>
             for CarStateBuilder<(
                 T0,
                 T1,
@@ -8815,11 +8840,11 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAsDefault<u64, u64>,
-            T1: ::planus::WriteAsDefault<self::Team, self::Team>,
-            T2: ::planus::WriteAs<::planus::Offset<self::CarState>>,
-            T3: ::planus::WriteAs<self::CarConfig>,
-        > ::planus::WriteAs<::planus::Offset<CarInfo>> for CarInfoBuilder<(T0, T1, T2, T3)>
+                T0: ::planus::WriteAsDefault<u64, u64>,
+                T1: ::planus::WriteAsDefault<self::Team, self::Team>,
+                T2: ::planus::WriteAs<::planus::Offset<self::CarState>>,
+                T3: ::planus::WriteAs<self::CarConfig>,
+            > ::planus::WriteAs<::planus::Offset<CarInfo>> for CarInfoBuilder<(T0, T1, T2, T3)>
         {
             type Prepared = ::planus::Offset<CarInfo>;
 
@@ -8830,11 +8855,11 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAsDefault<u64, u64>,
-            T1: ::planus::WriteAsDefault<self::Team, self::Team>,
-            T2: ::planus::WriteAs<::planus::Offset<self::CarState>>,
-            T3: ::planus::WriteAs<self::CarConfig>,
-        > ::planus::WriteAsOptional<::planus::Offset<CarInfo>> for CarInfoBuilder<(T0, T1, T2, T3)>
+                T0: ::planus::WriteAsDefault<u64, u64>,
+                T1: ::planus::WriteAsDefault<self::Team, self::Team>,
+                T2: ::planus::WriteAs<::planus::Offset<self::CarState>>,
+                T3: ::planus::WriteAs<self::CarConfig>,
+            > ::planus::WriteAsOptional<::planus::Offset<CarInfo>> for CarInfoBuilder<(T0, T1, T2, T3)>
         {
             type Prepared = ::planus::Offset<CarInfo>;
 
@@ -8845,11 +8870,11 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAsDefault<u64, u64>,
-            T1: ::planus::WriteAsDefault<self::Team, self::Team>,
-            T2: ::planus::WriteAs<::planus::Offset<self::CarState>>,
-            T3: ::planus::WriteAs<self::CarConfig>,
-        > ::planus::WriteAsOffset<CarInfo> for CarInfoBuilder<(T0, T1, T2, T3)>
+                T0: ::planus::WriteAsDefault<u64, u64>,
+                T1: ::planus::WriteAsDefault<self::Team, self::Team>,
+                T2: ::planus::WriteAs<::planus::Offset<self::CarState>>,
+                T3: ::planus::WriteAs<self::CarConfig>,
+            > ::planus::WriteAsOffset<CarInfo> for CarInfoBuilder<(T0, T1, T2, T3)>
         {
             #[inline]
             fn prepare(&self, builder: &mut ::planus::Builder) -> ::planus::Offset<CarInfo> {
@@ -9270,14 +9295,14 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAsDefault<f32, f32>,
-            T1: ::planus::WriteAsDefault<u64, u64>,
-            T2: ::planus::WriteAsDefault<self::GameMode, self::GameMode>,
-            T3: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::CarInfo>]>>,
-            T4: ::planus::WriteAs<self::BallState>,
-            T5: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::BoostPadInfo>]>>,
-            T6: ::planus::WriteAsOptional<::planus::Offset<self::DropshotTilesByTeam>>,
-        > ::planus::WriteAs<::planus::Offset<GameState>> for GameStateBuilder<(T0, T1, T2, T3, T4, T5, T6)>
+                T0: ::planus::WriteAsDefault<f32, f32>,
+                T1: ::planus::WriteAsDefault<u64, u64>,
+                T2: ::planus::WriteAsDefault<self::GameMode, self::GameMode>,
+                T3: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::CarInfo>]>>,
+                T4: ::planus::WriteAs<self::BallState>,
+                T5: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::BoostPadInfo>]>>,
+                T6: ::planus::WriteAsOptional<::planus::Offset<self::DropshotTilesByTeam>>,
+            > ::planus::WriteAs<::planus::Offset<GameState>> for GameStateBuilder<(T0, T1, T2, T3, T4, T5, T6)>
         {
             type Prepared = ::planus::Offset<GameState>;
 
@@ -9288,14 +9313,14 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAsDefault<f32, f32>,
-            T1: ::planus::WriteAsDefault<u64, u64>,
-            T2: ::planus::WriteAsDefault<self::GameMode, self::GameMode>,
-            T3: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::CarInfo>]>>,
-            T4: ::planus::WriteAs<self::BallState>,
-            T5: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::BoostPadInfo>]>>,
-            T6: ::planus::WriteAsOptional<::planus::Offset<self::DropshotTilesByTeam>>,
-        > ::planus::WriteAsOptional<::planus::Offset<GameState>> for GameStateBuilder<(T0, T1, T2, T3, T4, T5, T6)>
+                T0: ::planus::WriteAsDefault<f32, f32>,
+                T1: ::planus::WriteAsDefault<u64, u64>,
+                T2: ::planus::WriteAsDefault<self::GameMode, self::GameMode>,
+                T3: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::CarInfo>]>>,
+                T4: ::planus::WriteAs<self::BallState>,
+                T5: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::BoostPadInfo>]>>,
+                T6: ::planus::WriteAsOptional<::planus::Offset<self::DropshotTilesByTeam>>,
+            > ::planus::WriteAsOptional<::planus::Offset<GameState>> for GameStateBuilder<(T0, T1, T2, T3, T4, T5, T6)>
         {
             type Prepared = ::planus::Offset<GameState>;
 
@@ -9306,14 +9331,14 @@ mod root {
         }
 
         impl<
-            T0: ::planus::WriteAsDefault<f32, f32>,
-            T1: ::planus::WriteAsDefault<u64, u64>,
-            T2: ::planus::WriteAsDefault<self::GameMode, self::GameMode>,
-            T3: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::CarInfo>]>>,
-            T4: ::planus::WriteAs<self::BallState>,
-            T5: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::BoostPadInfo>]>>,
-            T6: ::planus::WriteAsOptional<::planus::Offset<self::DropshotTilesByTeam>>,
-        > ::planus::WriteAsOffset<GameState> for GameStateBuilder<(T0, T1, T2, T3, T4, T5, T6)>
+                T0: ::planus::WriteAsDefault<f32, f32>,
+                T1: ::planus::WriteAsDefault<u64, u64>,
+                T2: ::planus::WriteAsDefault<self::GameMode, self::GameMode>,
+                T3: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::CarInfo>]>>,
+                T4: ::planus::WriteAs<self::BallState>,
+                T5: ::planus::WriteAsOptional<::planus::Offset<[::planus::Offset<self::BoostPadInfo>]>>,
+                T6: ::planus::WriteAsOptional<::planus::Offset<self::DropshotTilesByTeam>>,
+            > ::planus::WriteAsOffset<GameState> for GameStateBuilder<(T0, T1, T2, T3, T4, T5, T6)>
         {
             #[inline]
             fn prepare(&self, builder: &mut ::planus::Builder) -> ::planus::Offset<GameState> {
