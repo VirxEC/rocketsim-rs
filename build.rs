@@ -12,18 +12,7 @@ fn generate_flatbuffers() {
     let declarations = planus_translation::translate_files(&[fbs_path.as_path()]).unwrap();
     let raw_out = planus_codegen::generate_rust(&declarations)
         .unwrap()
-        .replace("#[no_implicit_prelude]\n", "")
-        .replace("::serde::Serialize,", "")
-        .replace("::serde::Deserialize,", "")
-        .replace("::serde::Deserialize", "")
-        .replace(
-            "#[derive(::serde::Serialize, ::serde::Deserialize, Clone, Debug, PartialEq, PartialOrd)]\n        pub struct GameState {",
-            "#[derive(Clone, Debug, PartialEq, PartialOrd)]\npub struct GameState {",
-        )
-        .replace(
-            "#[derive(::serde::Serialize, ::serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]\n        #[repr(u8)]\n        pub enum GameMode {",
-            "#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]\n#[repr(u8)]\npub enum GameMode {",
-        );
+        .replace("#[no_implicit_prelude]\n", "");
 
     fs::write(OUT_FILE, raw_out.as_bytes()).unwrap();
 }

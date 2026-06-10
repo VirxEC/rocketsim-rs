@@ -7,4 +7,3 @@ collision_meshes/*/*.cmf
 cxx.h
 *.dump
 .cache
-flat.rs

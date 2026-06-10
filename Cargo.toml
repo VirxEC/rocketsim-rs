@@ -52,7 +52,7 @@ glam = { version = "0.33.0", features = ["core-simd"], optional = true }
 
 [features]
 default = ["bin", "debug_logging"]
-bin = ["dep:planus"]
+bin = ["serde", "dep:planus"]
 debug_logging = []
 glam = ["dep:glam"]
 serde_utils = ["serde"]
