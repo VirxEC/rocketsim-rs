@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand::RngExt;
 use rocketsim_rs::sim::{Arena, CarConfig, CarControls, Team};
 use std::{sync::Mutex, time::Instant};
 

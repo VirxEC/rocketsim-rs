@@ -1,49 +1,22 @@
 [package]
 name = "rocketsim_rs"
-description = "Rust bindings for the RocketSim project"
-version = "0.36.0"
+version = "0.37.0"
 edition = "2024"
-license = "MIT"
+description = "Rust bindings for the RocketSim project"
 repository = "https://github.com/VirxEC/rocketsim-rs"
-exclude = [".git*", "CMake*", "collision_meshes", "rustfmt.toml", "*.py", "python", "tests", "MANIFEST.in"]
+license = "MIT"
+exclude = [
+  "*.py",
+  ".git*",
+  "CMake*",
+  "MANIFEST.in",
+  "collision_meshes",
+  "python",
+  "rustfmt.toml",
+  "tests"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-cxx = { version = "1.0.130", features = ["c++20"] }
-glam = { version = "0.30.0", optional = true }
-serde = { version = "1.0.195", optional = true, features = ["derive"] }
-
-[build-dependencies]
-glob = "0.3.0"
-cc = { version = "1.2.37", features = ["parallel"] }
-cxx-build = "1.0.130"
-
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-lto = true
-codegen-units = 1
-panic = "abort"
-
-[features]
-default = ["debug_logging", "bin"]
-debug_logging = []
-glam = ["dep:glam"]
-bin = []
-serde_utils = ["serde"]
-
-[target.'cfg(not(any(target_arch = "x86", target_arch = "x86_64")))'.dependencies]
-# use glam with experimental support for portable SIMD when not running on x86
-# architectures
-glam = { version = "0.30.0", optional = true, features = ["core-simd"] }
-
-[dev-dependencies]
-byteorder = "1.4.3"
-ctrlc = "3.3.1"
-rand = "0.9.0"
-serde_json = "1.0.111"
 
 [[example]]
 name = "rlviser_socket"
@@ -52,3 +25,42 @@ required-features = ["bin"]
 [[example]]
 name = "rlviser_stress"
 required-features = ["bin"]
+
+[dependencies]
+cxx = { version = "1.0.130", features = ["c++20"] }
+glam = { version = "0.33.0", optional = true }
+planus = { git = "https://github.com/swz-git/planus", rev = "a0b1fbf", optional = true }
+serde = { version = "1.0.195", features = ["derive"], optional = true }
+
+[dev-dependencies]
+byteorder = "1.4.3"
+ctrlc = "3.3.1"
+rand = "0.10.0"
+serde_json = "1.0.111"
+
+[build-dependencies]
+cc = { version = "1.2.37", features = ["parallel"] }
+cxx-build = "1.0.130"
+glob = "0.3.0"
+planus-codegen = { git = "https://github.com/swz-git/planus", rev = "a0b1fbf", optional = true }
+planus-translation = { git = "https://github.com/swz-git/planus", rev = "a0b1fbf", optional = true }
+
+[target.'cfg(not(any(target_arch = "x86", target_arch = "x86_64")))'.dependencies]
+# use glam with experimental support for portable SIMD when not running on x86
+# architectures
+glam = { version = "0.33.0", features = ["core-simd"], optional = true }
+
+[features]
+default = ["bin", "debug_logging"]
+bin = ["serde", "dep:planus", "dep:planus-codegen", "dep:planus-translation"]
+debug_logging = []
+glam = ["dep:glam"]
+serde_utils = ["serde"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+lto = true
+panic = "abort"
+codegen-units = 1
