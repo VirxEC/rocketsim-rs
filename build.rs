@@ -1,9 +1,37 @@
 use cxx_build::bridges;
 use glob::glob;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
+
+const SCHEMA_DIR: &str = "./spec";
+const OUT_FILE: &str = "./src/flat.rs";
+
+fn generate_flatbuffers() {
+    println!("cargo:rerun-if-changed={SCHEMA_DIR}");
+
+    let fbs_path = PathBuf::from(SCHEMA_DIR).join("core.fbs");
+    let declarations = planus_translation::translate_files(&[fbs_path.as_path()]).unwrap();
+    let raw_out = planus_codegen::generate_rust(&declarations)
+        .unwrap()
+        .replace("#[no_implicit_prelude]\n", "")
+        .replace("::serde::Serialize,", "")
+        .replace("::serde::Deserialize,", "")
+        .replace("::serde::Deserialize", "")
+        .replace(
+            "#[derive(::serde::Serialize, ::serde::Deserialize, Clone, Debug, PartialEq, PartialOrd)]\n        pub struct GameState {",
+            "#[derive(Clone, Debug, PartialEq, PartialOrd)]\npub struct GameState {",
+        )
+        .replace(
+            "#[derive(::serde::Serialize, ::serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]\n        #[repr(u8)]\n        pub enum GameMode {",
+            "#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]\n#[repr(u8)]\npub enum GameMode {",
+        );
+
+    fs::write(OUT_FILE, raw_out.as_bytes()).unwrap();
+}
 
 fn main() {
     println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=build.rs");
+    generate_flatbuffers();
 
     let cpp_files = glob("RocketSim/libsrc/bullet3-3.24/**/*.cpp")
         .unwrap()

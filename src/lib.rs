@@ -6,7 +6,9 @@
 )]
 
 #[cfg(feature = "bin")]
-pub mod bytes;
+pub mod flat;
+#[cfg(feature = "bin")]
+pub mod flat_ext;
 #[cfg(feature = "glam")]
 pub mod glam_ext;
 #[cfg(feature = "bin")]
