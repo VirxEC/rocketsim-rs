@@ -56,7 +56,7 @@ fn generate_flatbuffers() {
 
     let fbs_path = PathBuf::from(SCHEMA_DIR).join("core.fbs");
     let declarations = planus_translation::translate_files(&[fbs_path.as_path()]).unwrap();
-    let raw_out = planus_codegen::generate_rust(&declarations)
+    let raw_out = planus_codegen::generate_rust(&declarations, false)
         .unwrap()
         .replace("#[no_implicit_prelude]\n", "");
     let formatted_out = format_string(&raw_out).unwrap();

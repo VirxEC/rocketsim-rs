@@ -1,12 +1,12 @@
 pub use root::*;
 
-const _: () = ::planus::check_version_compatibility("planus-1.1.1");
+const _: () = ::planus::check_version_compatibility("planus-1.3.0");
 
 /// The root namespace
 ///
 /// Generated from these locations:
 /// * File `spec/core.fbs`
-#[allow(dead_code, clippy::needless_lifetimes)]
+#[allow(clippy::needless_lifetimes)]
 mod root {
     /// The namespace `rocketsim`
     ///
@@ -117,7 +117,7 @@ mod root {
 
         /// Reference to a deserialized [Connection].
         #[derive(Copy, Clone)]
-        pub struct ConnectionRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct ConnectionRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> ConnectionRef<'a> {}
 
@@ -299,7 +299,7 @@ mod root {
 
         /// Reference to a deserialized [Quit].
         #[derive(Copy, Clone)]
-        pub struct QuitRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct QuitRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> QuitRef<'a> {}
 
@@ -517,7 +517,7 @@ mod root {
 
         /// Reference to a deserialized [Speed].
         #[derive(Copy, Clone)]
-        pub struct SpeedRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct SpeedRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> SpeedRef<'a> {
             /// Getter for the [`speed` field](Speed#structfield.speed).
@@ -744,7 +744,7 @@ mod root {
 
         /// Reference to a deserialized [Paused].
         #[derive(Copy, Clone)]
-        pub struct PausedRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct PausedRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> PausedRef<'a> {
             /// Getter for the [`paused` field](Paused#structfield.paused).
@@ -1368,7 +1368,7 @@ mod root {
 
         /// Reference to a deserialized [Packet].
         #[derive(Copy, Clone)]
-        pub struct PacketRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct PacketRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> PacketRef<'a> {
             /// Getter for the [`message` field](Packet#structfield.message).
@@ -3234,7 +3234,7 @@ mod root {
 
         /// Reference to a deserialized [CarContact].
         #[derive(Copy, Clone)]
-        pub struct CarContactRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct CarContactRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> CarContactRef<'a> {
             /// Getter for the [`other_car_id` field](CarContact#structfield.other_car_id).
@@ -3595,7 +3595,7 @@ mod root {
 
         /// Reference to a deserialized [BallHitInfo].
         #[derive(Copy, Clone)]
-        pub struct BallHitInfoRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct BallHitInfoRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> BallHitInfoRef<'a> {
             /// Getter for the [`relative_pos_on_ball` field](BallHitInfo#structfield.relative_pos_on_ball).
@@ -4909,7 +4909,7 @@ mod root {
 
         /// Reference to a deserialized [BoostPadInfo].
         #[derive(Copy, Clone)]
-        pub struct BoostPadInfoRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct BoostPadInfoRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> BoostPadInfoRef<'a> {
             /// Getter for the [`config` field](BoostPadInfo#structfield.config).
@@ -5173,7 +5173,7 @@ mod root {
 
         /// Reference to a deserialized [DropshotTile].
         #[derive(Copy, Clone)]
-        pub struct DropshotTileRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct DropshotTileRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> DropshotTileRef<'a> {
             /// Getter for the [`pos` field](DropshotTile#structfield.pos).
@@ -5438,7 +5438,7 @@ mod root {
 
         /// Reference to a deserialized [DropshotTilesByTeam].
         #[derive(Copy, Clone)]
-        pub struct DropshotTilesByTeamRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct DropshotTilesByTeamRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> DropshotTilesByTeamRef<'a> {
             /// Getter for the [`blue_tiles` field](DropshotTilesByTeam#structfield.blue_tiles).
@@ -8300,7 +8300,7 @@ mod root {
 
         /// Reference to a deserialized [CarState].
         #[derive(Copy, Clone)]
-        pub struct CarStateRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct CarStateRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> CarStateRef<'a> {
             /// Getter for the [`physics` field](CarState#structfield.physics).
@@ -8860,7 +8860,7 @@ mod root {
 
         /// Reference to a deserialized [CarInfo].
         #[derive(Copy, Clone)]
-        pub struct CarInfoRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct CarInfoRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> CarInfoRef<'a> {
             /// Getter for the [`id` field](CarInfo#structfield.id).
@@ -9324,7 +9324,7 @@ mod root {
 
         /// Reference to a deserialized [GameState].
         #[derive(Copy, Clone)]
-        pub struct GameStateRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct GameStateRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> GameStateRef<'a> {
             /// Getter for the [`tick_rate` field](GameState#structfield.tick_rate).
@@ -10048,7 +10048,7 @@ mod root {
 
         /// Reference to a deserialized [Line2D].
         #[derive(Copy, Clone)]
-        pub struct Line2DRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct Line2DRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> Line2DRef<'a> {
             /// Getter for the [`start` field](Line2D#structfield.start).
@@ -10328,7 +10328,7 @@ mod root {
 
         /// Reference to a deserialized [Line3D].
         #[derive(Copy, Clone)]
-        pub struct Line3DRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct Line3DRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> Line3DRef<'a> {
             /// Getter for the [`start` field](Line3D#structfield.start).
@@ -10588,7 +10588,7 @@ mod root {
 
         /// Reference to a deserialized [LineStrip].
         #[derive(Copy, Clone)]
-        pub struct LineStripRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct LineStripRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> LineStripRef<'a> {
             /// Getter for the [`positions` field](LineStrip#structfield.positions).
@@ -11073,7 +11073,7 @@ mod root {
 
         /// Reference to a deserialized [AddRender].
         #[derive(Copy, Clone)]
-        pub struct AddRenderRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct AddRenderRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> AddRenderRef<'a> {
             /// Getter for the [`id` field](AddRender#structfield.id).
@@ -11312,7 +11312,7 @@ mod root {
 
         /// Reference to a deserialized [RemoveRender].
         #[derive(Copy, Clone)]
-        pub struct RemoveRenderRef<'a>(::planus::table_reader::Table<'a>);
+        pub struct RemoveRenderRef<'a>(#[allow(dead_code)] ::planus::table_reader::Table<'a>);
 
         impl<'a> RemoveRenderRef<'a> {
             /// Getter for the [`id` field](RemoveRender#structfield.id).
